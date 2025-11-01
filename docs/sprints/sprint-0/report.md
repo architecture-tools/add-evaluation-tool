@@ -26,6 +26,18 @@ There are mature methodologies for architecture design (notably SEI’s Attribut
 - **Cost & accessibility**: PlantUML/DSLs are open and easy to integrate; commercial tools add analytics but seldom focus on ADD + matrices as a unified flow ([vFunction](https://vfunction.com/blog/software-architecture-tools/)).
 - **DevOps fit**: Text models integrate well with GitOps/CI, enabling reviews, traceability, and incremental evolution.
 
+Qualitative comparison table:
+
+| Criterion | SEI ADD / ArchE | PlantUML (+ ArchiMate) | Structurizr DSL/CLI | DSM approaches | Commercial tools (e.g., vFunction) |
+|---|---|---|---|---|---|
+| ADD workflow guidance | High (method); Partial automation | None (modeling only) | Low (modeling focus) | N/A | Low (not ADD‑centric) |
+| Architecture diff | N/A | Text diff via Git/IDE | Indirect via regenerated diagrams | N/A | Product‑specific; not UML‑diff focused |
+| Matrix/DSM support | Conceptual only | No | No | High (core) | Varies; often analytics‑oriented |
+| Modeling expressiveness | Process, tactics/patterns | UML DSL; ArchiMate macros | C4/DSL → .puml | Analytical matrices | Visual/analytics dashboards |
+| Git/CI integration | Docs/process | Strong (text models) | Strong (single‑source DSL) | Scriptable (research tooling) | Varies by product |
+| Cost/licensing | Open methodology | Open‑source | Free/OSS tooling available | Academic/varies | Commercial |
+| Best fit | Decision rationale & tactics | Versionable diagrams, EA modeling | Repeatable model generation | Modularity/evolution analysis | Modernization/assessment |
+
 ### Key Insights
 - There is a gap for an end‑to‑end product unifying ADD guidance, matrix‑based evaluation, and structural diff visualization.
 - Most pragmatic foundation: text models (PlantUML + ArchiMate) or a single‑source DSL (Structurizr) stored in Git for versioning and review.
