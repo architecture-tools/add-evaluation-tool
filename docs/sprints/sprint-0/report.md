@@ -83,18 +83,111 @@ The first customer interview provided a clear understanding of the main project 
 ## Next Steps and Focus
 
 ### Immediate Priorities
-TODO: Fill immediate priorities
+
+1. **Clarify open questions with customer**
+   - Finalize the set of NFRs (non-functional requirements) to include in the MVP evaluation matrix
+   - Obtain or agree upon the scoring formula for calculating component-NFR relationship scores and overall architecture quality score
+   - Confirm the expected format/structure of evaluation reports
+
+2. **Technical architecture design**
+   - Design the system architecture for the web application
+   - Define data models for PlantUML parsing, components, NFRs, evaluation matrices, and version history
+   - Plan the integration approach for PlantUML parsing (library selection, parsing strategy)
+   - Design the version storage and comparison mechanism
+
+3. **Development environment setup**
+   - Set up project structure and development tooling
+   - Choose technology stack (frontend framework, backend language/framework, database if needed)
+   - Establish coding standards and repository workflows
+
+4. **Proof of concept (POC)**
+   - Implement basic PlantUML parser to extract components and relationships
+   - Create a minimal matrix visualization (NFRs × Components)
+   - Validate the core concept with a simple example
 
 ### Focus for Value Delivery
-TODO: Fill focus for value delivery
+
+To deliver the most value for the customer and end-users, we should focus on:
+
+1. **Core evaluation matrix functionality** - This is the unique differentiator that addresses the identified gap in existing tools. The ability to create, visualize, and interact with an NFR × Components matrix is the primary value proposition.
+
+2. **PlantUML parsing and component extraction** - This is the foundation that enables the rest of the tool. Without reliable parsing, the matrix cannot be populated automatically, which would significantly reduce usability.
+
+3. **Intuitive web-based interface** - Given that the primary users are students, researchers, and architects, an accessible web interface removes deployment barriers and enables immediate use without installation complexity.
+
+4. **Version comparison with visual diff** - This addresses the pain point of tracking architecture evolution and understanding how changes impact quality attributes. Even a basic visual diff provides more value than plain text diffs for architectural diagrams.
+
+5. **Scoring calculation and quality tracking** - The ability to calculate overall architecture scores and compare them across versions provides concrete feedback on architecture improvements and regressions, which is essential for iterative design processes.
 
 ## MVP Vision
-TODO: Fill MVP vision
+
+The MVP will be a web-based application that enables software architects to evaluate architectures using an evolution theory matrix. Users will be able to upload PlantUML diagrams, which the tool will automatically parse to extract architectural components. The tool will generate an evaluation matrix where rows represent predefined non-functional requirements and columns represent the extracted components. Architects can input scores for each cell in the matrix, reflecting how well each component addresses each NFR. The tool will calculate an overall architecture quality score from these inputs.
+
+The MVP will support storing multiple versions of architectures, allowing users to compare versions side-by-side with visual diffs that highlight changes in both the diagrams and the evaluation scores. This enables architects to track how architectural changes affect quality attributes over time.
+
+The tool will be accessible through a standard web browser, require minimal setup, and provide clear visualizations that help architects understand the relationship between architectural components and quality attributes, as well as the impact of changes on architecture quality.
 
 ### Core Features
-TODO: Fill core features
+
+For the MVP, we will focus on delivering these core features:
+
+1. **PlantUML Parser & Component Extractor**
+   - Parse PlantUML diagram files (.puml)
+   - Extract architectural components (services, modules, classes - based on abstraction level agreed with customer)
+   - Extract relationships between components
+
+2. **Evaluation Matrix Generation**
+   - Create evaluation matrix with predefined NFRs as rows and extracted components as columns
+   - Matrix interface for user input of component-NFR relationship scores
+
+3. **Scoring System**
+   - Accept user inputs for matrix cells (score format to be agreed with customer)
+   - Calculate overall architecture quality score using agreed formula
+   - Display score with visual indicators
+
+4. **Version Management**
+   - Store multiple versions of the same architecture model
+   - Allow users to upload/create new versions
+   - Maintain version history with metadata (timestamps, labels)
+
+5. **Version Comparison**
+   - Side-by-side comparison of two architecture versions
+   - Visual diff highlighting changes in PlantUML diagrams
+   - Comparison of quality attribute scores between versions
+   - Highlight improvements and regressions in scores
+
+6. **Web Interface**
+   - Responsive web application accessible via browser
+   - Upload/import PlantUML files
+   - Matrix editing interface
+   - Version selection and comparison views
+   - Basic evaluation report display
 
 ### Success Criteria
-TODO: Fill success criteria
+
+The MVP will be considered successful if:
+
+1. **Functionality**
+   - Successfully parses PlantUML diagrams and extracts at least 80% of components correctly for standard PlantUML component diagrams
+   - Generates evaluation matrices with correct NFRs and components
+   - Calculates architecture scores using the agreed formula
+   - Stores and retrieves at least 5 versions of the same architecture without data loss
+   - Performs meaningful visual diffs that highlight structural changes between versions
+
+2. **Usability**
+   - A new user can upload a PlantUML file, create an evaluation matrix, and get an architecture score within 10 minutes without training
+   - The interface clearly displays the relationship between components and NFRs
+   - Version comparison view enables users to identify what changed and how it affects quality scores
+
+3. **Technical**
+   - Application runs locally or in a simple deployment (e.g., Docker container)
+   - Application is accessible via standard web browsers (Chrome, Firefox, Safari)
+   - No critical bugs that prevent core workflow completion
+   - Response time for matrix generation and score calculation is under 2 seconds for diagrams with up to 20 components
+
+4. **Value Delivery**
+   - The tool provides unique value that existing solutions do not offer (combined ADD workflow + matrix evaluation + visual diff)
+   - Users can meaningfully evaluate an architecture and see how changes affect quality
+   - The tool demonstrates the feasibility of the approach for future enhancements
 
 
