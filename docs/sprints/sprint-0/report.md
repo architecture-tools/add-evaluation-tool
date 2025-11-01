@@ -35,12 +35,50 @@ There are mature methodologies for architecture design (notably SEI’s Attribut
 - Risks to manage: semantic alignment with ArchiMate and ADD, consistent abstraction levels, and model evolution in large repositories.
 
 ## Interview Script Development
-TODO: Fill interview script development
+While developing the script for interview we followed this strategy:
+- Start with pleasantries and ask for permission for meeting recording.
+- First question has to be about client experience and for them to describe their vision to get a closer look on the project.
+- Following questions would be clarifying questions on that vision
+- Move on to technical questions regarding development of the tool
+
+We started with more open-ended questions for the vision and then moved on to close-ended questions to capture the specific details about the project while trying to apply the 3 mum's rules to be able to get reliable answers and feedback. 
+
 
 ## Customer Interview Findings
-TODO: Fill customer interview findings
+The first customer interview provided a clear understanding of the main project objectives, [meeting summary](./meeting-1.md#summary).
 
-TODO: Fill new questions to clarify
+### Project Requirements
+
+#### Functional Requirements
+
+##### Core Analysis & Evaluation
+- **FR1**: Parse PlantUML diagrams to extract architectural components and relationships
+- **FR2**: Maintain a predefined set of non-functional requirements (NFRs) for evaluation
+- **FR3**: Generate evaluation matrices linking architectural components to NFRs
+- **FR4**: Provide interface for architects to input component-NFR relationship scores
+- **FR5**: Calculate overall architecture quality scores
+
+##### Version Management & Comparison
+- **FR6**: Store and manage historical versions of architectural models
+- **FR7**: Perform diff analysis between architectural diagram versions
+- **FR8**: Compare quality attribute scores across different model versions
+- **FR9**: Track improvements and regressions in architectural quality over time
+
+##### User Interface & Reporting
+- **FR10**: Web-based application accessible through standard browsers
+- **FR11**: Display visual diffs highlighting changes between architectural versions
+- **FR12**: Generate evaluation reports
+
+#### Non-Functional Requirements
+
+##### Usability
+- **NFR1**: Intuitive web interface requiring minimal training for architects
+- **NFR2**: Clear visualization of architectural changes and quality impacts
+
+### Questions to clarify
+
+- Agree on NFRs for the MVP
+- Get formula for scoring
 
 ## Next Steps and Focus
 
