@@ -1,0 +1,17 @@
+# AI Usage Report
+
+This document tracks the use of AI tools throughout the project development. Each sprint's AI usage is documented to ensure transparency and acknowledge AI assistance.
+
+## Sprint 0
+
+### AI Tools Used
+- Cursor with Claude 4.5 Sonnet 
+- Unisribe.co for transcription
+
+### Use Cases
+- Repository setup
+- Documentation
+- Transcribe meetings
+
+### Impact
+- AI tools contributed to the sprint's deliverables by generating repository structure and documentation, and transcribing meetings
