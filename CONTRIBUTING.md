@@ -1,5 +1,6 @@
 # Contributing and Tactical Plan
 
+
 ## 1. Task tracking (Yandex Tracker)
 
 - System: Yandex Tracker (project key, e.g., `AET`).
