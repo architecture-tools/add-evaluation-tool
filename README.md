@@ -54,6 +54,9 @@ TODO: Add project context diagram
 ### Sprint Documentation
 - **[Sprint 0 Documentation](./docs/sprints/sprint-0/)**: Contains the initial research, interview script, meeting notes, report, and [deliverable PDF](./docs/sprints/sprint-0/deliverable.pdf) from the preparation phase.
 
+### Strategic Plan
+- **[Strategic Plan](./docs/plan.md)**: Goals, thresholds, roadmap, monitoring, and contingency strategies.
+
 ### AI Usage
 - **[AI Usage Report](./docs/ai-usage.md)**: Documents how AI tools are being used throughout the project development. This file is updated each sprint to track AI assistance in the development process.
 
