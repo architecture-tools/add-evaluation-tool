@@ -1,0 +1,24 @@
+graph TD
+    subgraph "Architecture Evaluation Tool"
+        AET["Architecture Evaluation Tool"]
+    end
+
+    subgraph "External Actors"
+        Student["Student"]
+        Researcher["Researcher"]
+        Architect["Software Architect"]
+    end
+
+    subgraph "External Systems"
+        PlantUML[("PlantUML Renderer")]
+        Storage[("Local Storage / Database")]
+    end
+
+    %% Interactions
+    Student <-->|"Use web UI"| AET
+    Researcher <-->|"Use web UI"| AET
+    Architect <-->|"Use web UI"| AET
+
+    AET -->|"Render component diagrams"| PlantUML
+    AET -->|"Store diagrams, matrices, diffs"| Storage
+

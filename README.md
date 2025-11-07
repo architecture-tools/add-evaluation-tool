@@ -26,9 +26,9 @@ This tool addresses this gap by providing:
 - Version comparison capabilities to track architecture evolution
 - A local deployment solution for students, researchers, and software architects
 
-## Project Context Diagram
+## Architecture Documentation
 
-TODO: Add project context diagram
+- See `docs/architecture/architecture.md` for the context diagram, use cases, components, and sequences.
 
 **Stakeholders:**
 - **Students**: Learners taking architecture courses who need tools to practice structured design

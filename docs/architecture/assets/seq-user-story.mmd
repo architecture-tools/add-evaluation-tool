@@ -1,0 +1,19 @@
+sequenceDiagram
+    participant User as User
+    participant UI as Browser UI
+    participant API as Backend API
+    participant Parser as PlantUML Parser
+    participant Matrix as Matrix Engine
+    participant Store as Storage
+
+    User->>UI: Select .puml and start evaluation
+    UI->>API: POST /diagrams (file)
+    API->>Parser: Parse components/relations
+    Parser-->>API: Parsed model
+    API->>Matrix: Initialize evaluation matrix
+    Matrix-->>API: Matrix model
+    API->>Store: Persist diagram + matrix
+    Store-->>API: Saved
+    API-->>UI: 201 Created + matrix data
+    UI->>UI: Render matrix and metrics
+
