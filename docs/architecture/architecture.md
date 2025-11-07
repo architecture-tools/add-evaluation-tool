@@ -10,6 +10,7 @@
    - [Component responsibilities](#component-responsibilities)
 5. [Sequence diagrams](#sequence-diagrams)
    - [User story: Upload PlantUML and evaluate](#user-story-upload-plantuml-and-evaluate)
+   - [User story: Compare versions (Diff)](#user-story-compare-versions-diff)
    - [Quality requirement: Responsive Matrix Interaction (QAS201)](#quality-requirement-responsive-matrix-interaction-qas201)
 
 ## Interactive prototype
@@ -175,6 +176,33 @@ sequenceDiagram
     UI->>UI: Render matrix and metrics
 ```
 
+### User story: Compare versions (Diff)
+
+Source: `docs/architecture/assets/seq-diff.mmd`
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant UI as Browser UI
+    participant API as Backend API
+    participant Store as Storage
+    participant Diff as Diff Engine
+    participant Render as Renderer Adapter
+
+    User->>UI: Select Version A and Version B
+    UI->>API: GET /diff?from=A&to=B
+    API->>Store: Fetch snapshot A
+    Store-->>API: Snapshot A
+    API->>Store: Fetch snapshot B
+    Store-->>API: Snapshot B
+    API->>Diff: Compute structural + metric diff
+    Diff-->>API: Diff summary + changed elements
+    API->>Render: Generate PlantUML diff preview
+    Render-->>API: Diff image/URL
+    API-->>UI: Diff payload (summary + visuals)
+    UI->>UI: Display changes and progress indicators
+```
+
 ### Quality requirement: Responsive Matrix Interaction (QAS201)
 
 Derived from `docs/requirements/quality-requirements.md#performance` (QAS201: input-to-visual-update under 100ms).
@@ -206,4 +234,9 @@ sequenceDiagram
 Notes:
 - Diagram source code is stored under `docs/architecture/assets/`. Generate images into the same folder or subfolders as needed.
 - Update the Figma link when the interactive prototype is available.
+
+Progress tracking:
+- Store versioned snapshots of diagrams, matrices, and computed metrics in `Storage` with timestamps.
+- `Diff Engine` computes deltas between snapshots to visualize structural changes and quality score trends.
+- UI aggregates diffs over time to show progress across iterations/sprints.
 
