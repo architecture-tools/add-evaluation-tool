@@ -7,8 +7,8 @@
 
 ## Script Structure
 
-1- Introduction and getting aquainted.
-2- Meeting questions:
+1. Introduction and getting aquainted.
+2. Meeting questions:
     - Can we record the meeting?
     - Can you describe some typical scenarios (use cases) in which the tool will be used?   (open ended question but it gives client feeling that we are not prepared)
     - What kind of feedback or results do you expect to get from the tool?
@@ -22,5 +22,5 @@
     - What platforms and operating systems must the tool support?
 
 Improvements for next interviews:
-    - Don't use all close-ended questions to give client a chance to describe their experience in detail 
-    - Don't use all these complicated technical terms for client
+- Don't use all close-ended questions to give client a chance to describe their experience in detail.
+- Don't use all these complicated technical terms for client
