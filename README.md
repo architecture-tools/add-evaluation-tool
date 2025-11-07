@@ -49,6 +49,94 @@ TODO: Add project context diagram
 - [x] Conduct customer interview
 - [x] Document findings and MVP vision
 
+## Building and Running
+
+### Prerequisites
+
+- **Docker** and **Docker Compose** (recommended)
+- OR **Python 3.11+** and **Flutter SDK** for local development
+
+### Quick Start with Docker (Recommended)
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/architecture-tools/add-evaluation-tool.git
+   cd add-evaluation-tool
+   ```
+
+2. Start the application:
+   ```bash
+   docker-compose up --build
+   ```
+
+3. Access the application:
+   - Frontend: http://localhost
+   - Backend API: http://localhost:8000
+   - API Documentation: http://localhost:8000/docs
+
+### Local Development
+
+#### Backend (FastAPI)
+
+1. Navigate to backend directory:
+   ```bash
+   cd backend
+   ```
+
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Run the development server:
+   ```bash
+   uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+   The API will be available at http://localhost:8000
+
+#### Frontend (Flutter Web)
+
+1. Navigate to frontend directory:
+   ```bash
+   cd frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   flutter pub get
+   ```
+
+3. Run the development server:
+   ```bash
+   flutter run -d chrome --web-port=8080
+   ```
+
+   The frontend will be available at http://localhost:8080
+
+### Project Structure
+
+```
+.
+├── backend/              # FastAPI backend
+│   ├── main.py          # Application entry point
+│   ├── requirements.txt # Python dependencies
+│   └── Dockerfile       # Backend container config
+├── frontend/            # Flutter web frontend
+│   ├── lib/             # Dart source code
+│   ├── web/             # Web-specific files
+│   ├── pubspec.yaml     # Flutter dependencies
+│   └── Dockerfile       # Frontend container config
+├── docker-compose.yml   # Multi-container orchestration
+└── docs/                # Project documentation
+```
+
 ## Documentation
 
 ### Sprint Documentation

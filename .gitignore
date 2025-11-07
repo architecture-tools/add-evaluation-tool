@@ -1,35 +1,50 @@
-# OS Files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-Desktop.ini
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Web
+frontend/build/
+frontend/web/main.dart.js
+frontend/web/flutter.js
+frontend/web/flutter_service_worker.js
+
+# Environment
+.env
+.env.local
 
 # IDE
-.idea/
 .vscode/
+.idea/
 *.swp
 *.swo
 *~
-.project
-.classpath
-.settings/
 
-# Logs
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
 *.log
-logs/
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Secrets and credentials
-*.pem
-*.key
-*.cert
-secrets/
-credentials.json
