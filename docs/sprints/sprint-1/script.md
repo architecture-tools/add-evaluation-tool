@@ -12,5 +12,6 @@
 3. Show both Strategic and Tactical plan and get approval for main parts and for us to use it as our road map.
 4. Show our initial architecture diagrams and get approval. 
 5. Discuss improvements in all these elements and expectations for the next sprint.
+6. Can you please provide us with the calculation formula?
 
 
