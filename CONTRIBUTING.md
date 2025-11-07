@@ -1,12 +1,12 @@
 # Contributing and Tactical Plan
 
-## 1. Task tracking (Yandex Tracker)
+## 1. Task tracking (GitHub Projects)
 
-- System: Yandex Tracker (project key, e.g., `AET`).
-- Issue types: Epic, Story/Feature, Task, Subtask, Bug, Spike.
+- System: GitHub Issues + Projects (`Tasks` board).
+- Issue classification: labels `epic`, `feature`, `task`, `bug`, `spike`.
 - Board workflow: Backlog → Selected for Sprint → In Progress → In Review → Verify → Done.
 - Each issue includes: concise title, short description, acceptance criteria, estimate, assignee, and labels.
-- Every pull request references a Tracker key in the title or description (e.g., `AET‑123`).
+- Every pull request links the issue using closing keywords (e.g., `Fixes #123`).
 
 Recommended issue template (paste into Description):
 
@@ -28,15 +28,16 @@ Notes / links
 ## 2. Verifying that a task is done
 
 A task is considered Done when all of the following are true:
-- All acceptance criteria in the Tracker issue are satisfied.
+- All acceptance criteria in the GitHub issue are satisfied.
 - Code is merged to `main` via a reviewed pull request (no direct pushes).
 - CI is green (build/lint/tests as applicable).
 - Documentation and/or diagrams are updated when behavior or architecture changes.
 - For UI/report changes, a short screenshot or demo is attached to the issue.
-- The issue links to the PR/commits and is moved to Done.
+- The issue links to the PR/commits and the card is moved to Done on `Tasks`.
 
 Pull request checklist:
-- [ ] Linked to Tracker issue `AET‑XXX`.
+- [ ] Linked to GitHub issue (e.g., `Fixes #123`).
+- [ ] Card is on Projects `Tasks` board in the correct column.
 - [ ] Meets acceptance criteria.
 - [ ] CI green; no linter/type errors.
 - [ ] Tests or manual verification steps included.
@@ -68,8 +69,8 @@ Pull request checklist:
 ---
 
 ## Workflow summary
-1. Create or pick a Tracker issue with acceptance criteria and an estimate.
-2. Assign the issue to yourself, move to In Progress, and create a feature branch.
+1. Create or pick a GitHub issue with acceptance criteria and an estimate, and add it to Projects `Tasks`.
+2. Assign the issue to yourself, move the card to In Progress, and create a feature branch.
 3. Implement the change and keep the issue updated with relevant notes or screenshots.
 4. Open a PR referencing the issue, request review, and ensure CI is green.
-5. Merge, update documentation if needed, and move the issue to Done.
+5. Merge, update documentation if needed, and move the card to Done.
