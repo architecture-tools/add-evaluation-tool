@@ -1,0 +1,21 @@
+sequenceDiagram
+    participant User as User
+    participant UI as Browser UI
+    participant API as Backend API
+    participant Store as Storage
+    participant Diff as Diff Engine
+    participant Render as Renderer Adapter
+
+    User->>UI: Select Version A and Version B
+    UI->>API: GET /diff?from=A&to=B
+    API->>Store: Fetch snapshot A
+    Store-->>API: Snapshot A
+    API->>Store: Fetch snapshot B
+    Store-->>API: Snapshot B
+    API->>Diff: Compute structural + metric diff
+    Diff-->>API: Diff summary + changed elements
+    API->>Render: Generate PlantUML diff preview
+    Render-->>API: Diff image/URL
+    API-->>UI: Diff payload (summary + visuals)
+    UI->>UI: Display changes and progress indicators
+

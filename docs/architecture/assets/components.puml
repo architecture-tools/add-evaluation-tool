@@ -1,0 +1,37 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam wrapWidth 200
+skinparam maxMessageSize 200
+
+package "Architecture Evaluation Tool" {
+  [Web UI] as WebUI
+  [Upload Controller] as UploadController
+  [PlantUML Parser] as Parser
+  [Matrix Engine] as MatrixEngine
+  [Diff Engine] as DiffEngine
+  [Renderer Adapter] as RendererAdapter
+  [Storage] as Storage
+}
+
+WebUI --> UploadController : upload .puml
+UploadController --> Parser : parse components
+Parser --> MatrixEngine : build matrix model
+WebUI --> MatrixEngine : edit scores / weights
+WebUI --> DiffEngine : compare versions
+MatrixEngine --> Storage : persist evaluations
+DiffEngine --> Storage : read prior versions
+WebUI --> RendererAdapter : preview diagram
+RendererAdapter --> Parser : leverage PlantUML libs
+
+note right of MatrixEngine
+  Calculates derived metrics and
+  quality attribute scores
+end note
+
+note right of DiffEngine
+  Computes structural/metric diffs
+  between two architecture versions
+end note
+
+@enduml
+

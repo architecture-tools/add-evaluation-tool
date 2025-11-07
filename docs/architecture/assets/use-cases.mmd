@@ -1,0 +1,31 @@
+flowchart TD
+    subgraph Actors
+        Student["Student"]
+        Researcher["Researcher"]
+        Architect["Software Architect"]
+    end
+
+    subgraph UseCases
+        UC1(["Upload PlantUML Diagram"]):::uc
+        UC2(["Evaluate Architecture Matrix"]):::uc
+        UC3(["Compare Versions (Diff)"]):::uc
+        UC4(["Export Report"]):::uc
+    end
+
+    classDef uc fill:#eef,stroke:#336,stroke-width:1px
+
+    Student --> UC1
+    Student --> UC2
+    Student --> UC3
+    Student --> UC4
+
+    Researcher --> UC1
+    Researcher --> UC2
+    Researcher --> UC3
+    Researcher --> UC4
+
+    Architect --> UC1
+    Architect --> UC2
+    Architect --> UC3
+    Architect --> UC4
+

@@ -1,0 +1,18 @@
+sequenceDiagram
+    %% QAS201: Responsive Matrix Interaction (<100ms)
+    participant User as User
+    participant UI as Browser UI
+    participant Calc as Client-side Matrix Engine
+    participant API as Backend API
+
+    User->>UI: Edit cell (score/weight)
+    UI->>Calc: Recompute derived metrics (debounced)
+    Calc-->>UI: Updated totals/visuals
+    UI->>UI: Update DOM (under 100ms)
+    Note over UI: Optimistic UI, Web Worker if needed
+
+    alt Background sync (throttled)
+        UI->>API: PATCH /matrix (delta)
+        API-->>UI: 200 OK
+    end
+
