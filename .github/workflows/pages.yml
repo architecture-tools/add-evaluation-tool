@@ -28,18 +28,17 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'
+          ruby-version: '3.2'
           bundler-cache: true
           working-directory: ./docs/.github-pages
-          gemfile: ./docs/.github-pages/Gemfile
 
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
 
       - name: Build with Jekyll
-        working-directory: ./docs
-        run: bundle exec --gemfile .github-pages/Gemfile jekyll build --source . --destination .github-pages/_site --config .github-pages/_config.yml --baseurl "${{ steps.pages.outputs.base_path }}"
+        working-directory: ./docs/.github-pages
+        run: bundle exec jekyll build --source .. --destination _site --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
 
