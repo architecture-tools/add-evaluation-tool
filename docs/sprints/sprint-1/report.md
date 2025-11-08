@@ -21,7 +21,7 @@
 3. Initial commit and setup for frontend
 4. Reviewed NameSoon A1 submission for Repo, MVP vision, and final report
 5. Conducted customer meeting to get customer review of current architecture, and tasks for next sprint
-
+6. Setup Github pages for docs
 
 ## Ilya Pechersky
 **Role:** Core Logic Development

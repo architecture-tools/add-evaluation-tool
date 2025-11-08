@@ -143,7 +143,7 @@ This tool addresses this gap by providing:
 📚 **Full documentation is available on [GitHub Pages](https://architecture-tools.github.io/add-evaluation-tool/)** - A comprehensive documentation site with all project documentation, sprint reports, architecture details, and requirements.
 
 ### Quick Links
-- **[Sprint 0 Documentation](./docs/sprints/sprint-0/)**: Contains the initial research, interview script, meeting notes, and [deliverable PDF](./docs/sprints/sprint-0/deliverable.pdf) from the preparation phase.
+- **[Sprints Documentation](./docs/sprints/)**: Contains the documentation of each sprint.
 - **[Strategic Plan](./docs/plan.md)**: Goals, thresholds, roadmap, monitoring, and contingency strategies.
 - **[AI Usage Report](./docs/ai-usage.md)**: Documents how AI tools are being used throughout the project development.
 
