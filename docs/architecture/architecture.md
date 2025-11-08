@@ -15,7 +15,7 @@
 
 ## Interactive prototype
 
-Link to the interactive prototype in Figma: [TBD – Figma link]
+Link to the interactive prototype in Figma: [Figma link](https://www.figma.com/design/i01zuUDM9WZHPfULnAmpyI/Scheme?node-id=0-1&p=f)
 
 ## Context diagram (example)
 
@@ -28,9 +28,7 @@ graph TD
     end
 
     subgraph "External Actors"
-        Student["Student"]
-        Researcher["Researcher"]
-        Architect["Software Architect"]
+        User["User"]
     end
 
     subgraph "External Systems"
@@ -39,9 +37,7 @@ graph TD
     end
 
     %% Interactions
-    Student <-->|"Use web UI"| AET
-    Researcher <-->|"Use web UI"| AET
-    Architect <-->|"Use web UI"| AET
+    User <-->|"Use web UI"| AET
 
     AET -->|"Render component diagrams"| PlantUML
     AET -->|"Store diagrams, matrices, diffs"| Storage
@@ -49,9 +45,7 @@ graph TD
 
 ### External actors
 
-- **Student**: practices structured architecture evaluation workflows.
-- **Researcher**: studies and compares designs and their evolution.
-- **Software Architect**: evaluates architectures against quality attributes, prepares reports.
+- **User**: evaluates architectures against quality attributes, prepares reports.
 
 ## Use case diagram (example)
 
@@ -60,9 +54,7 @@ Source: `docs/architecture/assets/use-cases.mmd`
 ```mermaid
 flowchart TD
     subgraph Actors
-        Student["Student"]
-        Researcher["Researcher"]
-        Architect["Software Architect"]
+        User["User"]
     end
 
     subgraph UseCases
@@ -74,27 +66,15 @@ flowchart TD
 
     classDef uc fill:#eef,stroke:#336,stroke-width:1px
 
-    Student --> UC1
-    Student --> UC2
-    Student --> UC3
-    Student --> UC4
-
-    Researcher --> UC1
-    Researcher --> UC2
-    Researcher --> UC3
-    Researcher --> UC4
-
-    Architect --> UC1
-    Architect --> UC2
-    Architect --> UC3
-    Architect --> UC4
+    User --> UC1
+    User --> UC2
+    User --> UC3
+    User --> UC4
 ```
 
 ### Actors
 
-- **Student**: uploads diagrams, evaluates, and learns.
-- **Researcher**: runs evaluations and compares versions.
-- **Software Architect**: prepares evaluation reports.
+- **User**: uploads diagrams, evaluates, and prepares evaluation reports.
 
 ## Component diagram (example, code)
 
