@@ -1,3 +1,9 @@
+---
+layout: default
+title: AI Usage Report
+nav_order: 6
+---
+
 # AI Usage Report
 
 This document tracks the use of AI tools throughout the project development. Each sprint's AI usage is documented to ensure transparency and acknowledge AI assistance.

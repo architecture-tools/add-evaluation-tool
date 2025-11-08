@@ -1,3 +1,10 @@
+---
+layout: default
+title: Quality Requirements
+nav_order: 2
+parent: Requirements
+---
+
 # Quality Requirements
 
 ## Table of Contents

@@ -1,3 +1,10 @@
+---
+layout: default
+title: Technology Stack
+nav_order: 2
+parent: Architecture
+---
+
 ## Tech Stack
 
 ### Frontend
