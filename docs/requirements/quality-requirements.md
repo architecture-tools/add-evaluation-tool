@@ -9,7 +9,41 @@
 - [Compatibility](#compatibility)
 
 ## Priority Matrix
- TODO: Priority Matrix
+
+**Priority Matrix for Architecture Evaluation Tool:**
+
+| Technical Risk →<br>Business Importance ↓ | L | M | H |
+|--------------------------------------------|----|----|----|
+| **L** | | [QAS401](#qas401) | |
+| **M** |  | [QAS201](#qas201), [QAS202](#qas202) | [QAS302](#qas302) |
+| **H** | [QAS102](#qas102) | [QAS301](#qas301), [QAS501](#qas501) | [QAS101](#qas101) |
+
+**Key:**
+- Rows - Business Importance
+- Columns - Technical Risk
+- L - low, M - medium, H - high
+- Elements - identifiers of quality requirements scenarios
+
+**Priority Explanation:**
+Cell annotation (business importance, Technical Risk)
+
+**Critical**
+1. (H, H): [QAS101](#qas101) - Intuitive web interface (high business value, technically challenging UX design for architects)
+
+**High Priority**
+
+2. (H, M): [QAS301](#qas301) - Scoring calculation precision (high business value, medium technical risk - depending on the calculation and algorithm)
+3. (H, M): [QAS501](#qas501) - PlantUML format support (high business value, medium technical risk)
+4. (M, H): [QAS302](#qas302) - Component extraction accuracy (medium business value, high technical risk - PlantUML parsing complexity)
+
+**Medium Priority**
+
+5. (M, M): [QAS201](#qas201), [QAS202](#qas202) - Performance requirements (medium business value, medium technical risk)
+6. (H, L): [QAS102](#qas102) - Clear visualization (high business value, low technical risk)
+
+**Low Priority**
+
+7. (L, M): [QAS401](#qas401) - Code quality and testability (low business value, Medium technical risk)
 
 ## Usability
 
