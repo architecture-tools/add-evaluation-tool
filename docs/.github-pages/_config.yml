@@ -27,7 +27,7 @@ color_scheme: light
 
 # Include custom CSS
 head_includes:
-  - <link rel="stylesheet" href="/add-evaluation-tool/assets/css/custom.css">
+  - custom-head.html
 
 # Aux links (appears in the top right)
 aux_links:
