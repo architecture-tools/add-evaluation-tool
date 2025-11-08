@@ -45,7 +45,7 @@ Documentation of AI tool usage throughout the project development, updated each 
 ## Quick Links
 
 - **GitHub Repository**: [architecture-tools/add-evaluation-tool](https://github.com/architecture-tools/add-evaluation-tool)
-- **Main README**: [Project README](../README.md)
+- **Main README**: [Project README](https://github.com/architecture-tools/add-evaluation-tool/blob/main/README.md)
 
 ## About the Project
 
@@ -60,7 +60,7 @@ The Architecture Evaluation Tool is a web-based application that helps software 
 ## Getting Started
 
 If you're new to the project, we recommend starting with:
-1. The [Project README](../README.md) for an overview
+1. The [Project README](https://github.com/architecture-tools/add-evaluation-tool/blob/main/README.md) for an overview
 2. [Sprint 0 Report](./sprints/sprint-0/report.html) to understand the project vision
 3. [Architecture Documentation](./architecture/architecture.html) for technical details
 
