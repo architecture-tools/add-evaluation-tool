@@ -29,6 +29,7 @@ This tool addresses this gap by providing:
 ## Architecture Documentation
 
 - See `docs/architecture/architecture.md` for the context diagram, use cases, components, and sequences.
+- See `docs/architecture/tech-stack.md` for the selected technologies and rationale for each component.
 
 **Stakeholders:**
 - **Students**: Learners taking architecture courses who need tools to practice structured design
