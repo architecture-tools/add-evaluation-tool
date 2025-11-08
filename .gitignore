@@ -49,4 +49,11 @@ Thumbs.db
 # Docker
 *.log
 
-.github/
+# Jekyll / GitHub Pages
+docs/.github-pages/_site/
+docs/.github-pages/.sass-cache/
+docs/.github-pages/.jekyll-cache/
+docs/.github-pages/.jekyll-metadata
+docs/.github-pages/Gemfile.lock
+docs/.github-pages/vendor/
+

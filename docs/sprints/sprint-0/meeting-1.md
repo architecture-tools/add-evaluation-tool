@@ -1,3 +1,11 @@
+---
+layout: default
+title: Meeting Notes
+nav_order: 2
+parent: Sprint 0
+grand_parent: Sprint Documentation
+---
+
 # Meeting 1 - Initial Customer Interview
 
 - Meeting Date: Friday, October 31st, 2025 at 17.20

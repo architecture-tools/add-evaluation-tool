@@ -1,3 +1,10 @@
+---
+layout: default
+title: Functional Requirements
+nav_order: 1
+parent: Requirements
+---
+
 # Functional Requirements
 
 ## Core Analysis & Evaluation

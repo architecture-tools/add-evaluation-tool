@@ -1,3 +1,11 @@
+---
+layout: default
+title: Interview Script
+nav_order: 3
+parent: Sprint 0
+grand_parent: Sprint Documentation
+---
+
 # Interview Script - Initial Customer Interview
 
 ## Interview Information

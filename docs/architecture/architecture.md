@@ -1,3 +1,10 @@
+---
+layout: default
+title: Architecture Overview
+nav_order: 1
+parent: Architecture
+---
+
 # Architecture Document
 
 ## Table of Contents
