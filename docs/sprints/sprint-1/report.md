@@ -9,7 +9,7 @@
 2. Documented meeting output
 3. Finished requirements elicitation and Quality Attributes Scenarios
 4. Wrote sprint 1 report
-5. Reviewed NameSoon A1's submission for interview and script part
+5. Reviewed NameSoon A1 submission for interview and script part
 
 ## Timur Kharin
 **Role:** Front-end Development
@@ -19,8 +19,8 @@
 1. Created figma design for MVP
 2. Finished Strategic plan
 3. Initial commit and setup for frontend
-4. Reviewed NameSoon A1's submission for Repo, MVP vision, and final report.
-5. Conducted customer meeting to get customer review of current architecture, and tasks for next sprint.
+4. Reviewed NameSoon A1 submission for Repo, MVP vision, and final report
+5. Conducted customer meeting to get customer review of current architecture, and tasks for next sprint
 
 
 ## Ilya Pechersky
@@ -33,7 +33,8 @@
 3. Created backlog with tasks for the current and next sprint
 4. Finished Tech Stack part
 5. Initial commit and setup for backend
-6. Conducted customer meeting to get customer review of current architecture, and tasks for next sprint.
+6. Conducted customer meeting to get customer review of current architecture, and tasks for next sprint
+7. Reviewed NameSoon A1 submission for research and existing solutions
 
 # What We've Learned
 

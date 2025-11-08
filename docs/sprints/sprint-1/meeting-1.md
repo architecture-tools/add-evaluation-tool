@@ -4,7 +4,7 @@
 
 - Meeting Date: Friday, November 7th, 2025 at 17.00
 - Duration: 1 hour
-- [recording]()
+- [recording](https://drive.google.com/file/d/1o9zPn-fs3918NKzhBQRCJlJTLW6Mbx9p/view?usp=sharing)
 
 
 ## List of Speakers
