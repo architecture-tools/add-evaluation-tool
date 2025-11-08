@@ -28,9 +28,7 @@ graph TD
     end
 
     subgraph "External Actors"
-        Student["Student"]
-        Researcher["Researcher"]
-        Architect["Software Architect"]
+        User["User"]
     end
 
     subgraph "External Systems"
@@ -39,9 +37,7 @@ graph TD
     end
 
     %% Interactions
-    Student <-->|"Use web UI"| AET
-    Researcher <-->|"Use web UI"| AET
-    Architect <-->|"Use web UI"| AET
+    User <-->|"Use web UI"| AET
 
     AET -->|"Render component diagrams"| PlantUML
     AET -->|"Store diagrams, matrices, diffs"| Storage
