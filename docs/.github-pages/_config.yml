@@ -1,0 +1,67 @@
+# Just the Docs theme configuration
+theme: just-the-docs
+
+# Site settings
+title: "Architecture Evaluation Tool"
+description: "Documentation for the Architecture Evaluation Tool project"
+url: "https://architecture-tools.github.io"
+baseurl: "/add-evaluation-tool"
+
+# Note: Source directory is set to parent (docs/) via --source in build command
+# This allows Jekyll to process all documentation files from the parent directory
+# while keeping configuration files in this .github-pages/ folder
+
+# Logo (uncomment when logo is available)
+# logo: "/add-evaluation-tool/assets/logo.png"
+
+# Search
+search_enabled: true
+search:
+  heading_level: 2
+
+# Footer content
+footer_content: "Built with <a href=\"https://github.com/just-the-docs/just-the-docs\">Just the Docs</a>"
+
+# Color scheme
+color_scheme: light
+
+# Include custom CSS
+head_includes:
+  - custom-head.html
+
+# Aux links (appears in the top right)
+aux_links:
+  "GitHub":
+    - "https://github.com/architecture-tools/add-evaluation-tool"
+
+# Footer last edited timestamp
+last_edit_timestamp: true
+last_edit_time_format: "%b %e, %Y"
+
+# Heading anchor links
+heading_anchors: true
+
+# Footer "Edit this page on GitHub" link
+gh_edit_link: true
+gh_edit_link_text: "Edit this page on GitHub"
+gh_edit_repository: "https://github.com/architecture-tools/add-evaluation-tool"
+gh_edit_branch: "main"
+gh_edit_source: "docs"
+gh_edit_view_mode: "tree"
+
+# Exclude from processing
+exclude:
+  - "Gemfile.lock"
+  - "node_modules"
+  - "vendor/bundle/"
+  - ".git"
+  - ".github"
+  - ".github-pages"
+  - ".github-pages/README.md"
+  - ".github-pages/SETUP.md"
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+

@@ -1,3 +1,11 @@
+---
+layout: default
+title: Sprint 0 Report
+nav_order: 1
+parent: Sprint 0
+grand_parent: Sprint Documentation
+---
+
 # Sprint 0 Report - What We've Learned
 
 ## Team Formation

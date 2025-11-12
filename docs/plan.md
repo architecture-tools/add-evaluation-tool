@@ -1,3 +1,9 @@
+---
+layout: default
+title: Strategic Plan
+nav_order: 5
+---
+
 # Strategic Plan
 
 ## Project goals

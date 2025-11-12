@@ -1,7 +1,15 @@
+---
+layout: default
+title: Interview Script
+nav_order: 1
+parent: Sprint 1
+grand_parent: Sprint Documentation
+---
+
 # Interview Script - Initial Customer Interview
 
 ## Interview Information
-- **Duration**: 20 minutes
+- **Estimated Duration**: 20 minutes
 - **Purpose**: Approval of requirements, strategic and tactical plans, architecture, and figma design for MVP.
 - **Participants**: Denis Nikolskiy, Ilya Pechersky, Roukaya Mohammed, Timur Harin
 
