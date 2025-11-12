@@ -50,3 +50,6 @@ Thumbs.db
 *.log
 
 .github/
+
+# Back dev env
+backend/demo.puml
