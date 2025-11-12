@@ -49,6 +49,11 @@ Thumbs.db
 # Docker
 *.log
 
+.github/
+
+# Back dev env
+backend/demo.puml
+
 # Jekyll / GitHub Pages
 docs/.github-pages/_site/
 docs/.github-pages/.sass-cache/
