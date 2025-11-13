@@ -1,6 +1,18 @@
+import 'dart:typed_data';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
+import 'services/api_config.dart';
+import 'services/diagram_repository.dart';
+import 'theme/app_theme.dart';
+import 'widgets/sidebar.dart';
+import 'widgets/dashboard_header.dart';
+import 'screens/dashboard_screen.dart';
+import 'network/src/api.dart';
+
 void main() {
+  ApiConfig.configure();
   runApp(const ArchitectureEvaluationTool());
 }
 
@@ -10,64 +22,199 @@ class ArchitectureEvaluationTool extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Architecture Evaluation Tool',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const HomePage(),
+      title: 'ArchEval - Architecture Evaluator',
+      theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
+      home: const MainLayout(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class MainLayout extends StatefulWidget {
+  const MainLayout({super.key});
+
+  @override
+  State<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends State<MainLayout> {
+  final _dashboardKey = GlobalKey<DashboardScreenState>();
+  final DiagramRepository _diagramRepository = DiagramRepository();
+
+  String _selectedRoute = '/dashboard';
+  String _selectedProject = 'E-commerce Platform';
+  bool _isUploading = false;
+
+  void _handleNavigate(String route) {
+    setState(() {
+      _selectedRoute = route;
+    });
+  }
+
+  void _handleProjectSelect(String project) {
+    setState(() {
+      _selectedProject = project;
+    });
+  }
+
+  Future<void> _handleUpload(BuildContext context) async {
+    if (_isUploading) {
+      return;
+    }
+
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['puml', 'plantuml', 'uml', 'txt'],
+      withData: true,
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+
+    final pickedFile = result.files.first;
+    final bytes = pickedFile.bytes;
+    if (bytes == null || bytes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to read selected file.')),
+      );
+      return;
+    }
+
+    final filename =
+        pickedFile.name.isNotEmpty ? pickedFile.name : 'diagram.puml';
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return const AlertDialog(
+          content: SizedBox(
+            height: 120,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Uploading and parsing diagram...'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    DiagramResponse? uploadedDiagram;
+    Object? failure;
+
+    try {
+      uploadedDiagram = await _diagramRepository.uploadDiagram(
+        bytes: Uint8List.fromList(bytes),
+        filename: filename,
+        displayName: pickedFile.name,
+      );
+
+      await _diagramRepository.parseDiagram(uploadedDiagram.id);
+    } catch (error) {
+      failure = error;
+    } finally {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).maybePop();
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    if (failure != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Upload failed: $failure')),
+      );
+      return;
+    }
+
+    if (uploadedDiagram != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('Diagram "${uploadedDiagram.name}" uploaded and parsed.')),
+      );
+      await _dashboardKey.currentState?.refresh();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Architecture Evaluation Tool'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Icon(
-              Icons.architecture,
-              size: 100,
-              color: Colors.blue,
+      body: Row(
+        children: [
+          // Sidebar
+          Sidebar(
+            selectedRoute: _selectedRoute,
+            selectedProject: _selectedProject,
+            onNavigate: _handleNavigate,
+            onProjectSelect: _handleProjectSelect,
+          ),
+
+          // Main content
+          Expanded(
+            child: Column(
+              children: [
+                // Header
+                DashboardHeader(
+                  projectName: _selectedProject,
+                  version: '2.3.1',
+                  onUpload: _handleUpload,
+                ),
+
+                // Content area
+                Expanded(
+                  child: _buildContent(),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            const Text(
-              'Welcome to Architecture Evaluation Tool',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Evaluate software architectures using evolution theory matrix',
-              style: TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Navigate to upload page
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Upload functionality coming soon!'),
-                  ),
-                );
-              },
-              child: const Text('Get Started'),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+
+  Widget _buildContent() {
+    switch (_selectedRoute) {
+      case '/dashboard':
+        return DashboardScreen(
+          key: _dashboardKey,
+          onUpload: _handleUpload,
+        );
+      case '/upload':
+        return Center(
+          child: ElevatedButton.icon(
+            onPressed: () => _handleUpload(context),
+            icon: const Icon(Icons.upload_file),
+            label: const Text('Select Diagram to Upload'),
+          ),
+        );
+      case '/matrix':
+        return const Center(child: Text('Evaluation Matrix - Coming Soon'));
+      case '/versions':
+        return const Center(child: Text('Versions - Coming Soon'));
+      case '/compare':
+        return const Center(child: Text('Compare - Coming Soon'));
+      case '/reports':
+        return const Center(child: Text('Reports - Coming Soon'));
+      default:
+        return DashboardScreen(
+          key: _dashboardKey,
+          onUpload: _handleUpload,
+        );
+    }
   }
 }
