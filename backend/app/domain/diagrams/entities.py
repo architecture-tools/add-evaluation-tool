@@ -18,6 +18,7 @@ class DiagramStatus(str, Enum):
 class Diagram:
     name: str
     source_url: str
+    content: str
     checksum: str
     status: DiagramStatus = DiagramStatus.UPLOADED
     id: UUID = field(default_factory=uuid4)

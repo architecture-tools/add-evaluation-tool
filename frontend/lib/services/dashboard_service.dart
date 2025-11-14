@@ -132,10 +132,21 @@ class DashboardMetrics {
   final DateTime? lastUploadAt;
 
   factory DashboardMetrics.fromDiagrams(List<DiagramResponse> diagrams) {
-    final parsed = diagrams.where((d) =>
-        d.status == DiagramStatus.parsed || d.status == DiagramStatus.analysisReady).length;
-    final failed = diagrams.where((d) => d.status == DiagramStatus.failed).length;
-    final pending = diagrams.where((d) => d.status == DiagramStatus.uploaded).length;
+    int parsed = 0;
+    int failed = 0;
+    int pending = 0;
+    
+    for (final diagram in diagrams) {
+      final status = diagram.status;
+      if (status == DiagramStatus.parsed || status == DiagramStatus.analysisReady) {
+        parsed++;
+      } else if (status == DiagramStatus.failed) {
+        failed++;
+      } else if (status == DiagramStatus.uploaded) {
+        pending++;
+      }
+    }
+    
     final lastUpload = diagrams.isNotEmpty ? diagrams.first.uploadedAt : null;
 
     return DashboardMetrics(

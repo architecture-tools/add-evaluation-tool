@@ -15,6 +15,10 @@ class DiagramRepository(ABC):
         """Persist a new diagram aggregate."""
 
     @abstractmethod
+    def update(self, diagram: Diagram) -> Diagram:
+        """Update an existing diagram aggregate."""
+
+    @abstractmethod
     def get(self, diagram_id: UUID) -> Optional[Diagram]:
         """Retrieve a diagram by its identifier."""
 
