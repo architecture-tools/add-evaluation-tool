@@ -32,25 +32,60 @@ parent: Requirements
 - Elements - identifiers of quality requirements scenarios
 
 **Priority Explanation:**
-Cell annotation (business importance, Technical Risk)
 
-**Critical**
-1. (H, H): [QAS101](#qas101) - Intuitive web interface (high business value, technically challenging UX design for architects)
+The priority matrix is organized by Business Importance (rows) and Technical Risk (columns). This prioritization approach ensures that we focus on delivering maximum value while managing technical complexity effectively. The rationale for each priority level is explained below.
+
+**Critical Priority (H, H)**
+1. **(H, H): [QAS101](#qas101) - Intuitive web interface**
+   - **Business Rationale**: The tool's primary value proposition is enabling architects to quickly evaluate architectures. If users cannot understand and use the interface within 5 minutes, the tool fails its core purpose. This directly impacts adoption in educational contexts where students need immediate usability.
+   - **Technical Risk Rationale**: Designing an intuitive interface for complex matrix interactions and version comparisons requires careful UX design, extensive user testing, and iterative refinement. The challenge lies in making complex architectural concepts accessible without oversimplification.
+   - **Why Critical**: This is the gateway to all other functionality. Without intuitive usability, even perfect parsing and calculation accuracy become irrelevant.
 
 **High Priority**
 
-2. (H, M): [QAS301](#qas301) - Scoring calculation precision (high business value, medium technical risk - depending on the calculation and algorithm)
-3. (H, M): [QAS501](#qas501) - PlantUML format support (high business value, medium technical risk)
-4. (M, H): [QAS302](#qas302) - Component extraction accuracy (medium business value, high technical risk - PlantUML parsing complexity)
+2. **(H, M): [QAS301](#qas301) - Scoring calculation precision**
+   - **Business Rationale**: Accurate scoring is fundamental to the tool's credibility. Architects rely on calculated scores to make decisions about architecture quality. Incorrect calculations would undermine trust and lead to poor architectural decisions, especially in educational contexts where students learn from the tool's outputs.
+   - **Technical Risk Rationale**: While mathematical calculations are straightforward, the complexity arises from ensuring precision across edge cases, handling custom weights, and maintaining consistency across version comparisons. The risk is medium because the algorithms are well-defined, but implementation must be rigorous.
+   - **Why High Priority**: This is a core differentiator - the tool's value comes from accurate evaluation, not just visualization.
+
+3. **(H, M): [QAS501](#qas501) - PlantUML format support**
+   - **Business Rationale**: PlantUML is the chosen standard input format. Without reliable format support, users cannot use the tool with their existing diagrams. This is a hard requirement that blocks all other functionality.
+   - **Technical Risk Rationale**: PlantUML has various syntax conventions and versions. Parsing must handle diverse diagram styles while maintaining 90%+ success rate. The risk is medium because PlantUML libraries exist, but integration and edge case handling require careful implementation.
+   - **Why High Priority**: This is the foundation - without parsing, the tool cannot function.
+
+4. **(M, H): [QAS302](#qas302) - Component extraction accuracy**
+   - **Business Rationale**: Accurate component extraction ensures the evaluation matrix is correctly populated. While important, some manual correction is acceptable in MVP, making business importance medium rather than high.
+   - **Technical Risk Rationale**: PlantUML parsing complexity is high due to various syntax styles, nested structures, and relationship representations. Achieving 95%+ accuracy across diverse diagrams is technically challenging and may require iterative parser improvements.
+   - **Why High Priority**: Despite medium business value, the high technical risk means we must start early and iterate, making it a high priority for risk mitigation.
 
 **Medium Priority**
 
-5. (M, M): [QAS201](#qas201), [QAS202](#qas202) - Performance requirements (medium business value, medium technical risk)
-6. (H, L): [QAS102](#qas102) - Clear visualization (high business value, low technical risk)
+5. **(M, M): [QAS201](#qas201), [QAS202](#qas202) - Performance requirements**
+   - **Business Rationale**: Performance impacts user experience but doesn't block core functionality. Users can tolerate some delay, especially in educational contexts where the focus is on learning rather than production efficiency.
+   - **Technical Risk Rationale**: Achieving sub-100ms matrix updates and 3-second file processing requires optimization but is achievable with modern web technologies and client-side computation. The risk is manageable with proper architecture.
+   - **Why Medium Priority**: Important for user satisfaction but not critical for MVP success. Can be optimized iteratively based on user feedback.
+
+6. **(H, L): [QAS102](#qas102) - Clear visualization**
+   - **Business Rationale**: Clear visualization is crucial for understanding architectural changes and quality impacts. This directly supports the tool's educational and evaluation purposes.
+   - **Technical Risk Rationale**: Visualization is low risk because modern web frameworks (Flutter Web) provide robust UI capabilities. The challenge is design, not implementation complexity.
+   - **Why Medium Priority**: While high business value, low technical risk means it can be addressed incrementally without blocking other work.
 
 **Low Priority**
 
-7. (L, M): [QAS401](#qas401) - Code quality and testability (low business value, Medium technical risk)
+7. **(L, M): [QAS401](#qas401) - Code quality and testability**
+   - **Business Rationale**: Code quality doesn't directly impact end users in MVP. However, it's important for maintainability and future development. Business importance is low for MVP but increases over time.
+   - **Technical Risk Rationale**: Maintaining 80%+ test coverage requires discipline and time investment. The risk is medium because it's achievable but requires consistent effort throughout development.
+   - **Why Low Priority**: Important for long-term success but not critical for MVP delivery. Can be addressed incrementally as the codebase grows.
+
+**Prioritization Strategy Summary:**
+
+The prioritization follows a risk-adjusted value approach:
+- **Critical items** (H, H) are addressed first to unblock all other work
+- **High priority items** focus on core functionality (parsing, calculation) and high-risk items that need early attention
+- **Medium priority items** enhance user experience but don't block core functionality
+- **Low priority items** support long-term maintainability but can be deferred for MVP
+
+This approach ensures we deliver a functional, usable tool first, then enhance performance and maintainability based on real user feedback.
 
 ## Usability
 
