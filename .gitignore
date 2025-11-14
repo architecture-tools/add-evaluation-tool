@@ -27,6 +27,7 @@ build/
 
 # Web
 frontend/build/
+frontend/lib/network/src/
 frontend/web/main.dart.js
 frontend/web/flutter.js
 frontend/web/flutter_service_worker.js

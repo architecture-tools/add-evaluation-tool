@@ -19,6 +19,13 @@ class InMemoryDiagramRepository(DiagramRepository):
         self._by_checksum[diagram.checksum] = diagram.id
         return diagram
 
+    def update(self, diagram: Diagram) -> Diagram:
+        if diagram.id not in self._store:
+            raise ValueError(f"Diagram {diagram.id} does not exist")
+        self._store[diagram.id] = diagram
+        self._by_checksum[diagram.checksum] = diagram.id
+        return diagram
+
     def get(self, diagram_id: UUID) -> Optional[Diagram]:
         return self._store.get(diagram_id)
 

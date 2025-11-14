@@ -35,16 +35,19 @@ class DiagramService:
     def upload_diagram(
         self, filename: str, content: bytes, display_name: str | None = None
     ) -> Diagram:
+        content_str = content.decode("utf-8")
         checksum = sha256(content).hexdigest()
         existing = self._repository.find_by_checksum(checksum)
         if existing:
             raise DiagramAlreadyExistsError(existing.id)
 
-        storage_path = self._storage.save(content, filename)
+        # Store content in DB, source_url is now just a reference/identifier
+        source_url = f"diagram://{filename}"
 
         diagram = Diagram(
             name=display_name or filename,
-            source_url=storage_path,
+            source_url=source_url,
+            content=content_str,
             checksum=checksum,
         )
         return self._repository.add(diagram)
@@ -54,17 +57,16 @@ class DiagramService:
         if not diagram:
             raise DiagramNotFoundError(f"Diagram {diagram_id} not found")
 
-        # Read file content
-        content = self._storage.read(diagram.source_url)
-        if not content:
-            raise ParseError(f"Could not read diagram file: {diagram.source_url}")
+        # Read content from diagram (stored in DB)
+        if not diagram.content:
+            raise ParseError(f"Diagram {diagram_id} has no content")
 
         # Parse content
         try:
-            components, relationships = self._parser.parse(content.decode("utf-8"))
+            components, relationships = self._parser.parse(diagram.content)
         except Exception as exc:
             diagram.mark_failed()
-            self._repository.add(diagram)
+            self._repository.update(diagram)
             raise ParseError(f"Failed to parse diagram: {exc}") from exc
 
         # Set diagram_id for all components and relationships
@@ -80,6 +82,6 @@ class DiagramService:
 
         # Update diagram status
         diagram.mark_parsed()
-        self._repository.add(diagram)
+        self._repository.update(diagram)
 
         return list(components), list(relationships)

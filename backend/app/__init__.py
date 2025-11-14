@@ -1,8 +1,20 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .core.config import get_settings
+from .infrastructure.persistence.database import init_db
 from .presentation.api.routes import api_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for app startup/shutdown."""
+    # Startup
+    init_db()
+    yield
+    # Shutdown (if needed)
 
 
 def create_app() -> FastAPI:
@@ -14,6 +26,7 @@ def create_app() -> FastAPI:
         version=settings.app_version,
         docs_url=settings.docs_url,
         openapi_url=settings.openapi_url,
+        lifespan=lifespan,
     )
 
     app.add_middleware(

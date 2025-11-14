@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: arch_eval
+      POSTGRES_PASSWORD: arch_eval_password
+      POSTGRES_DB: arch_eval_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arch_eval -d arch_eval_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -9,8 +26,12 @@ services:
       - "8000:8000"
     environment:
       - ENV=development
+      - DATABASE_URL=postgresql://arch_eval:arch_eval_password@postgres:5432/arch_eval_db
     volumes:
       - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -27,4 +48,7 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  postgres_data:
 
