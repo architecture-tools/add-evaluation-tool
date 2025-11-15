@@ -38,3 +38,18 @@ This document tracks the use of AI tools throughout the project development. Eac
 
 ### Impact
 - AI tools contributed to the sprint's deliverables by generating repository structure and documentation, transcribing meetings, generating code for initial commit, and UI generation on Figma.
+
+## Sprint 2
+
+### AI Tools Used
+- Cursor with Claude 4.5 Sonnet 
+- DeepSeek
+
+### Use Cases
+- Documentation
+- Transcribe meetings
+- Code generation
+
+
+### Impact
+- AI tools contributed to the sprint's deliverables by assisting in documentation, transcribing meetings, and generating code.
