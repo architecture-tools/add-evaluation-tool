@@ -10,7 +10,8 @@ class NfrEvaluationMatrixWidget extends StatefulWidget {
   final NfrMatrixData data;
 
   @override
-  State<NfrEvaluationMatrixWidget> createState() => _NfrEvaluationMatrixWidgetState();
+  State<NfrEvaluationMatrixWidget> createState() =>
+      _NfrEvaluationMatrixWidgetState();
 }
 
 class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
@@ -120,7 +121,8 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
             i + 1: const FixedColumnWidth(140),
           components.length + 1: const FixedColumnWidth(120),
         },
-        border: TableBorder(horizontalInside: BorderSide(color: AppTheme.borderColor)),
+        border: TableBorder(
+            horizontalInside: BorderSide(color: AppTheme.borderColor)),
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         children: [
           TableRow(
@@ -204,7 +206,8 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
                       _labels[option]!,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: option == value ? textColor : AppTheme.textPrimary,
+                        color:
+                            option == value ? textColor : AppTheme.textPrimary,
                       ),
                     ),
                   ))

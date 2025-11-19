@@ -49,7 +49,7 @@ class Sidebar extends StatelessWidget {
             ),
           ),
           const Divider(height: 1),
-          
+
           // Navigation
           Expanded(
             child: ListView(
@@ -61,7 +61,8 @@ class Sidebar extends StatelessWidget {
                     _NavItem('Dashboard', Icons.dashboard, '/dashboard'),
                     _NavItem('Upload Diagram', Icons.upload_file, '/upload'),
                     _NavItem('Evaluation Matrix', Icons.grid_view, '/matrix'),
-                    _NavItem('Versions', Icons.history, '/versions', badge: '8'),
+                    _NavItem('Versions', Icons.history, '/versions',
+                        badge: '8'),
                     _NavItem('Compare', Icons.compare_arrows, '/compare'),
                     _NavItem('Reports', Icons.description, '/reports'),
                   ],
@@ -73,7 +74,7 @@ class Sidebar extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // User profile
           Container(
             padding: const EdgeInsets.all(16),
@@ -160,7 +161,8 @@ class Sidebar extends StatelessWidget {
             Icon(
               item.icon,
               size: 20,
-              color: isSelected ? AppTheme.primaryPurple : AppTheme.textSecondary,
+              color:
+                  isSelected ? AppTheme.primaryPurple : AppTheme.textSecondary,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -169,7 +171,9 @@ class Sidebar extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? AppTheme.primaryPurple : AppTheme.textPrimary,
+                  color: isSelected
+                      ? AppTheme.primaryPurple
+                      : AppTheme.textPrimary,
                 ),
               ),
             ),
@@ -218,7 +222,8 @@ class Sidebar extends StatelessWidget {
                 icon: const Icon(Icons.add, size: 16),
                 label: const Text('New'),
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -249,7 +254,9 @@ class Sidebar extends StatelessWidget {
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: isSelected ? AppTheme.primaryPurple : AppTheme.textSecondary,
+                color: isSelected
+                    ? AppTheme.primaryPurple
+                    : AppTheme.textSecondary,
                 shape: BoxShape.circle,
               ),
             ),
@@ -260,7 +267,9 @@ class Sidebar extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? AppTheme.primaryPurple : AppTheme.textPrimary,
+                  color: isSelected
+                      ? AppTheme.primaryPurple
+                      : AppTheme.textPrimary,
                 ),
               ),
             ),
@@ -301,5 +310,3 @@ class _NavItem {
 
   _NavItem(this.label, this.icon, this.route, {this.badge});
 }
-
-

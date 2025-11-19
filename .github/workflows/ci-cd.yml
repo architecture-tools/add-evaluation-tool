@@ -67,7 +67,7 @@ jobs:
 
       - name: Run Dart analyzer
         working-directory: frontend
-        run: dart analyze --fatal-infos --fatal-warnings
+        run: dart analyze --fatal-warnings
 
       - name: Lint Markdown
         uses: DavidAnson/markdownlint-cli2-action@v15

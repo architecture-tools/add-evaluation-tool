@@ -43,7 +43,8 @@ class KPICard extends StatelessWidget {
                 ),
                 if (badge != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppTheme.red,
                       borderRadius: BorderRadius.circular(12),
@@ -90,9 +91,10 @@ class KPICard extends StatelessWidget {
                 if (change != null) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: change!.startsWith('+') 
+                      color: change!.startsWith('+')
                           ? AppTheme.green.withOpacity(0.1)
                           : AppTheme.red.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
@@ -102,7 +104,9 @@ class KPICard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: change!.startsWith('+') ? AppTheme.green : AppTheme.red,
+                        color: change!.startsWith('+')
+                            ? AppTheme.green
+                            : AppTheme.red,
                       ),
                     ),
                   ),
@@ -115,4 +119,3 @@ class KPICard extends StatelessWidget {
     );
   }
 }
-
