@@ -21,7 +21,9 @@ class Settings(BaseSettings):
 
     storage_root: Path = Path("storage")
 
-    database_url: str = "postgresql://arch_eval:arch_eval_password@localhost:5432/arch_eval_db"
+    database_url: str = (
+        "postgresql://arch_eval:arch_eval_password@localhost:5432/arch_eval_db"
+    )
 
     class Config:
         env_file = ".env"

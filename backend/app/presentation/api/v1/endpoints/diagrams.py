@@ -2,7 +2,11 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, s
 from uuid import UUID
 
 from app.application.diagrams.services import DiagramService
-from app.domain.diagrams.exceptions import DiagramAlreadyExistsError, DiagramNotFoundError, ParseError
+from app.domain.diagrams.exceptions import (
+    DiagramAlreadyExistsError,
+    DiagramNotFoundError,
+    ParseError,
+)
 from app.presentation.api.dependencies import get_diagram_service
 from app.presentation.api.v1.schemas import (
     ComponentResponse,

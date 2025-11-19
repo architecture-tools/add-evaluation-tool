@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import re
-from typing import Sequence
 
-from app.domain.diagrams.entities import Component, ComponentType, Relationship, RelationshipDirection
+from app.domain.diagrams.entities import (
+    Component,
+    ComponentType,
+    Relationship,
+    RelationshipDirection,
+)
 from app.domain.diagrams.exceptions import ParseError
 from app.domain.diagrams.parsers import PlantUMLParser
 
@@ -11,7 +15,7 @@ from app.domain.diagrams.parsers import PlantUMLParser
 class RegexPlantUMLParser(PlantUMLParser):
     """Simple regex-based parser for PlantUML component diagrams."""
 
-    def parse(self, content: str) -> tuple[Sequence[Component], Sequence[Relationship]]:
+    def parse(self, content: str) -> tuple[list[Component], list[Relationship]]:
         """
         Parse PlantUML content to extract components and relationships.
 
@@ -29,12 +33,12 @@ class RegexPlantUMLParser(PlantUMLParser):
 
         return components, relationships
 
-    def _extract_components(self, content: str) -> list[Component]:
+    def _extract_components(self, content: str) -> tuple[list[Component], dict[str, str]]:
         components = []
         alias_to_name: dict[str, str] = {}  # alias -> name
 
         # Match [Component Name] or [Component Name] as Alias
-        component_pattern = r'\[([^\]]+)\](?:\s+as\s+(\w+))?'
+        component_pattern = r"\[([^\]]+)\](?:\s+as\s+(\w+))?"
         for match in re.finditer(component_pattern, content):
             name = match.group(1).strip()
             alias = match.group(2)
@@ -65,11 +69,13 @@ class RegexPlantUMLParser(PlantUMLParser):
         seen_names = set()
         for name, comp_type, alias in components:
             if name not in seen_names:
-                result.append(Component(
-                    diagram_id=None,  # type: ignore
-                    name=name,
-                    type=comp_type,
-                ))
+                result.append(
+                    Component(
+                        diagram_id=None,  # type: ignore
+                        name=name,
+                        type=comp_type,
+                    )
+                )
                 seen_names.add(name)
                 if alias:
                     alias_to_name[alias] = name
@@ -84,7 +90,7 @@ class RegexPlantUMLParser(PlantUMLParser):
 
         # Match Component1 --> Component2 : label
         # Also handle Component1 <--> Component2 (bidirectional)
-        relationship_pattern = r'(\w+)\s*(<?-+>+)\s*(\w+)(?:\s*:\s*([^\n]+))?'
+        relationship_pattern = r"(\w+)\s*(<?-+>+)\s*(\w+)(?:\s*:\s*([^\n]+))?"
         for match in re.finditer(relationship_pattern, content):
             source_alias = match.group(1).strip()
             arrow = match.group(2).strip()
@@ -92,7 +98,11 @@ class RegexPlantUMLParser(PlantUMLParser):
             label = match.group(4).strip() if match.group(4) else None
 
             # Determine direction
-            direction = RelationshipDirection.BIDIRECTIONAL if '<' in arrow else RelationshipDirection.UNIDIRECTIONAL
+            direction = (
+                RelationshipDirection.BIDIRECTIONAL
+                if "<" in arrow
+                else RelationshipDirection.UNIDIRECTIONAL
+            )
 
             # Resolve aliases to component names
             source_name = alias_to_name.get(source_alias, source_alias)
@@ -103,12 +113,14 @@ class RegexPlantUMLParser(PlantUMLParser):
             target_comp = name_to_component.get(target_name)
 
             if source_comp and target_comp:
-                relationships.append(Relationship(
-                    diagram_id=None,  # type: ignore
-                    source_component_id=source_comp.id,
-                    target_component_id=target_comp.id,
-                    label=label,
-                    direction=direction,
-                ))
+                relationships.append(
+                    Relationship(
+                        diagram_id=None,  # type: ignore
+                        source_component_id=source_comp.id,
+                        target_component_id=target_comp.id,
+                        label=label,
+                        direction=direction,
+                    )
+                )
 
         return relationships

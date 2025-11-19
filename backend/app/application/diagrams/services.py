@@ -5,7 +5,11 @@ from typing import Iterable
 from uuid import UUID
 
 from app.domain.diagrams.entities import Component, Diagram, Relationship
-from app.domain.diagrams.exceptions import DiagramAlreadyExistsError, DiagramNotFoundError, ParseError
+from app.domain.diagrams.exceptions import (
+    DiagramAlreadyExistsError,
+    DiagramNotFoundError,
+    ParseError,
+)
 from app.domain.diagrams.parsers import PlantUMLParser
 from app.domain.diagrams.repositories import DiagramRepository
 
@@ -52,13 +56,17 @@ class DiagramService:
         )
         return self._repository.add(diagram)
 
-    def parse_diagram(self, diagram_id: UUID) -> tuple[list[Component], list[Relationship]]:
+    def parse_diagram(
+        self, diagram_id: UUID
+    ) -> tuple[list[Component], list[Relationship]]:
         diagram = self._repository.get(diagram_id)
         if not diagram:
             raise DiagramNotFoundError(f"Diagram {diagram_id} not found")
 
         # Read content from diagram (stored in DB)
         if not diagram.content:
+            diagram.mark_failed()
+            self._repository.update(diagram)
             raise ParseError(f"Diagram {diagram_id} has no content")
 
         # Parse content
