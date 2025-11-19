@@ -5,7 +5,8 @@ import 'package:architecture_evaluation_tool/theme/app_theme.dart';
 
 void main() {
   group('KPICard Widget Tests', () {
-    testWidgets('displays title, value, and subtitle correctly', (tester) async {
+    testWidgets('displays title, value, and subtitle correctly',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -163,4 +164,3 @@ void main() {
     });
   });
 }
-

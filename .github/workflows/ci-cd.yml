@@ -91,7 +91,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: false
 
-  test:
+  test-backend:
     name: Backend tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -159,3 +159,68 @@ jobs:
             backend/coverage.xml
             backend/coverage.json
           if-no-files-found: error
+
+  test-frontend:
+    name: Frontend tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            frontend/.dart_tool
+          key: ${{ runner.os }}-flutter-${{ hashFiles('frontend/pubspec.lock') }}
+
+      - name: Install frontend dependencies
+        run: flutter pub get
+
+      - name: Run Flutter tests
+        run: flutter test --coverage
+
+      - name: Publish coverage summary
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            # Calculate coverage from lcov.info
+            # LF = lines found, LH = lines hit
+            TOTAL_LINES=$(grep -E "^LF:" coverage/lcov.info | awk '{sum+=$2} END {print sum+0}' || echo "0")
+            HIT_LINES=$(grep -E "^LH:" coverage/lcov.info | awk '{sum+=$2} END {print sum+0}' || echo "0")
+            if [ "$TOTAL_LINES" -gt 0 ]; then
+              PERCENTAGE=$(awk "BEGIN {printf \"%.1f\", ($HIT_LINES / $TOTAL_LINES) * 100}")
+            else
+              PERCENTAGE="0.0"
+            fi
+            {
+              echo "### Frontend tests"
+              echo ""
+              echo "- Tests executed successfully"
+              echo "- Coverage report generated"
+              echo "- Line coverage: ${PERCENTAGE}% (${HIT_LINES}/${TOTAL_LINES} lines)"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "### Frontend tests"
+              echo ""
+              echo "- Tests executed successfully"
+              echo "⚠️ Warning: Coverage file not found"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage-${{ github.run_number }}
+          path: frontend/coverage/lcov.info
+          if-no-files-found: ignore

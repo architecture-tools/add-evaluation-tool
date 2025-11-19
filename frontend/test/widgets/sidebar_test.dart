@@ -71,7 +71,8 @@ void main() {
       expect(find.text('Upload Diagram'), findsOneWidget);
     });
 
-    testWidgets('calls onNavigate when navigation item is tapped', (tester) async {
+    testWidgets('calls onNavigate when navigation item is tapped',
+        (tester) async {
       String? navigatedRoute;
       await tester.pumpWidget(
         MaterialApp(
@@ -116,7 +117,7 @@ void main() {
 
     testWidgets('calls onProjectSelect when project is tapped', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
-      
+
       String? selectedProj;
       await tester.pumpWidget(
         MaterialApp(
@@ -158,13 +159,13 @@ void main() {
         // If project not found, verify sidebar renders
         expect(find.byType(Sidebar), findsOneWidget);
       }
-      
+
       addTearDown(() => tester.binding.setSurfaceSize(null));
     });
 
     testWidgets('displays resources section', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -203,7 +204,7 @@ void main() {
         // If not found, at least verify sidebar renders
         expect(find.byType(Sidebar), findsOneWidget);
       }
-      
+
       addTearDown(() => tester.binding.setSurfaceSize(null));
     });
 
@@ -245,4 +246,3 @@ void main() {
     });
   });
 }
-

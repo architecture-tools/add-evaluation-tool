@@ -85,4 +85,3 @@ extension WidgetTestHelpers on WidgetTester {
     await pumpAndSettle();
   }
 }
-
