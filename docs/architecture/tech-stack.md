@@ -34,6 +34,13 @@ parent: Architecture
 - **Backend: ruff + mypy**: Fast linting and consistent formatting to maintain code quality.
 - **Frontend: flutter_test + flutter_lints**: Built‑in testing and lint rules to keep UI code reliable and idiomatic.
 
+## Testing
+We standardized on `pytest` with the `pytest-cov` plugin for backend unit testing. Pytest already underpins our existing tests, offers first-class fixtures/monkeypatching for FastAPI services, and integrates seamlessly with Poetry. The pytest-cov plugin layers in coverage reporting and lets us gate per-module thresholds without bolting on another runner, so we get a single, fast command for both correctness and coverage validation.
+
+## Static analysis
+- **Ruff (Python linter + formatter)**: One tool enforces the Python style guide (`ruff format --check`) and runs lint rules in a single, ultra-fast pass, so contributors don’t have to juggle black/isort/flake8 separately.
+- **Mypy (Python type checker)**: Catches interface mismatches and optional/None bugs in our dynamically typed backend before runtime, which is critical for service stability.
+
 ### Documentation & Diagramming
 - **Markdown (docs/)**: Plain‑text documentation that’s easy to review and version.
 - **PlantUML**: Standardized component/spec diagrams aligned with the project’s architecture focus.
