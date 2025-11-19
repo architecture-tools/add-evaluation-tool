@@ -4,7 +4,12 @@
 generate-api:
 	@echo "Generating API client to lib/network/src/..."
 	@mkdir -p lib/network/src
-	openapi-generator generate \
+	@if command -v openapi-generator-cli > /dev/null 2>&1; then \
+		OPENAPI_CMD=openapi-generator-cli; \
+	else \
+		OPENAPI_CMD=openapi-generator; \
+	fi; \
+	$$OPENAPI_CMD generate \
 		-i ../backend/openapi/openapi.json \
 		-g dart \
 		-o lib/network/temp \
