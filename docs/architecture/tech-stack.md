@@ -40,6 +40,10 @@ We standardized on `pytest` with the `pytest-cov` plugin for backend unit testin
 ## Static analysis
 - **Ruff (Python linter + formatter)**: One tool enforces the Python style guide (`ruff format --check`) and runs lint rules in a single, ultra-fast pass, so contributors don’t have to juggle black/isort/flake8 separately.
 - **Mypy (Python type checker)**: Catches interface mismatches and optional/None bugs in our dynamically typed backend before runtime, which is critical for service stability.
+- **Dart formatter**: `dart format --output=none --set-exit-if-changed` keeps the Flutter widget tree readable and guarantees identical whitespace regardless of the contributor’s IDE.
+- **Dart analyzer**: `dart analyze --fatal-infos --fatal-warnings` catches UI/layout regressions and ensures null-safety issues never reach a device build.
+- **markdownlint-cli2**: Enforces consistent Markdown headings, tables, and fenced blocks so architecture docs stay reviewable even as they scale.
+- **Lychee link checker**: Automated dead-link detection prevents stale references in docs/ and README, which is vital for contributors onboarding through documentation first.
 
 ### Documentation & Diagramming
 - **Markdown (docs/)**: Plain‑text documentation that’s easy to review and version.
