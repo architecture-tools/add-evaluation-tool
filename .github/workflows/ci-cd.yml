@@ -187,6 +187,18 @@ jobs:
       - name: Install frontend dependencies
         run: flutter pub get
 
+      - name: Set up Python for API generation
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install openapi-generator
+        run: |
+          npm install -g @openapitools/openapi-generator-cli
+
+      - name: Generate API client
+        run: make generate-api
+
       - name: Run Flutter tests
         run: flutter test --coverage
 
