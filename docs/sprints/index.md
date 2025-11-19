@@ -13,4 +13,3 @@ This section contains documentation for each sprint of the project.
 
 - **[Sprint 0](./sprint-0/)** - Initial research, customer interviews, and project setup
 - **[Sprint 1](./sprint-1/)** - Development progress and deliverables
-
