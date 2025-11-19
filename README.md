@@ -25,6 +25,7 @@ This tool addresses this gap by providing:
 - Support for PlantUML component specifications
 - Version comparison capabilities to track architecture evolution
 - A local deployment solution for students, researchers, and software architects
+- Continuous integration via GitHub Actions so linting/tests run on every push
 
 ## Architecture Documentation
 
