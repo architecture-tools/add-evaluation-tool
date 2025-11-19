@@ -13,4 +13,3 @@ Sprint 2 documentation and deliverables.
 ## Documents
 
 - [Interview Script](./script.html) - Customer interview script
-

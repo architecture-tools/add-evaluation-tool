@@ -133,7 +133,7 @@ class _VersionItem extends StatelessWidget {
           ],
         ),
         const SizedBox(width: 16),
-        
+
         // Version info
         Expanded(
           child: Padding(
@@ -179,7 +179,8 @@ class _VersionItem extends StatelessWidget {
                         color: AppTheme.textSecondary,
                       ),
                     ),
-                    const Text(' • ', style: TextStyle(color: AppTheme.textSecondary)),
+                    const Text(' • ',
+                        style: TextStyle(color: AppTheme.textSecondary)),
                     Text(
                       'Score: $score',
                       style: const TextStyle(
@@ -198,4 +199,3 @@ class _VersionItem extends StatelessWidget {
     );
   }
 }
-

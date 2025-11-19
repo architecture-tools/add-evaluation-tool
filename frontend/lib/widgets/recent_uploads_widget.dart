@@ -354,7 +354,8 @@ class _UploadActionsSheet extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.info_outline),
               title: const Text('View details'),
-              subtitle: Text('Uploaded ${formatRelativeTime(diagram.uploadedAt)}'),
+              subtitle:
+                  Text('Uploaded ${formatRelativeTime(diagram.uploadedAt)}'),
               onTap: () => Navigator.of(context).pop(),
             ),
           ],
@@ -363,4 +364,3 @@ class _UploadActionsSheet extends StatelessWidget {
     );
   }
 }
-

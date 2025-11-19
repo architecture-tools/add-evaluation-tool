@@ -35,7 +35,8 @@ class DashboardHeader extends StatelessWidget {
                   color: AppTheme.primaryPurple,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.architecture, color: Colors.white, size: 24),
+                child: const Icon(Icons.architecture,
+                    color: Colors.white, size: 24),
               ),
               const SizedBox(width: 12),
               const Text(
@@ -49,7 +50,7 @@ class DashboardHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 48),
-          
+
           // Main title
           Expanded(
             child: Column(
@@ -73,7 +74,7 @@ class DashboardHeader extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Search, notifications, upload button
           Row(
             children: [
@@ -89,14 +90,16 @@ class DashboardHeader extends StatelessWidget {
                 child: const TextField(
                   decoration: InputDecoration(
                     hintText: 'Search...',
-                    prefixIcon: Icon(Icons.search, size: 20, color: AppTheme.textSecondary),
+                    prefixIcon: Icon(Icons.search,
+                        size: 20, color: AppTheme.textSecondary),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
               ),
               const SizedBox(width: 16),
-              
+
               // Notifications
               Stack(
                 children: [
@@ -120,7 +123,7 @@ class DashboardHeader extends StatelessWidget {
                 ],
               ),
               const SizedBox(width: 8),
-              
+
               // Upload button
               ElevatedButton.icon(
                 onPressed: () => onUpload(context),
@@ -138,4 +141,3 @@ class DashboardHeader extends StatelessWidget {
     );
   }
 }
-
