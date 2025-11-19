@@ -19,7 +19,8 @@ void main() {
       service = DashboardService(diagramRepository: mockRepository);
     });
 
-    test('loadDashboard returns DashboardViewData with correct structure', () async {
+    test('loadDashboard returns DashboardViewData with correct structure',
+        () async {
       final mockDiagrams = TestHelpers.createMockDiagrams();
       when(() => mockRepository.fetchDiagrams())
           .thenAnswer((_) async => mockDiagrams);
@@ -64,8 +65,7 @@ void main() {
     });
 
     test('loadDashboard handles empty diagram list', () async {
-      when(() => mockRepository.fetchDiagrams())
-          .thenAnswer((_) async => []);
+      when(() => mockRepository.fetchDiagrams()).thenAnswer((_) async => []);
 
       final result = await service.loadDashboard();
 
@@ -149,4 +149,3 @@ void main() {
     });
   });
 }
-

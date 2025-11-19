@@ -12,7 +12,7 @@ void main() {
     testWidgets('dashboard screen loads and displays content', (tester) async {
       // Set a larger screen size to avoid overflow issues
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
-      
+
       await tester.pumpWidget(const ArchitectureEvaluationTool());
 
       // Wait for async operations
@@ -22,14 +22,14 @@ void main() {
       expect(find.byType(Sidebar), findsOneWidget);
       expect(find.byType(DashboardHeader), findsOneWidget);
       expect(find.byType(DashboardScreen), findsOneWidget);
-      
+
       // Reset screen size
       addTearDown(() => tester.binding.setSurfaceSize(null));
     });
 
     testWidgets('navigation between routes works', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
-      
+
       await tester.pumpWidget(const ArchitectureEvaluationTool());
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
@@ -39,13 +39,13 @@ void main() {
 
       // Should show upload screen
       expect(find.text('Select Diagram to Upload'), findsOneWidget);
-      
+
       addTearDown(() => tester.binding.setSurfaceSize(null));
     });
 
     testWidgets('project selection updates header', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
-      
+
       await tester.pumpWidget(const ArchitectureEvaluationTool());
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
@@ -78,13 +78,13 @@ void main() {
         // If project not found, just verify sidebar is present
         expect(find.byType(Sidebar), findsOneWidget);
       }
-      
+
       addTearDown(() => tester.binding.setSurfaceSize(null));
     });
 
     testWidgets('dashboard displays KPI cards', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
-      
+
       await tester.pumpWidget(const ArchitectureEvaluationTool());
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
@@ -95,13 +95,13 @@ void main() {
       // KPI cards should be present (may show loading or data)
       // Just verify dashboard screen is present
       expect(find.byType(DashboardScreen), findsOneWidget);
-      
+
       addTearDown(() => tester.binding.setSurfaceSize(null));
     });
 
     testWidgets('refresh indicator works on dashboard', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
-      
+
       await tester.pumpWidget(const ArchitectureEvaluationTool());
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
@@ -115,9 +115,8 @@ void main() {
         // Refresh should complete (no errors)
         expect(find.byType(DashboardScreen), findsOneWidget);
       }
-      
+
       addTearDown(() => tester.binding.setSurfaceSize(null));
     });
   });
 }
-
