@@ -1,0 +1,163 @@
+name: CI/CD
+
+on:
+  push:
+  pull_request:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.11"
+  POETRY_VERSION: "1.8.3"
+
+jobs:
+  lint:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: backend/.venv
+          key: ${{ runner.os }}-poetry-${{ env.PYTHON_VERSION }}-${{ hashFiles('backend/poetry.lock') }}
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: poetry install --no-ansi --no-interaction
+
+      - name: Check Python formatting
+        working-directory: backend
+        run: poetry run ruff format --check app main.py
+
+      - name: Run Ruff + Mypy
+        working-directory: backend
+        run: make lint
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: flutter pub get
+
+      - name: Check Dart formatting
+        working-directory: frontend
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Run Dart analyzer
+        working-directory: frontend
+        run: dart analyze --fatal-infos --fatal-warnings
+
+      - name: Lint Markdown
+        uses: DavidAnson/markdownlint-cli2-action@v15
+        with:
+          globs: |
+            README.md
+            docs/**/*.md
+
+      - name: Check documentation links
+        uses: lycheeverse/lychee-action@v2.1.0
+        with:
+          args: --no-progress --accept 200,204,301,302,307,308,429 --timeout 20 README.md docs/**/*.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: backend/.venv
+          key: ${{ runner.os }}-poetry-${{ env.PYTHON_VERSION }}-${{ hashFiles('backend/poetry.lock') }}
+
+      - name: Install backend dependencies
+        run: poetry install --no-ansi --no-interaction
+
+      - name: Run backend tests
+        run: make test
+
+      - name: Enforce module coverage thresholds
+        run: poetry run python scripts/check_module_coverage.py
+
+      - name: Publish coverage summary
+        run: |
+          TOTAL_COVERAGE=$(python - <<'PY'
+import json
+from pathlib import Path
+
+data = json.loads(Path("coverage.json").read_text())
+totals = data.get("totals", {})
+percent = totals.get("percent_covered", 0.0)
+covered = totals.get("covered_lines", 0)
+statements = totals.get("num_statements", 0)
+print(f"{percent:.2f}|{covered}|{statements}")
+PY
+          )
+          IFS='|' read -r PERCENT COVERED TOTAL <<<"$TOTAL_COVERAGE"
+          {
+            echo "### Backend coverage"
+            echo ""
+            echo "- Total lines covered: ${COVERED}/${TOTAL}"
+            echo "- Line coverage: ${PERCENT}% (minimum 80% on guarded modules)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage-${{ github.run_number }}
+          path: |
+            backend/coverage.xml
+            backend/coverage.json
+          if-no-files-found: error
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: backend/coverage.xml
+          flags: backend
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
