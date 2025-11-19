@@ -54,8 +54,6 @@ Thumbs.db
 # Docker
 *.log
 
-.github/
-
 # Back dev env
 backend/demo.puml
 
