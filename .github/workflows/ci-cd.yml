@@ -81,6 +81,7 @@ jobs:
           globs: |
             README.md
             docs/**/*.md
+            !docs/.github-pages/**/*.md
 
       - name: Check documentation links
         uses: lycheeverse/lychee-action@v2.1.0
