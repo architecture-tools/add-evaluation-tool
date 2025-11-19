@@ -135,10 +135,11 @@ class DashboardMetrics {
     int parsed = 0;
     int failed = 0;
     int pending = 0;
-    
+
     for (final diagram in diagrams) {
       final status = diagram.status;
-      if (status == DiagramStatus.parsed || status == DiagramStatus.analysisReady) {
+      if (status == DiagramStatus.parsed ||
+          status == DiagramStatus.analysisReady) {
         parsed++;
       } else if (status == DiagramStatus.failed) {
         failed++;
@@ -146,7 +147,7 @@ class DashboardMetrics {
         pending++;
       }
     }
-    
+
     final lastUpload = diagrams.isNotEmpty ? diagrams.first.uploadedAt : null;
 
     return DashboardMetrics(

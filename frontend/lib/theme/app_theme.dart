@@ -5,20 +5,20 @@ class AppTheme {
   static const Color primaryPurple = Color(0xFF7C3AED);
   static const Color primaryPurpleLight = Color(0xFFA78BFA);
   static const Color primaryPurpleDark = Color(0xFF6D28D9);
-  
+
   static const Color blue = Color(0xFF3B82F6);
   static const Color yellow = Color(0xFFF59E0B);
   static const Color red = Color(0xFFEF4444);
   static const Color green = Color(0xFF10B981);
   static const Color orange = Color(0xFFF97316);
-  
+
   static const Color background = Color(0xFFFAFAFA);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color sidebarBackground = Color(0xFFF8F9FA);
   static const Color borderColor = Color(0xFFE5E7EB);
   static const Color textPrimary = Color(0xFF111827);
   static const Color textSecondary = Color(0xFF6B7280);
-  
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -121,4 +121,3 @@ class AppTheme {
     );
   }
 }
-

@@ -15,4 +15,3 @@ Sprint 0 focused on project preparation, team formation, research, and initial c
 - [Sprint 0 Report](./report.html) - Complete report on what we've learned
 - [Meeting Notes](./meeting-1.html) - Customer interview notes and transcript
 - [Interview Script](./script.html) - Interview script with Mom Test improvements
-

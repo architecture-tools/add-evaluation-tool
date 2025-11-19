@@ -27,4 +27,3 @@ class VersionInfo {
     this.trend,
   });
 }
-

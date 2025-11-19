@@ -33,7 +33,9 @@ class RegexPlantUMLParser(PlantUMLParser):
 
         return components, relationships
 
-    def _extract_components(self, content: str) -> tuple[list[Component], dict[str, str]]:
+    def _extract_components(
+        self, content: str
+    ) -> tuple[list[Component], dict[str, str]]:
         components = []
         alias_to_name: dict[str, str] = {}  # alias -> name
 

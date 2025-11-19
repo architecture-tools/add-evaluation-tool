@@ -14,4 +14,3 @@ This section contains the project requirements documentation.
 - [Functional Requirements](./functional-requirements.html) - All functional requirements (FR1-FR12)
 - [Quality Requirements](./quality-requirements.html) - Non-functional and quality requirements
 - [Constraints](./constraints.html) - Technical and business constraints
-

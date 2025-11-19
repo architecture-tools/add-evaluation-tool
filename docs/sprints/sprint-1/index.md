@@ -13,4 +13,3 @@ Sprint 1 documentation and deliverables.
 ## Documents
 
 - [Interview Script](./script.html) - Customer interview script
-

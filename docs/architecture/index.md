@@ -13,4 +13,3 @@ This section contains technical architecture documentation for the Architecture 
 
 - [Architecture Overview](./architecture.html) - System architecture, context diagrams, components, and sequences
 - [Technology Stack](./tech-stack.html) - Technology choices and rationale
-
