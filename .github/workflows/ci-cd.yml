@@ -80,9 +80,10 @@ jobs:
       - name: Check documentation links
         uses: lycheeverse/lychee-action@v2.1.0
         with:
-          args: --no-progress --accept 200,204,301,302,307,308,429 --timeout 20 README.md docs/**/*.md
+          args: --no-progress --accept 200,204,301,302,307,308,429 --timeout 30 --retry --retry-delay 2 README.md docs/**/*.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: false
 
   test:
     name: Backend tests
