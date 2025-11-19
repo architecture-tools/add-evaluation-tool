@@ -59,7 +59,7 @@ effectively. The rationale for each priority level is explained below.
 
 **High Priority**
 
-2. **(H, M): [QAS301](#qas301) - Scoring calculation precision**
+1. **(H, M): [QAS301](#qas301) - Scoring calculation precision**
    - **Business Rationale**: Accurate scoring is fundamental to the
      tool's credibility. Architects rely on calculated scores to make
      decisions about architecture quality. Incorrect calculations would
@@ -73,7 +73,7 @@ effectively. The rationale for each priority level is explained below.
    - **Why High Priority**: This is a core differentiator - the tool's
      value comes from accurate evaluation, not just visualization.
 
-3. **(H, M): [QAS501](#qas501) - PlantUML format support**
+2. **(H, M): [QAS501](#qas501) - PlantUML format support**
    - **Business Rationale**: PlantUML is the chosen standard input
      format. Without reliable format support, users cannot use the tool
      with their existing diagrams. This is a hard requirement that blocks
@@ -86,7 +86,7 @@ effectively. The rationale for each priority level is explained below.
    - **Why High Priority**: This is the foundation - without parsing,
      the tool cannot function.
 
-4. **(M, H): [QAS302](#qas302) - Component extraction accuracy**
+3. **(M, H): [QAS302](#qas302) - Component extraction accuracy**
    - **Business Rationale**: Accurate component extraction ensures the
      evaluation matrix is correctly populated. While important, some
      manual correction is acceptable in MVP, making business importance
@@ -102,7 +102,7 @@ effectively. The rationale for each priority level is explained below.
 
 **Medium Priority**
 
-5. **(M, M): [QAS201](#qas201), [QAS202](#qas202) - Performance
+1. **(M, M): [QAS201](#qas201), [QAS202](#qas202) - Performance
    requirements**
    - **Business Rationale**: Performance impacts user experience but
      doesn't block core functionality. Users can tolerate some delay,
@@ -116,7 +116,7 @@ effectively. The rationale for each priority level is explained below.
      critical for MVP success. Can be optimized iteratively based on user
      feedback.
 
-6. **(H, L): [QAS102](#qas102) - Clear visualization**
+2. **(H, L): [QAS102](#qas102) - Clear visualization**
    - **Business Rationale**: Clear visualization is crucial for
      understanding architectural changes and quality impacts. This
      directly supports the tool's educational and evaluation purposes.
@@ -129,7 +129,7 @@ effectively. The rationale for each priority level is explained below.
 
 **Low Priority**
 
-7. **(L, M): [QAS401](#qas401) - Code quality and testability**
+1. **(L, M): [QAS401](#qas401) - Code quality and testability**
    - **Business Rationale**: Code quality doesn't directly impact end
      users in MVP. However, it's important for maintainability and future
      development. Business importance is low for MVP but increases over
