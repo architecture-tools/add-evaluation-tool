@@ -125,16 +125,16 @@ jobs:
       - name: Publish coverage summary
         run: |
           TOTAL_COVERAGE=$(python - <<'PY'
-import json
-from pathlib import Path
+            import json
+            from pathlib import Path
 
-data = json.loads(Path("coverage.json").read_text())
-totals = data.get("totals", {})
-percent = totals.get("percent_covered", 0.0)
-covered = totals.get("covered_lines", 0)
-statements = totals.get("num_statements", 0)
-print(f"{percent:.2f}|{covered}|{statements}")
-PY
+            data = json.loads(Path("coverage.json").read_text())
+            totals = data.get("totals", {})
+            percent = totals.get("percent_covered", 0.0)
+            covered = totals.get("covered_lines", 0)
+            statements = totals.get("num_statements", 0)
+            print(f"{percent:.2f}|{covered}|{statements}")
+          PY
           )
           IFS='|' read -r PERCENT COVERED TOTAL <<<"$TOTAL_COVERAGE"
           {
