@@ -1,5 +1,4 @@
 # Architecture Evaluation Tool
-[![Coverage](https://img.shields.io/codecov/c/github/architecture-tools/add-evaluation-tool?label=Coverage&logo=codecov)](https://codecov.io/gh/architecture-tools/add-evaluation-tool)
 
 ## One-liner Description
 A tool for architecture evaluation using evolution theory matrix to help software architects, students, and researchers follow structured design approaches like Attribute-Driven Design (ADD).

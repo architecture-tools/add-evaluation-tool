@@ -152,12 +152,3 @@ PY
             backend/coverage.xml
             backend/coverage.json
           if-no-files-found: error
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: backend/coverage.xml
-          flags: backend
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
