@@ -2,7 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import List
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -21,13 +21,20 @@ class Settings(BaseSettings):
 
     storage_root: Path = Path("storage")
 
+    # DATABASE_URL is automatically read from environment variables
+    # Render.com provides this when PostgreSQL service is linked to backend service
+    # Pydantic Settings automatically reads DATABASE_URL (case-insensitive)
     database_url: str = (
         "postgresql://arch_eval:arch_eval_password@localhost:5432/arch_eval_db"
     )
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        # This ensures DATABASE_URL from environment overrides the default
+        env_prefix="",  # No prefix needed, read DATABASE_URL directly
+    )
 
 
 @lru_cache(1)
