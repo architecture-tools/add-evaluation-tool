@@ -205,45 +205,75 @@ jobs:
       - name: Publish coverage summary
         run: |
           if [ -f coverage/lcov.info ]; then
-            # Parse lcov.info using Python for accurate calculation
+            # Parse lcov.info using Python, excluding generated code
             COVERAGE_DATA=$(python3 - <<'PY'
           import re
           from pathlib import Path
           
           lcov_file = Path("coverage/lcov.info")
           if not lcov_file.exists():
-              print("0.0|0|0")
+              print("0.0|0|0|0|0")
               exit(0)
           
           total_lines = 0
           hit_lines = 0
+          total_excluded = 0
+          hit_excluded = 0
+          
+          # Files/directories to exclude from coverage (generated code)
+          exclude_patterns = [
+              'lib/network/src/',  # Generated API client
+              'lib/main.dart',     # Entry point (minimal logic)
+          ]
+          
+          current_file = None
+          skip_file = False
           
           with open(lcov_file, 'r') as f:
               for line in f:
-                  # Match LF: (lines found) and LH: (lines hit)
-                  lf_match = re.match(r'^LF:(\d+)', line)
-                  lh_match = re.match(r'^LH:(\d+)', line)
+                  # Match SF: (source file)
+                  sf_match = re.match(r'^SF:(.+)', line)
+                  if sf_match:
+                      current_file = sf_match.group(1)
+                      skip_file = any(pattern in current_file for pattern in exclude_patterns)
+                      continue
                   
-                  if lf_match:
-                      total_lines += int(lf_match.group(1))
-                  elif lh_match:
-                      hit_lines += int(lh_match.group(1))
+                  # Only count if not excluded
+                  if not skip_file:
+                      lf_match = re.match(r'^LF:(\d+)', line)
+                      lh_match = re.match(r'^LH:(\d+)', line)
+                      
+                      if lf_match:
+                          total_lines += int(lf_match.group(1))
+                      elif lh_match:
+                          hit_lines += int(lh_match.group(1))
+                  else:
+                      # Track excluded for reporting
+                      lf_match = re.match(r'^LF:(\d+)', line)
+                      lh_match = re.match(r'^LH:(\d+)', line)
+                      if lf_match:
+                          total_excluded += int(lf_match.group(1))
+                      elif lh_match:
+                          hit_excluded += int(lh_match.group(1))
           
           if total_lines > 0:
               percentage = (hit_lines / total_lines) * 100
           else:
               percentage = 0.0
           
-          print(f"{percentage:.1f}|{hit_lines}|{total_lines}")
+          print(f"{percentage:.1f}|{hit_lines}|{total_lines}|{hit_excluded}|{total_excluded}")
           PY
             )
-            IFS='|' read -r PERCENTAGE HIT_LINES TOTAL_LINES <<<"$COVERAGE_DATA"
+            IFS='|' read -r PERCENTAGE HIT_LINES TOTAL_LINES HIT_EXCLUDED TOTAL_EXCLUDED <<<"$COVERAGE_DATA"
             
             {
               echo "### Frontend coverage"
               echo ""
-              echo "- Total lines covered: ${HIT_LINES}/${TOTAL_LINES}"
+              echo "- Total lines covered: ${HIT_LINES}/${TOTAL_LINES} (excluding generated code)"
               echo "- Line coverage: ${PERCENTAGE}%"
+              if [ "$TOTAL_EXCLUDED" -gt 0 ]; then
+                echo "- Excluded: ${TOTAL_EXCLUDED} lines (generated API client)"
+              fi
             } >> "$GITHUB_STEP_SUMMARY"
           else
             {
