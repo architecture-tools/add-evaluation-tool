@@ -5,9 +5,20 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from app.domain.diagrams.entities import Component, Diagram, Relationship, DiagramStatus, ComponentType, RelationshipDirection
+from app.domain.diagrams.entities import (
+    Component,
+    Diagram,
+    Relationship,
+    DiagramStatus,
+    ComponentType,
+    RelationshipDirection,
+)
 from app.domain.diagrams.repositories import DiagramRepository
-from app.infrastructure.persistence.models import DiagramModel, ComponentModel, RelationshipModel
+from app.infrastructure.persistence.models import (
+    DiagramModel,
+    ComponentModel,
+    RelationshipModel,
+)
 
 
 class PostgreSQLDiagramRepository(DiagramRepository):
@@ -40,10 +51,14 @@ class PostgreSQLDiagramRepository(DiagramRepository):
     def update(self, diagram: Diagram) -> Diagram:
         """Update an existing diagram aggregate."""
         try:
-            diagram_model = self._session.query(DiagramModel).filter(DiagramModel.id == diagram.id).first()
+            diagram_model = (
+                self._session.query(DiagramModel)
+                .filter(DiagramModel.id == diagram.id)
+                .first()
+            )
             if diagram_model is None:
                 raise ValueError(f"Diagram {diagram.id} does not exist")
-            
+
             diagram_model.name = diagram.name
             diagram_model.source_url = diagram.source_url
             diagram_model.content = diagram.content
@@ -51,7 +66,7 @@ class PostgreSQLDiagramRepository(DiagramRepository):
             diagram_model.status = diagram.status.value
             diagram_model.uploaded_at = diagram.uploaded_at
             diagram_model.parsed_at = diagram.parsed_at
-            
+
             self._session.commit()
             self._session.refresh(diagram_model)
             return diagram
@@ -61,7 +76,11 @@ class PostgreSQLDiagramRepository(DiagramRepository):
 
     def get(self, diagram_id: UUID) -> Optional[Diagram]:
         """Retrieve a diagram by its identifier."""
-        diagram_model = self._session.query(DiagramModel).filter(DiagramModel.id == diagram_id).first()
+        diagram_model = (
+            self._session.query(DiagramModel)
+            .filter(DiagramModel.id == diagram_id)
+            .first()
+        )
         if diagram_model is None:
             return None
         return self._to_domain_entity(diagram_model)
@@ -74,7 +93,9 @@ class PostgreSQLDiagramRepository(DiagramRepository):
     def find_by_checksum(self, checksum: str) -> Optional[Diagram]:
         """Retrieve a diagram by checksum to prevent duplicates."""
         diagram_model = (
-            self._session.query(DiagramModel).filter(DiagramModel.checksum == checksum).first()
+            self._session.query(DiagramModel)
+            .filter(DiagramModel.checksum == checksum)
+            .first()
         )
         if diagram_model is None:
             return None
@@ -172,4 +193,3 @@ class PostgreSQLDiagramRepository(DiagramRepository):
             direction=RelationshipDirection(model.direction),
             metadata=model.meta_data,
         )
-
