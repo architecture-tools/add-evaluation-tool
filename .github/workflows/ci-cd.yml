@@ -205,25 +205,49 @@ jobs:
       - name: Publish coverage summary
         run: |
           if [ -f coverage/lcov.info ]; then
-            # Calculate coverage from lcov.info
-            # LF = lines found, LH = lines hit
-            TOTAL_LINES=$(grep -E "^LF:" coverage/lcov.info | awk '{sum+=$2} END {print sum+0}' || echo "0")
-            HIT_LINES=$(grep -E "^LH:" coverage/lcov.info | awk '{sum+=$2} END {print sum+0}' || echo "0")
-            if [ "$TOTAL_LINES" -gt 0 ]; then
-              PERCENTAGE=$(awk "BEGIN {printf \"%.1f\", ($HIT_LINES / $TOTAL_LINES) * 100}")
-            else
-              PERCENTAGE="0.0"
-            fi
+            # Parse lcov.info using Python for accurate calculation
+            COVERAGE_DATA=$(python3 - <<'PY'
+          import re
+          from pathlib import Path
+          
+          lcov_file = Path("coverage/lcov.info")
+          if not lcov_file.exists():
+              print("0.0|0|0")
+              exit(0)
+          
+          total_lines = 0
+          hit_lines = 0
+          
+          with open(lcov_file, 'r') as f:
+              for line in f:
+                  # Match LF: (lines found) and LH: (lines hit)
+                  lf_match = re.match(r'^LF:(\d+)', line)
+                  lh_match = re.match(r'^LH:(\d+)', line)
+                  
+                  if lf_match:
+                      total_lines += int(lf_match.group(1))
+                  elif lh_match:
+                      hit_lines += int(lh_match.group(1))
+          
+          if total_lines > 0:
+              percentage = (hit_lines / total_lines) * 100
+          else:
+              percentage = 0.0
+          
+          print(f"{percentage:.1f}|{hit_lines}|{total_lines}")
+          PY
+            )
+            IFS='|' read -r PERCENTAGE HIT_LINES TOTAL_LINES <<<"$COVERAGE_DATA"
+            
             {
-              echo "### Frontend tests"
+              echo "### Frontend coverage"
               echo ""
-              echo "- Tests executed successfully"
-              echo "- Coverage report generated"
-              echo "- Line coverage: ${PERCENTAGE}% (${HIT_LINES}/${TOTAL_LINES} lines)"
+              echo "- Total lines covered: ${HIT_LINES}/${TOTAL_LINES}"
+              echo "- Line coverage: ${PERCENTAGE}%"
             } >> "$GITHUB_STEP_SUMMARY"
           else
             {
-              echo "### Frontend tests"
+              echo "### Frontend coverage"
               echo ""
               echo "- Tests executed successfully"
               echo "⚠️ Warning: Coverage file not found"
