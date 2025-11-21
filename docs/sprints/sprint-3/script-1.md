@@ -16,6 +16,7 @@
 - Documentation: markdown linters to CI pipeline
 - Continuous Integration: GitHub Actions workflow running build, lint, and test checks automatically
 - Pull Request Requirements: All changes must pass automated checks before merging
+- Discuss review of TDD on tasks in this sprint
 
 ![ci-cd](./assets/ci-cd.jpg)
 
