@@ -4,10 +4,13 @@ from .diagrams import (
     ParseDiagramResponse,
     RelationshipResponse,
 )
+from .nfrs import CreateNFRRequest, NFRResponse
 
 __all__ = [
     "ComponentResponse",
     "DiagramResponse",
     "ParseDiagramResponse",
     "RelationshipResponse",
+    "CreateNFRRequest",
+    "NFRResponse",
 ]

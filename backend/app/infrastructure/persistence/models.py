@@ -85,3 +85,14 @@ class RelationshipModel(Base):
     diagram: Mapped[DiagramModel] = relationship(
         "DiagramModel", back_populates="relationships"
     )
+
+
+class NonFunctionalRequirementModel(Base):
+    __tablename__ = "non_functional_requirements"
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=datetime.utcnow
+    )
