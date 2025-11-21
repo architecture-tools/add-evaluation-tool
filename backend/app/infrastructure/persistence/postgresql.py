@@ -14,10 +14,13 @@ from app.domain.diagrams.entities import (
     RelationshipDirection,
 )
 from app.domain.diagrams.repositories import DiagramRepository
+from app.domain.nfr.entities import NonFunctionalRequirement
+from app.domain.nfr.repositories import NonFunctionalRequirementRepository
 from app.infrastructure.persistence.models import (
     DiagramModel,
     ComponentModel,
     RelationshipModel,
+    NonFunctionalRequirementModel,
 )
 
 
@@ -192,4 +195,75 @@ class PostgreSQLDiagramRepository(DiagramRepository):
             label=model.label,
             direction=RelationshipDirection(model.direction),
             metadata=model.meta_data,
+        )
+
+
+class PostgreSQLNFRRepository(NonFunctionalRequirementRepository):
+    """PostgreSQL implementation for managing NFRs."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def add(self, nfr: NonFunctionalRequirement) -> NonFunctionalRequirement:
+        try:
+            model = NonFunctionalRequirementModel(
+                id=nfr.id,
+                name=nfr.name,
+                description=nfr.description,
+                created_at=nfr.created_at,
+            )
+            self._session.add(model)
+            self._session.commit()
+            self._session.refresh(model)
+            return nfr
+        except Exception:
+            self._session.rollback()
+            raise
+
+    def get(self, nfr_id: UUID) -> Optional[NonFunctionalRequirement]:
+        model = (
+            self._session.query(NonFunctionalRequirementModel)
+            .filter(NonFunctionalRequirementModel.id == nfr_id)
+            .first()
+        )
+        if model is None:
+            return None
+        return self._to_domain_entity(model)
+
+    def get_by_name(self, name: str) -> Optional[NonFunctionalRequirement]:
+        model = (
+            self._session.query(NonFunctionalRequirementModel)
+            .filter(NonFunctionalRequirementModel.name == name)
+            .first()
+        )
+        if model is None:
+            return None
+        return self._to_domain_entity(model)
+
+    def list(self) -> Iterable[NonFunctionalRequirement]:
+        models = self._session.query(NonFunctionalRequirementModel).order_by(
+            NonFunctionalRequirementModel.name.asc()
+        )
+        return [self._to_domain_entity(model) for model in models]
+
+    def delete(self, nfr_id: UUID) -> None:
+        try:
+            (
+                self._session.query(NonFunctionalRequirementModel)
+                .filter(NonFunctionalRequirementModel.id == nfr_id)
+                .delete(synchronize_session=False)
+            )
+            self._session.commit()
+        except Exception:
+            self._session.rollback()
+            raise
+
+    def _to_domain_entity(
+        self, model: NonFunctionalRequirementModel
+    ) -> NonFunctionalRequirement:
+        return NonFunctionalRequirement(
+            id=model.id,
+            name=model.name,
+            description=model.description,
+            created_at=model.created_at,
         )
