@@ -162,7 +162,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          file: ./backend/coverage.xml
+          file: backend/coverage.xml
           flags: backend
           name: backend-coverage
 
@@ -300,6 +300,6 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          file: ./frontend/coverage/lcov.info
+          file: frontend/coverage/lcov.info
           flags: frontend
           name: frontend-coverage
