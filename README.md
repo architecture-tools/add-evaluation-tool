@@ -1,8 +1,8 @@
 # Architecture Evaluation Tool
 
 [![CI/CD](https://github.com/architecture-tools/add-evaluation-tool/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/architecture-tools/add-evaluation-tool/actions/workflows/ci-cd.yml)
-[![Backend Coverage](https://codecov.io/gh/architecture-tools/add-evaluation-tool/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/architecture-tools/add-evaluation-tool)
-[![Frontend Coverage](https://codecov.io/gh/architecture-tools/add-evaluation-tool/branch/main/graph/badge.svg?flag=frontend)](https://codecov.io/gh/architecture-tools/add-evaluation-tool)
+<!-- [![Backend Coverage](https://codecov.io/gh/architecture-tools/add-evaluation-tool/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/architecture-tools/add-evaluation-tool)
+[![Frontend Coverage](https://codecov.io/gh/architecture-tools/add-evaluation-tool/branch/main/graph/badge.svg?flag=frontend)](https://codecov.io/gh/architecture-tools/add-evaluation-tool) -->
 
 ## One-liner Description
 
