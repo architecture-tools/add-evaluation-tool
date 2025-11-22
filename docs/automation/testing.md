@@ -56,6 +56,7 @@ components) and measures the time from file upload through parsing completion
 against the running API.
 
 **How it works:**
+
 1. Generates test PlantUML files with varying sizes and component counts
 2. Uploads each file to the API endpoint (`POST /api/v1/diagrams`)
 3. Triggers parsing for each uploaded diagram (`POST /api/v1/diagrams/{id}/parse`)
@@ -83,6 +84,7 @@ counts, uploads them to the API, parses them, and compares extracted counts
 against expected values.
 
 **How it works:**
+
 1. Loads a test corpus of 15 PlantUML files with known component/relationship
    counts
 2. Uploads each file to the API (`POST /api/v1/diagrams`)

@@ -305,10 +305,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Start services with docker-compose
+      - name: Start services with docker compose
         run: |
-          docker-compose up -d --build
-          docker-compose ps
+          docker compose up -d --build
+          docker compose ps
 
       - name: Wait for services to be healthy
         run: |
@@ -382,10 +382,10 @@ jobs:
             echo "- [QAST302-1 script](../backend/scripts/test_qast302_1.py)"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Cleanup docker-compose
+      - name: Cleanup docker compose
         if: always()
         run: |
-          docker-compose down -v
+          docker compose down -v
 
       - name: Fail if any QAST failed
         if: steps.qast202.outcome != 'success' || steps.qast302.outcome != 'success'
