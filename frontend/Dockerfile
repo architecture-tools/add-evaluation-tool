@@ -12,8 +12,11 @@ RUN flutter pub get
 # Copy source code
 COPY . .
 
-# Build for web
-RUN flutter build web --release
+# Clean previous builds
+RUN flutter clean
+
+# Build for web with explicit flags
+RUN flutter build web --release --no-tree-shake-icons
 
 # Production stage
 FROM nginx:alpine
