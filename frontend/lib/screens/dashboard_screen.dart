@@ -128,7 +128,11 @@ class DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 24),
 
                 // NFR Evaluation Matrix
-                NfrEvaluationMatrixWidget(data: data.matrix),
+                NfrEvaluationMatrixWidget(
+                  data: data.matrix,
+                  nfrs: data.nfrs,
+                  onRefresh: _refresh,
+                ),
                 const SizedBox(height: 24),
 
                 // Bottom Layout: Quick actions, NFR performance, version timeline
@@ -151,7 +155,11 @@ class DashboardScreenState extends State<DashboardScreen> {
                             onAiInsights: () => _showComingSoon('AI Insights'),
                           ),
                           const SizedBox(height: 16),
-                          NFRPerformanceWidget(metrics: data.nfrMetrics),
+                          NFRPerformanceWidget(
+                            metrics: data.nfrMetrics,
+                            nfrs: data.nfrs,
+                            onRefresh: _refresh,
+                          ),
                         ],
                       ),
                     ),
