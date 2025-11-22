@@ -250,13 +250,15 @@ Success: measured response time for 95% of modifications must be under
 - **Response Measure**: Processing completes within 3 seconds for 95%
   of files
 
-### QAST202-1
+### [QAST202-1](https://github.com/architecture-tools/add-evaluation-tool/pull/77)
 
 Test: Process 100 sample PlantUML files of varying complexity
 (10KB-100KB, 5-50 components).
 
 Success: 95% of files must complete processing within 3 seconds on
 standard hardware.
+
+We implemented it in a form of integration tests since we didn't deploy MVP yet because of restrictions and resources.
 
 ## Accuracy
 
@@ -294,13 +296,15 @@ Success: achieve 100% accuracy.
 - **Response Measure**: 95%+ extraction accuracy across diverse
   diagram styles
 
-### QAST302-1
+### [QAST302-1](https://github.com/architecture-tools/add-evaluation-tool/pull/77)
 
 Test: Process corpus of 10-15 PlantUML files with known component
 counts and relationships.
 
 Success: achieve at least 95% accuracy of components extracted for
 each file.
+
+We implemented it in a form of integration tests since we didn't deploy MVP yet because of restrictions and resources.
 
 ## Maintainability
 

@@ -1,5 +1,10 @@
 # Architecture Evaluation Tool
 
+[![CI/CD](https://github.com/architecture-tools/add-evaluation-tool/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/architecture-tools/add-evaluation-tool/actions/workflows/ci-cd.yml)
+<!-- [![Backend Coverage](https://codecov.io/gh/architecture-tools/add-evaluation-tool/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/architecture-tools/add-evaluation-tool)
+[![Frontend Coverage](https://codecov.io/gh/architecture-tools/add-evaluation-tool/branch/main/graph/badge.svg?flag=frontend)]
+(https://codecov.io/gh/architecture-tools/add-evaluation-tool) -->
+
 ## One-liner Description
 
 A tool for architecture evaluation using evolution theory matrix to help
@@ -65,17 +70,6 @@ This tool addresses this gap by providing:
 - **PlantUML**: Standard format for component specifications
 - **ADD Methodology**: Attribute-Driven Design framework (reference
   approach)
-
-## Feature Roadmap
-
-### Sprint 0 (Preparation)
-
-- [x] Repository setup
-- [x] Team formation
-- [x] Research existing solutions (5 alternatives)
-- [x] Prepare interview script
-- [x] Conduct customer interview
-- [x] Document findings and MVP vision
 
 ## Building and Running
 
@@ -157,23 +151,6 @@ This tool addresses this gap by providing:
    ```
 
    The frontend will be available at <http://localhost:8080>
-
-### Project Structure
-
-```text
-.
-├── backend/              # FastAPI backend
-│   ├── main.py          # Application entry point
-│   ├── requirements.txt # Python dependencies
-│   └── Dockerfile       # Backend container config
-├── frontend/            # Flutter web frontend
-│   ├── lib/             # Dart source code
-│   ├── web/             # Web-specific files
-│   ├── pubspec.yaml     # Flutter dependencies
-│   └── Dockerfile       # Frontend container config
-├── docker-compose.yml   # Multi-container orchestration
-└── docs/                # Project documentation
-```
 
 ## Documentation
 

@@ -159,6 +159,12 @@ jobs:
             backend/coverage.xml
             backend/coverage.json
           if-no-files-found: error
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: backend/coverage.xml
+          flags: backend
+          name: backend-coverage
 
   test-frontend:
     name: Frontend tests
@@ -290,3 +296,10 @@ jobs:
           name: frontend-coverage-${{ github.run_number }}
           path: frontend/coverage/lcov.info
           if-no-files-found: ignore
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: frontend/coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
