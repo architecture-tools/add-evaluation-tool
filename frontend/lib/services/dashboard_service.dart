@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 
 import '../models/mock_models.dart';
 import '../models/nfr_matrix.dart';
-import '../network/src/api.dart';
+import '../network/src/api.dart' show DiagramResponse, DiagramStatus;
 import '../utils/date_time_utils.dart';
 import 'diagram_repository.dart';
 import 'mock_data_service.dart';
