@@ -82,3 +82,10 @@
 [CI/CD Pipeline Results](https://github.com/architecture-tools/add-evaluation-tool/actions)
 
 [Demo with new features](https://drive.google.com/file/d/14oRXtWWizLP9-ENf88FtrUBWHcuz5NdA/view?usp=sharing)
+
+## Notes
+
+- We removed codecov badge because of limited resources (it's not free), however we have screenshot of code coverage in
+CI/CD and it's calculated with every push.
+
+![ci-cd](./assets/ci-cd.jpg)

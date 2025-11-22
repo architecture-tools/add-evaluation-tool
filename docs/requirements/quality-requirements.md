@@ -258,6 +258,8 @@ Test: Process 100 sample PlantUML files of varying complexity
 Success: 95% of files must complete processing within 3 seconds on
 standard hardware.
 
+We implemented it in a form of integration tests since we didn't deploy MVP yet because of restrictions and resources.
+
 ## Accuracy
 
 ### QAS301
@@ -301,6 +303,8 @@ counts and relationships.
 
 Success: achieve at least 95% accuracy of components extracted for
 each file.
+
+We implemented it in a form of integration tests since we didn't deploy MVP yet because of restrictions and resources.
 
 ## Maintainability
 
