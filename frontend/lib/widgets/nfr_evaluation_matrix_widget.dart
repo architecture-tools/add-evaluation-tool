@@ -109,7 +109,8 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
               children: [
                 if (_hasUnsavedChanges)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppTheme.yellow.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -203,7 +204,8 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
             FilledButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Full matrix view coming soon.')),
+                  const SnackBar(
+                      content: Text('Full matrix view coming soon.')),
                 );
               },
               child: const Text('Open Full Matrix'),
@@ -504,7 +506,8 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('NFR "${nameController.text.trim()}" created successfully'),
+              content: Text(
+                  'NFR "${nameController.text.trim()}" created successfully'),
               backgroundColor: AppTheme.green,
             ),
           );
@@ -528,7 +531,8 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Delete NFR'),
-        content: Text('Are you sure you want to delete "$nfrName"? This will remove it from the matrix.'),
+        content: Text(
+            'Are you sure you want to delete "$nfrName"? This will remove it from the matrix.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),

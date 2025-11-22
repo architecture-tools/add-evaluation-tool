@@ -24,10 +24,10 @@ class DashboardService {
     final nfrs = await _nfrRepository.fetchNFRs();
     final metrics = DashboardMetrics.fromDiagrams(diagrams);
     final timeline = _buildTimeline(diagrams);
-    
+
     // Build matrix from real NFRs and components from parsed diagrams
     final matrix = _buildMatrixFromData(nfrs, diagrams);
-    
+
     // Convert NFRResponse to NFRMetric for display
     final nfrMetrics = nfrs.map((nfr) {
       // Use a default score for now (could be calculated from evaluations)
@@ -42,29 +42,38 @@ class DashboardService {
       diagrams: diagrams,
       metrics: metrics,
       timeline: timeline,
-      nfrMetrics: nfrMetrics.isNotEmpty ? nfrMetrics : MockDataService.getNFRMetrics(),
+      nfrMetrics:
+          nfrMetrics.isNotEmpty ? nfrMetrics : MockDataService.getNFRMetrics(),
       matrix: matrix,
       nfrs: nfrs,
       fetchedAt: DateTime.now(),
     );
   }
 
-  NfrMatrixData _buildMatrixFromData(List<NFRResponse> nfrs, List<DiagramResponse> diagrams) {
+  NfrMatrixData _buildMatrixFromData(
+      List<NFRResponse> nfrs, List<DiagramResponse> diagrams) {
     // Extract components from parsed diagrams
     final components = <String>{};
     for (final diagram in diagrams) {
-      if (diagram.status == DiagramStatus.parsed || 
+      if (diagram.status == DiagramStatus.parsed ||
           diagram.status == DiagramStatus.analysisReady) {
         // For now, use mock components. In the future, fetch from parseDiagram response
         // This would require calling getDiagram or parseDiagram to get components
-        components.addAll(['API Gateway', 'Auth Service', 'Payment', 'Order Mgmt', 'Database']);
+        components.addAll([
+          'API Gateway',
+          'Auth Service',
+          'Payment',
+          'Order Mgmt',
+          'Database'
+        ]);
       }
     }
-    
+
     // If no components found, use default
-    final componentList = components.isEmpty 
+    final componentList = components.isEmpty
         ? ['API Gateway', 'Auth Service', 'Payment', 'Order Mgmt', 'Database']
-        : components.toList()..sort();
+        : components.toList()
+      ..sort();
 
     // Build matrix rows from NFRs
     final rows = nfrs.map((nfr) {
@@ -72,7 +81,7 @@ class DashboardService {
       final scores = <String, int>{
         for (final component in componentList) component: 0,
       };
-      
+
       return NfrMatrixRow(
         nfr: nfr.name,
         color: _getNFRColor(nfr.name),
@@ -104,9 +113,11 @@ class DashboardService {
       return const Color(0xFF3B82F6); // Blue
     } else if (lowerName.contains('security')) {
       return const Color(0xFFEF4444); // Red
-    } else if (lowerName.contains('scalability') || lowerName.contains('scale')) {
+    } else if (lowerName.contains('scalability') ||
+        lowerName.contains('scale')) {
       return const Color(0xFF10B981); // Green
-    } else if (lowerName.contains('availability') || lowerName.contains('reliability')) {
+    } else if (lowerName.contains('availability') ||
+        lowerName.contains('reliability')) {
       return const Color(0xFFF59E0B); // Yellow
     } else {
       return const Color(0xFF7C3AED); // Purple (default)

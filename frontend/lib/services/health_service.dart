@@ -36,4 +36,3 @@ class HealthStatus {
   final String message;
   final DateTime timestamp;
 }
-

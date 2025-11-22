@@ -41,4 +41,3 @@ class NFRRepository {
     await _api.deleteNfrApiV1NfrsNfrIdDelete(nfrId);
   }
 }
-

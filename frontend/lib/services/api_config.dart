@@ -5,7 +5,7 @@ import '../network/src/api.dart';
 class ApiConfig {
   /// Allows overriding the API base URL at compile time using
   /// `--dart-define=API_BASE_URL=https://example.com`.
-  /// 
+  ///
   /// For docker-compose/web, use empty string to use relative paths (nginx proxy).
   /// For local development, use 'http://localhost:8000'.
   static String _getDefaultBaseUrl() {
@@ -13,14 +13,14 @@ class ApiConfig {
     if (envBaseUrl.isNotEmpty) {
       return envBaseUrl;
     }
-    
+
     // In web/browser, use relative path so nginx can proxy to backend
     // This works for both docker-compose and local development with nginx
     if (kIsWeb) {
       // Use empty string for relative paths (nginx will proxy /api to backend)
       return '';
     }
-    
+
     // For non-web platforms, use localhost
     return 'http://localhost:8000';
   }

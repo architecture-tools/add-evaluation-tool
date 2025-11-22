@@ -143,7 +143,8 @@ class _DashboardHeaderState extends State<DashboardHeader> {
                     ? 'Backend is healthy'
                     : 'Backend connection issue',
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: (_healthStatus?.isHealthy ?? false)
                         ? AppTheme.green.withOpacity(0.1)
