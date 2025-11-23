@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:architecture_evaluation_tool/services/dashboard_service.dart';
 import 'package:architecture_evaluation_tool/services/diagram_repository.dart';
+import 'package:architecture_evaluation_tool/services/nfr_repository.dart';
 import 'package:architecture_evaluation_tool/network/src/api.dart';
 import 'package:architecture_evaluation_tool/models/mock_models.dart';
 import 'package:mocktail/mocktail.dart';
@@ -9,14 +10,22 @@ import '../helpers/test_helpers.dart';
 // Mock DiagramRepository using mocktail
 class MockDiagramRepository extends Mock implements DiagramRepository {}
 
+// Mock NFRRepository using mocktail
+class MockNFRRepository extends Mock implements NFRRepository {}
+
 void main() {
   group('DashboardService', () {
     late DashboardService service;
     late MockDiagramRepository mockRepository;
+    late MockNFRRepository mockNFRRepository;
 
     setUp(() {
       mockRepository = MockDiagramRepository();
-      service = DashboardService(diagramRepository: mockRepository);
+      mockNFRRepository = MockNFRRepository();
+      service = DashboardService(
+        diagramRepository: mockRepository,
+        nfrRepository: mockNFRRepository,
+      );
     });
 
     test('loadDashboard returns DashboardViewData with correct structure',
@@ -24,6 +33,8 @@ void main() {
       final mockDiagrams = TestHelpers.createMockDiagrams();
       when(() => mockRepository.fetchDiagrams())
           .thenAnswer((_) async => mockDiagrams);
+      when(() => mockNFRRepository.fetchNFRs())
+          .thenAnswer((_) async => <NFRResponse>[]);
 
       final result = await service.loadDashboard();
 
@@ -40,6 +51,8 @@ void main() {
       final mockDiagrams = TestHelpers.createMockDiagrams();
       when(() => mockRepository.fetchDiagrams())
           .thenAnswer((_) async => mockDiagrams);
+      when(() => mockNFRRepository.fetchNFRs())
+          .thenAnswer((_) async => <NFRResponse>[]);
 
       final result = await service.loadDashboard();
       final metrics = result.metrics;
@@ -55,6 +68,8 @@ void main() {
       final mockDiagrams = TestHelpers.createMockDiagrams();
       when(() => mockRepository.fetchDiagrams())
           .thenAnswer((_) async => mockDiagrams);
+      when(() => mockNFRRepository.fetchNFRs())
+          .thenAnswer((_) async => <NFRResponse>[]);
 
       final result = await service.loadDashboard();
 
@@ -66,6 +81,8 @@ void main() {
 
     test('loadDashboard handles empty diagram list', () async {
       when(() => mockRepository.fetchDiagrams()).thenAnswer((_) async => []);
+      when(() => mockNFRRepository.fetchNFRs())
+          .thenAnswer((_) async => <NFRResponse>[]);
 
       final result = await service.loadDashboard();
 
