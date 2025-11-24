@@ -431,9 +431,6 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - name: Check if should run
         id: should_run
@@ -484,10 +481,12 @@ jobs:
 
       - name: Install backend dependencies
         if: steps.should_run.outputs.run == 'true'
+        working-directory: backend
         run: poetry install --no-ansi --no-interaction
 
       - name: Start backend server
         if: steps.should_run.outputs.run == 'true'
+        working-directory: backend
         run: |
           poetry run uvicorn main:app --host 0.0.0.0 --port 8000 &
           sleep 5
@@ -496,6 +495,7 @@ jobs:
 
       - name: Export OpenAPI specification
         if: steps.should_run.outputs.run == 'true'
+        working-directory: backend
         run: |
           curl -s http://localhost:8000/openapi.json | jq . > openapi/openapi.json || \
             curl -s http://localhost:8000/openapi.json > openapi/openapi.json
@@ -504,8 +504,8 @@ jobs:
       - name: Copy to docs for GitHub Pages
         if: steps.should_run.outputs.run == 'true'
         run: |
-          mkdir -p ../docs/api
-          cp openapi/openapi.json ../docs/api/openapi.json
+          mkdir -p docs/api
+          cp backend/openapi/openapi.json docs/api/openapi.json
 
       - name: Check for changes
         if: steps.should_run.outputs.run == 'true'
@@ -513,7 +513,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add openapi/openapi.json ../docs/api/openapi.json
+          git add backend/openapi/openapi.json docs/api/openapi.json
           if git diff --staged --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
