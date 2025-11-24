@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'docs/**'
+      - 'backend/openapi/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -35,6 +36,11 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
+
+      - name: Copy OpenAPI specification
+        run: |
+          mkdir -p docs/api
+          cp backend/openapi/openapi.json docs/api/openapi.json
 
       - name: Build with Jekyll
         working-directory: ./docs/.github-pages
