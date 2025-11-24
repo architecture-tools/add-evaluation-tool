@@ -326,7 +326,7 @@ jobs:
       - name: Wait for services to be healthy
         run: |
           echo "Waiting for backend to be ready..."
-          timeout 120 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done' || exit 1
+          timeout 120 bash -c 'until curl -f http://localhost:8000/api/v1/health; do sleep 2; done' || exit 1
           echo "Backend is ready!"
 
       - name: Set up Python
