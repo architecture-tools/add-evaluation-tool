@@ -54,6 +54,14 @@ Project planning and strategy:
 Documentation of AI tool usage throughout the project development, updated
 each sprint.
 
+### 🔌 [API Documentation](./api/)
+
+Interactive API documentation with OpenAPI specification:
+
+- Browse all API endpoints
+- View request/response schemas
+- Download OpenAPI specification
+
 ## Quick Links
 
 - **GitHub Repository**: [architecture-tools/add-evaluation-tool](https://github.com/architecture-tools/add-evaluation-tool)

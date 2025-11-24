@@ -1,19 +1,41 @@
 name: CI/CD
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
   release:
     types:
       - published
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   PYTHON_VERSION: "3.11"
   POETRY_VERSION: "1.8.3"
 
 jobs:
+  debug-context:
+    name: Debug workflow context
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Show workflow context
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Base ref: ${{ github.base_ref }}"
+          echo "Head ref: ${{ github.head_ref }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Head commit message: ${{ github.event.head_commit.message }}"
+          echo ""
+          echo "Condition check:"
+          echo "  github.event_name == 'push': ${{ github.event_name == 'push' }}"
+          echo "  github.ref == 'refs/heads/main': ${{ github.ref == 'refs/heads/main' }}"
+          echo "  Combined condition: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}"
+
   lint:
     name: Static analysis
     runs-on: ubuntu-latest
@@ -86,7 +108,7 @@ jobs:
       - name: Check documentation links
         uses: lycheeverse/lychee-action@v2.1.0
         with:
-          args: --no-progress --accept 200,204,301,302,307,308,429 --timeout 30 --retry-wait-time 2 --exclude-all-private --exclude '^file://' README.md docs/**/*.md
+          args: --no-progress --accept 200,204,301,302,307,308,429 --timeout 30 --retry-wait-time 2 --exclude-all-private --exclude '^file://' --exclude 'https://architecture-tools.github.io/add-evaluation-tool/api/' README.md docs/**/*.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: false
@@ -402,3 +424,104 @@ jobs:
         run: |
           echo "One or more QASTs failed. Check the logs above for details."
           exit 1
+
+  update-openapi:
+    name: Update OpenAPI specification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Check if should run
+        id: should_run
+        run: |
+          if [ "${{ github.event_name }}" != "push" ]; then
+            echo "Skipping: not a push event (event_name=${{ github.event_name }})"
+            echo "run=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "Skipping: not main branch (ref=${{ github.ref }})"
+            echo "run=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          if echo "${{ github.event.head_commit.message }}" | grep -q '\[skip ci\]'; then
+            echo "Skipping: [skip ci] found in commit message"
+            echo "run=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "Will run: push to main branch"
+          echo "run=true" >> $GITHUB_OUTPUT
+      - name: Checkout
+        if: steps.should_run.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        if: steps.should_run.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        if: steps.should_run.outputs.run == 'true'
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry virtualenv
+        if: steps.should_run.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: backend/.venv
+          key: ${{ runner.os }}-poetry-${{ env.PYTHON_VERSION }}-${{ hashFiles('backend/poetry.lock') }}
+
+      - name: Install backend dependencies
+        if: steps.should_run.outputs.run == 'true'
+        working-directory: backend
+        run: poetry install --no-ansi --no-interaction
+
+      - name: Start backend server
+        if: steps.should_run.outputs.run == 'true'
+        working-directory: backend
+        run: |
+          poetry run uvicorn main:app --host 0.0.0.0 --port 8000 &
+          sleep 5
+          until curl -f http://localhost:8000/api/v1/health; do sleep 1; done
+        continue-on-error: false
+
+      - name: Export OpenAPI specification
+        if: steps.should_run.outputs.run == 'true'
+        working-directory: backend
+        run: |
+          curl -s http://localhost:8000/openapi.json | jq . > openapi/openapi.json || \
+            curl -s http://localhost:8000/openapi.json > openapi/openapi.json
+          echo "OpenAPI schema exported"
+
+      - name: Copy to docs for GitHub Pages
+        if: steps.should_run.outputs.run == 'true'
+        run: |
+          mkdir -p docs/api
+          cp backend/openapi/openapi.json docs/api/openapi.json
+
+      - name: Check for changes
+        if: steps.should_run.outputs.run == 'true'
+        id: changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add backend/openapi/openapi.json docs/api/openapi.json
+          if git diff --staged --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.should_run.outputs.run == 'true' && steps.changes.outputs.changed == 'true'
+        run: |
+          git commit -m "chore: update OpenAPI specification [skip ci]"
+          git push

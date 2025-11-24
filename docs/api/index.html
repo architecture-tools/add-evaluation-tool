@@ -1,0 +1,37 @@
+---
+layout: null
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>API Documentation - Architecture Evaluation Tool</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <redoc 
+        spec-url="{{ '/add-evaluation-tool/api/openapi.json' | absolute_url }}" 
+        scroll-y-offset="60" 
+        hide-download-button="false"
+        hide-hostname="false"
+        expand-responses="200,201"
+        json-sample-expand-level="2"
+        hide-single-request-sample-tab="false"
+        menu-toggle="true"
+        native-scrollbars="true"
+        path-in-middle-panel="true"
+        required-props-first="true"
+        sort-operations-alphabetically="false"
+        sort-tags-alphabetically="true">
+    </redoc>
+    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+</body>
+</html>
