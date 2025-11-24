@@ -60,4 +60,3 @@ cd backend && poetry run uvicorn main:app --reload
 curl http://localhost:8000/openapi.json > backend/openapi/openapi.json
 cp backend/openapi/openapi.json docs/api/openapi.json
 ```
-
