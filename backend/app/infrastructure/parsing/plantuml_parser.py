@@ -22,6 +22,9 @@ class RegexPlantUMLParser(PlantUMLParser):
         Supports:
         - Component declarations: [Component Name] or [Component Name] as Alias
         - Database declarations: database "Database Name" or database "Name" as Alias
+        - Queue declarations: queue "Queue Name" or queue "Name" as Alias
+        - Actor declarations: actor "Actor Name" or actor "Name" as Alias
+        - System declarations: system "System Name" or system "Name" as Alias
         - Relationships: Component1 --> Component2 : label
         - Bidirectional: Component1 <--> Component2
         """
@@ -65,6 +68,24 @@ class RegexPlantUMLParser(PlantUMLParser):
             if alias:
                 alias_to_name[alias] = name
             components.append((name, ComponentType.QUEUE, alias))
+
+        # Match actor "Actor Name" or actor "Name" as Alias
+        actor_pattern = r'actor\s+"([^"]+)"(?:\s+as\s+(\w+))?'
+        for match in re.finditer(actor_pattern, content, re.IGNORECASE):
+            name = match.group(1).strip()
+            alias = match.group(2)
+            if alias:
+                alias_to_name[alias] = name
+            components.append((name, ComponentType.ACTOR, alias))
+
+        # Match system "System Name" or system "Name" as Alias
+        system_pattern = r'system\s+"([^"]+)"(?:\s+as\s+(\w+))?'
+        for match in re.finditer(system_pattern, content, re.IGNORECASE):
+            name = match.group(1).strip()
+            alias = match.group(2)
+            if alias:
+                alias_to_name[alias] = name
+            components.append((name, ComponentType.SYSTEM, alias))
 
         # Create Component entities (without diagram_id for now, will be set later)
         result = []

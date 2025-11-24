@@ -350,9 +350,6 @@ jobs:
       - name: Install backend dependencies
         run: poetry install --no-ansi --no-interaction
 
-      - name: Install test dependencies
-        run: poetry add requests --group dev
-
       - name: Run QAST202-1 (PlantUML Processing Performance)
         id: qast202
         env:

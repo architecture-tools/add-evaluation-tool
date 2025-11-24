@@ -98,6 +98,7 @@ User --> MainDB
 Product --> MainDB
 Product --> Cache
 @enduml""",
+        # Note: Parser extracts components from packages correctly
         "expected_components": 8,
         "expected_relationships": 6,
     },
