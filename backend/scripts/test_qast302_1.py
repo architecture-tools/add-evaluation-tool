@@ -98,8 +98,8 @@ User --> MainDB
 Product --> MainDB
 Product --> Cache
 @enduml""",
-        # Note: Parser extracts components from packages correctly
-        "expected_components": 8,
+        # Note: 7 components total: React App, Vue App, Auth Service, User Service, Product Service, Main DB, Cache
+        "expected_components": 7,
         "expected_relationships": 6,
     },
     {
@@ -181,7 +181,8 @@ S1 --> Q1
 S2 --> Q2
 @enduml""",
         "expected_components": 10,
-        "expected_relationships": 9,
+        # 10 relationships: GW->S1, GW->S2, GW->S3, S1->DB1, S2->DB1, S3->DB2, S4->DB2, S5->DB1, S1->Q1, S2->Q2
+        "expected_relationships": 10,
     },
     {
         "name": "Interfaces and actors",
