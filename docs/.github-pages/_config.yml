@@ -60,6 +60,10 @@ exclude:
   - ".github-pages/README.md"
   - ".github-pages/SETUP.md"
 
+# Include JSON files
+include:
+  - "*.json"
+
 # Plugins
 plugins:
   - jekyll-feed

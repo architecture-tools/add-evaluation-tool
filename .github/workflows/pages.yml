@@ -41,6 +41,8 @@ jobs:
         run: |
           mkdir -p docs/api
           cp backend/openapi/openapi.json docs/api/openapi.json
+          echo "OpenAPI spec copied to docs/api/openapi.json"
+          ls -la docs/api/
 
       - name: Build with Jekyll
         working-directory: ./docs/.github-pages
