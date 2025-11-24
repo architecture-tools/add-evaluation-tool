@@ -1,6 +1,7 @@
 # API Documentation
 
-This directory contains the OpenAPI specification and interactive API documentation for the Architecture Evaluation Tool backend.
+This directory contains the OpenAPI specification and interactive API
+documentation for the Architecture Evaluation Tool backend.
 
 ## Files
 
@@ -16,6 +17,7 @@ After the documentation is published, you can view it at:
 **https://architecture-tools.github.io/add-evaluation-tool/api/**
 
 The page includes:
+
 - Interactive API explorer with all endpoints
 - Request/response schemas
 - Download link for the OpenAPI specification
@@ -23,6 +25,7 @@ The page includes:
 ### Locally
 
 1. Start a local server in the `docs` directory:
+
    ```bash
    cd docs
    python3 -m http.server 4000
@@ -59,7 +62,8 @@ The OpenAPI specification is **automatically updated** on every push to `main`:
 3. Automatically commits the updated `openapi.json` back to the repository
 4. GitHub Pages automatically rebuilds and publishes the updated documentation
 
-**You don't need to manually update `openapi.json`!** Just modify the API code, commit, and push - everything else happens automatically.
+**You don't need to manually update `openapi.json`!** Just modify the API code,
+commit, and push - everything else happens automatically.
 
 ### Manual Update (for Local Development)
 
@@ -74,4 +78,3 @@ If you need to update the specification locally:
 
 - **Local development**: `http://localhost:8000`
 - **Production**: (configure based on your deployment)
-

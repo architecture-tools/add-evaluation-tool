@@ -57,6 +57,7 @@ each sprint.
 ### 🔌 [API Documentation](./api/)
 
 Interactive API documentation with OpenAPI specification:
+
 - Browse all API endpoints
 - View request/response schemas
 - Download OpenAPI specification
