@@ -17,6 +17,25 @@ env:
   POETRY_VERSION: "1.8.3"
 
 jobs:
+  debug-context:
+    name: Debug workflow context
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Show workflow context
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Base ref: ${{ github.base_ref }}"
+          echo "Head ref: ${{ github.head_ref }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Head commit message: ${{ github.event.head_commit.message }}"
+          echo ""
+          echo "Condition check:"
+          echo "  github.event_name == 'push': ${{ github.event_name == 'push' }}"
+          echo "  github.ref == 'refs/heads/main': ${{ github.ref == 'refs/heads/main' }}"
+          echo "  Combined condition: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}"
+
   lint:
     name: Static analysis
     runs-on: ubuntu-latest
@@ -410,34 +429,46 @@ jobs:
     name: Update OpenAPI specification
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: write
     defaults:
       run:
         working-directory: backend
     steps:
-      - name: Check for [skip ci]
-        id: skip_check
+      - name: Check if should run
+        id: should_run
         run: |
-          if echo "${{ github.event.head_commit.message }}" | grep -q '\[skip ci\]'; then
-            echo "Skipping OpenAPI update due to [skip ci] in commit message"
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" != "push" ]; then
+            echo "Skipping: not a push event (event_name=${{ github.event_name }})"
+            echo "run=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "Skipping: not main branch (ref=${{ github.ref }})"
+            echo "run=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          if echo "${{ github.event.head_commit.message }}" | grep -q '\[skip ci\]'; then
+            echo "Skipping: [skip ci] found in commit message"
+            echo "run=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "Will run: push to main branch"
+          echo "run=true" >> $GITHUB_OUTPUT
       - name: Checkout
-        if: steps.skip_check.outputs.skip != 'true'
+        if: steps.should_run.outputs.run == 'true'
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
+        if: steps.should_run.outputs.run == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Poetry
+        if: steps.should_run.outputs.run == 'true'
         uses: snok/install-poetry@v1
         with:
           version: ${{ env.POETRY_VERSION }}
@@ -445,15 +476,18 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Cache Poetry virtualenv
+        if: steps.should_run.outputs.run == 'true'
         uses: actions/cache@v4
         with:
           path: backend/.venv
           key: ${{ runner.os }}-poetry-${{ env.PYTHON_VERSION }}-${{ hashFiles('backend/poetry.lock') }}
 
       - name: Install backend dependencies
+        if: steps.should_run.outputs.run == 'true'
         run: poetry install --no-ansi --no-interaction
 
       - name: Start backend server
+        if: steps.should_run.outputs.run == 'true'
         run: |
           poetry run uvicorn main:app --host 0.0.0.0 --port 8000 &
           sleep 5
@@ -461,17 +495,20 @@ jobs:
         continue-on-error: false
 
       - name: Export OpenAPI specification
+        if: steps.should_run.outputs.run == 'true'
         run: |
           curl -s http://localhost:8000/openapi.json | jq . > openapi/openapi.json || \
             curl -s http://localhost:8000/openapi.json > openapi/openapi.json
           echo "OpenAPI schema exported"
 
       - name: Copy to docs for GitHub Pages
+        if: steps.should_run.outputs.run == 'true'
         run: |
           mkdir -p ../docs/api
           cp openapi/openapi.json ../docs/api/openapi.json
 
       - name: Check for changes
+        if: steps.should_run.outputs.run == 'true'
         id: changes
         run: |
           git config --local user.email "action@github.com"
@@ -484,7 +521,7 @@ jobs:
           fi
 
       - name: Commit and push changes
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.should_run.outputs.run == 'true' && steps.changes.outputs.changed == 'true'
         run: |
           git commit -m "chore: update OpenAPI specification [skip ci]"
           git push
