@@ -1,1 +1,604 @@
-{"openapi":"3.1.0","info":{"title":"Architecture Evaluation Tool API","description":"Backend API for architecture evaluation","version":"0.1.0"},"paths":{"/api/v1/health":{"get":{"tags":["health"],"summary":"Health check","operationId":"health_check_api_v1_health_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object","title":"Response Health Check Api V1 Health Get"}}}}}}},"/api/v1/diagrams":{"get":{"tags":["diagrams"],"summary":"List all diagrams","operationId":"list_diagrams_api_v1_diagrams_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/DiagramResponse"},"type":"array","title":"Response List Diagrams Api V1 Diagrams Get"}}}}}},"post":{"tags":["diagrams"],"summary":"Upload PlantUML diagram","operationId":"upload_diagram_api_v1_diagrams_post","requestBody":{"content":{"multipart/form-data":{"schema":{"$ref":"#/components/schemas/Body_upload_diagram_api_v1_diagrams_post"}}},"required":true},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DiagramResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/v1/diagrams/{diagram_id}":{"get":{"tags":["diagrams"],"summary":"Get diagram by ID","operationId":"get_diagram_api_v1_diagrams__diagram_id__get","parameters":[{"name":"diagram_id","in":"path","required":true,"schema":{"type":"string","format":"uuid","title":"Diagram Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DiagramResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/v1/diagrams/{diagram_id}/parse":{"post":{"tags":["diagrams"],"summary":"Parse diagram to extract components and relationships","operationId":"parse_diagram_api_v1_diagrams__diagram_id__parse_post","parameters":[{"name":"diagram_id","in":"path","required":true,"schema":{"type":"string","format":"uuid","title":"Diagram Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ParseDiagramResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}}},"components":{"schemas":{"Body_upload_diagram_api_v1_diagrams_post":{"properties":{"file":{"type":"string","format":"binary","title":"File"},"name":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Name"}},"type":"object","required":["file"],"title":"Body_upload_diagram_api_v1_diagrams_post"},"ComponentResponse":{"properties":{"id":{"type":"string","format":"uuid","title":"Id"},"name":{"type":"string","title":"Name"},"type":{"$ref":"#/components/schemas/ComponentType"}},"type":"object","required":["id","name","type"],"title":"ComponentResponse"},"ComponentType":{"type":"string","enum":["component","interface","actor","package","database","queue","system","external"],"title":"ComponentType"},"DiagramResponse":{"properties":{"id":{"type":"string","format":"uuid","title":"Id"},"name":{"type":"string","title":"Name"},"status":{"$ref":"#/components/schemas/DiagramStatus"},"source_url":{"type":"string","title":"Source Url"},"uploaded_at":{"type":"string","format":"date-time","title":"Uploaded At"},"parsed_at":{"anyOf":[{"type":"string","format":"date-time"},{"type":"null"}],"title":"Parsed At"}},"type":"object","required":["id","name","status","source_url","uploaded_at"],"title":"DiagramResponse"},"DiagramStatus":{"type":"string","enum":["uploaded","parsed","analysis_ready","failed"],"title":"DiagramStatus"},"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"ParseDiagramResponse":{"properties":{"diagram":{"$ref":"#/components/schemas/DiagramResponse"},"components":{"items":{"$ref":"#/components/schemas/ComponentResponse"},"type":"array","title":"Components"},"relationships":{"items":{"$ref":"#/components/schemas/RelationshipResponse"},"type":"array","title":"Relationships"}},"type":"object","required":["diagram","components","relationships"],"title":"ParseDiagramResponse"},"RelationshipDirection":{"type":"string","enum":["unidirectional","bidirectional"],"title":"RelationshipDirection"},"RelationshipResponse":{"properties":{"id":{"type":"string","format":"uuid","title":"Id"},"source_component_id":{"type":"string","format":"uuid","title":"Source Component Id"},"target_component_id":{"type":"string","format":"uuid","title":"Target Component Id"},"label":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Label"},"direction":{"$ref":"#/components/schemas/RelationshipDirection"}},"type":"object","required":["id","source_component_id","target_component_id","direction"],"title":"RelationshipResponse"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"}}}}
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "Architecture Evaluation Tool API",
+      "description": "Backend API for architecture evaluation",
+      "version": "0.1.0"
+    },
+    "paths": {
+      "/api/v1/health": {
+        "get": {
+          "tags": [
+            "health"
+          ],
+          "summary": "Health check",
+          "operationId": "health_check_api_v1_health_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object",
+                    "title": "Response Health Check Api V1 Health Get"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/diagrams": {
+        "get": {
+          "tags": [
+            "diagrams"
+          ],
+          "summary": "List all diagrams",
+          "operationId": "list_diagrams_api_v1_diagrams_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/DiagramResponse"
+                    },
+                    "type": "array",
+                    "title": "Response List Diagrams Api V1 Diagrams Get"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "diagrams"
+          ],
+          "summary": "Upload PlantUML diagram",
+          "operationId": "upload_diagram_api_v1_diagrams_post",
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/Body_upload_diagram_api_v1_diagrams_post"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DiagramResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/diagrams/{diagram_id}": {
+        "get": {
+          "tags": [
+            "diagrams"
+          ],
+          "summary": "Get diagram by ID",
+          "operationId": "get_diagram_api_v1_diagrams__diagram_id__get",
+          "parameters": [
+            {
+              "name": "diagram_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Diagram Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DiagramResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/diagrams/{diagram_id}/parse": {
+        "post": {
+          "tags": [
+            "diagrams"
+          ],
+          "summary": "Parse diagram to extract components and relationships",
+          "operationId": "parse_diagram_api_v1_diagrams__diagram_id__parse_post",
+          "parameters": [
+            {
+              "name": "diagram_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Diagram Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ParseDiagramResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/nfrs": {
+        "get": {
+          "tags": [
+            "nfr"
+          ],
+          "summary": "List all non-functional requirements",
+          "operationId": "list_nfrs_api_v1_nfrs_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "items": {
+                      "$ref": "#/components/schemas/NFRResponse"
+                    },
+                    "type": "array",
+                    "title": "Response List Nfrs Api V1 Nfrs Get"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "nfr"
+          ],
+          "summary": "Create a new non-functional requirement",
+          "operationId": "create_nfr_api_v1_nfrs_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateNFRRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/NFRResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/nfrs/{nfr_id}": {
+        "delete": {
+          "tags": [
+            "nfr"
+          ],
+          "summary": "Delete an existing non-functional requirement",
+          "operationId": "delete_nfr_api_v1_nfrs__nfr_id__delete",
+          "parameters": [
+            {
+              "name": "nfr_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Nfr Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "title": "Response Delete Nfr Api V1 Nfrs  Nfr Id  Delete"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Body_upload_diagram_api_v1_diagrams_post": {
+          "properties": {
+            "file": {
+              "type": "string",
+              "format": "binary",
+              "title": "File"
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Name"
+            }
+          },
+          "type": "object",
+          "required": [
+            "file"
+          ],
+          "title": "Body_upload_diagram_api_v1_diagrams_post"
+        },
+        "ComponentResponse": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            },
+            "name": {
+              "type": "string",
+              "title": "Name"
+            },
+            "type": {
+              "$ref": "#/components/schemas/ComponentType"
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "name",
+            "type"
+          ],
+          "title": "ComponentResponse"
+        },
+        "ComponentType": {
+          "type": "string",
+          "enum": [
+            "component",
+            "interface",
+            "actor",
+            "package",
+            "database",
+            "queue",
+            "system",
+            "external"
+          ],
+          "title": "ComponentType"
+        },
+        "CreateNFRRequest": {
+          "properties": {
+            "name": {
+              "type": "string",
+              "maxLength": 255,
+              "title": "Name",
+              "description": "Short name of the NFR"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description",
+              "description": "Optional description for the NFR"
+            }
+          },
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "title": "CreateNFRRequest"
+        },
+        "DiagramResponse": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            },
+            "name": {
+              "type": "string",
+              "title": "Name"
+            },
+            "status": {
+              "$ref": "#/components/schemas/DiagramStatus"
+            },
+            "source_url": {
+              "type": "string",
+              "title": "Source Url"
+            },
+            "uploaded_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Uploaded At"
+            },
+            "parsed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Parsed At"
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "name",
+            "status",
+            "source_url",
+            "uploaded_at"
+          ],
+          "title": "DiagramResponse"
+        },
+        "DiagramStatus": {
+          "type": "string",
+          "enum": [
+            "uploaded",
+            "parsed",
+            "analysis_ready",
+            "failed"
+          ],
+          "title": "DiagramStatus"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "NFRResponse": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            },
+            "name": {
+              "type": "string",
+              "title": "Name"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "name",
+            "created_at"
+          ],
+          "title": "NFRResponse"
+        },
+        "ParseDiagramResponse": {
+          "properties": {
+            "diagram": {
+              "$ref": "#/components/schemas/DiagramResponse"
+            },
+            "components": {
+              "items": {
+                "$ref": "#/components/schemas/ComponentResponse"
+              },
+              "type": "array",
+              "title": "Components"
+            },
+            "relationships": {
+              "items": {
+                "$ref": "#/components/schemas/RelationshipResponse"
+              },
+              "type": "array",
+              "title": "Relationships"
+            }
+          },
+          "type": "object",
+          "required": [
+            "diagram",
+            "components",
+            "relationships"
+          ],
+          "title": "ParseDiagramResponse"
+        },
+        "RelationshipDirection": {
+          "type": "string",
+          "enum": [
+            "unidirectional",
+            "bidirectional"
+          ],
+          "title": "RelationshipDirection"
+        },
+        "RelationshipResponse": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            },
+            "source_component_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Component Id"
+            },
+            "target_component_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Target Component Id"
+            },
+            "label": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Label"
+            },
+            "direction": {
+              "$ref": "#/components/schemas/RelationshipDirection"
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "source_component_id",
+            "target_component_id",
+            "direction"
+          ],
+          "title": "RelationshipResponse"
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        }
+      }
+    }
+  }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../network/src/api.dart';
+import '../services/diagram_repository.dart';
 import '../theme/app_theme.dart';
 import '../utils/date_time_utils.dart';
 
@@ -11,13 +12,15 @@ class RecentUploadsWidget extends StatelessWidget {
     required this.onRetryParse,
     this.processingDiagramId,
     this.isRefreshing = false,
-  });
+    DiagramRepository? diagramRepository,
+  }) : _diagramRepository = diagramRepository;
 
   final List<DiagramResponse> diagrams;
   final VoidCallback onRefresh;
   final ValueChanged<String> onRetryParse;
   final String? processingDiagramId;
   final bool isRefreshing;
+  final DiagramRepository? _diagramRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +108,7 @@ class RecentUploadsWidget extends StatelessWidget {
                       onRetry: upload.status == DiagramStatus.failed
                           ? () => onRetryParse(upload.id)
                           : null,
+                      diagramRepository: _diagramRepository,
                     ),
                     if (index < uploads.length - 1) const Divider(height: 32),
                   ],
@@ -141,6 +145,7 @@ class _UploadItem extends StatelessWidget {
     this.parsedAt,
     this.onRetry,
     this.isRetrying = false,
+    this.diagramRepository,
   });
 
   final DiagramResponse diagram;
@@ -150,6 +155,7 @@ class _UploadItem extends StatelessWidget {
   final DateTime? parsedAt;
   final VoidCallback? onRetry;
   final bool isRetrying;
+  final DiagramRepository? diagramRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -274,7 +280,10 @@ class _UploadItem extends StatelessWidget {
           onPressed: () {
             showModalBottomSheet<void>(
               context: context,
-              builder: (context) => _UploadActionsSheet(diagram: diagram),
+              builder: (context) => _UploadActionsSheet(
+                diagram: diagram,
+                diagramRepository: diagramRepository,
+              ),
             );
           },
         ),
@@ -317,9 +326,13 @@ class _UploadItem extends StatelessWidget {
 }
 
 class _UploadActionsSheet extends StatelessWidget {
-  const _UploadActionsSheet({required this.diagram});
+  const _UploadActionsSheet({
+    required this.diagram,
+    DiagramRepository? diagramRepository,
+  }) : _diagramRepository = diagramRepository;
 
   final DiagramResponse diagram;
+  final DiagramRepository? _diagramRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -356,7 +369,56 @@ class _UploadActionsSheet extends StatelessWidget {
               title: const Text('View details'),
               subtitle:
                   Text('Uploaded ${formatRelativeTime(diagram.uploadedAt)}'),
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () async {
+                Navigator.of(context).pop();
+                // Fetch latest diagram details using getDiagram endpoint
+                if (_diagramRepository != null) {
+                  try {
+                    final updatedDiagram =
+                        await _diagramRepository!.getDiagram(diagram.id);
+                    if (updatedDiagram != null && context.mounted) {
+                      showDialog<void>(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: Text(updatedDiagram.name),
+                          content: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('Status: ${updatedDiagram.status}'),
+                                const SizedBox(height: 8),
+                                Text(
+                                    'Uploaded: ${formatRelativeTime(updatedDiagram.uploadedAt)}'),
+                                if (updatedDiagram.parsedAt != null) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                      'Parsed: ${formatRelativeTime(updatedDiagram.parsedAt!)}'),
+                                ],
+                                const SizedBox(height: 8),
+                                Text('Source URL: ${updatedDiagram.sourceUrl}'),
+                              ],
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(),
+                              child: const Text('Close'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to fetch details: $e')),
+                      );
+                    }
+                  }
+                }
+              },
             ),
           ],
         ),
