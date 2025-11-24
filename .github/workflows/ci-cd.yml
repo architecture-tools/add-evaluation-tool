@@ -296,10 +296,109 @@ jobs:
           name: frontend-coverage-${{ github.run_number }}
           path: frontend/coverage/lcov.info
           if-no-files-found: ignore
-      
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           file: frontend/coverage/lcov.info
           flags: frontend
           name: frontend-coverage
+
+  test-integration:
+    name: Integration tests (QASTs)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Start services with docker compose
+        run: |
+          docker compose up -d --build
+          docker compose ps
+
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for backend to be ready..."
+          timeout 120 bash -c 'until curl -f http://localhost:8000/api/v1/health; do sleep 2; done' || exit 1
+          echo "Backend is ready!"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: backend/.venv
+          key: ${{ runner.os }}-poetry-${{ env.PYTHON_VERSION }}-${{ hashFiles('backend/poetry.lock') }}
+
+      - name: Install backend dependencies
+        run: poetry install --no-ansi --no-interaction
+
+      - name: Run QAST202-1 (PlantUML Processing Performance)
+        id: qast202
+        env:
+          API_URL: http://localhost:8000
+        run: poetry run python scripts/test_qast202_1.py
+        continue-on-error: true
+
+      - name: Run QAST302-1 (Component Extraction Accuracy)
+        id: qast302
+        env:
+          API_URL: http://localhost:8000
+        run: poetry run python scripts/test_qast302_1.py
+        continue-on-error: true
+
+      - name: Publish QAST results summary
+        run: |
+          {
+            echo "### Quality Attribute Scenario Tests (QASTs)"
+            echo ""
+            echo "#### QAST202-1: PlantUML Processing Performance"
+            if [ "${{ steps.qast202.outcome }}" == "success" ]; then
+              echo "✅ **PASSED** - 95%+ of files processed within 3 seconds"
+            else
+              echo "❌ **FAILED** - Performance requirements not met"
+            fi
+            echo ""
+            echo "**Reference:** [QAST202-1](../docs/requirements/quality-requirements.md#qast202-1)"
+            echo ""
+            echo "#### QAST302-1: Component Extraction Accuracy"
+            if [ "${{ steps.qast302.outcome }}" == "success" ]; then
+              echo "✅ **PASSED** - 95%+ extraction accuracy achieved"
+            else
+              echo "❌ **FAILED** - Accuracy requirements not met"
+            fi
+            echo ""
+            echo "**Reference:** [QAST302-1](../docs/requirements/quality-requirements.md#qast302-1)"
+            echo ""
+            echo "**Implementation:**"
+            echo "- [QAST202-1 script](../backend/scripts/test_qast202_1.py)"
+            echo "- [QAST302-1 script](../backend/scripts/test_qast302_1.py)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Cleanup docker compose
+        if: always()
+        run: |
+          docker compose down -v
+
+      - name: Fail if any QAST failed
+        if: steps.qast202.outcome != 'success' || steps.qast302.outcome != 'success'
+        run: |
+          echo "One or more QASTs failed. Check the logs above for details."
+          exit 1
