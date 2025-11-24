@@ -37,7 +37,18 @@ docker run -p 8080:8080 \
 
 ## Обновление документации
 
-OpenAPI спецификация автоматически обновляется при изменении API. Для ручного обновления:
+OpenAPI спецификация **автоматически обновляется** при каждом push в `main`:
+
+1. CI/CD workflow запускает backend сервер
+2. Экспортирует актуальную OpenAPI спецификацию из `/openapi.json`
+3. Автоматически коммитит обновленный `openapi.json` обратно в репозиторий
+4. GitHub Pages автоматически пересобирается и публикует обновленную документацию
+
+**Вам не нужно обновлять openapi.json вручную!** Просто измените API код, закоммитьте и запушьте - всё остальное произойдет автоматически.
+
+### Ручное обновление (для локальной разработки)
+
+Если нужно обновить спецификацию локально:
 
 ```bash
 # Запустите backend
@@ -45,12 +56,6 @@ cd backend && poetry run uvicorn main:app --reload
 
 # В другом терминале экспортируйте спецификацию
 curl http://localhost:8000/openapi.json > backend/openapi/openapi.json
-
-# Закоммитьте изменения
-git add backend/openapi/openapi.json docs/api/openapi.json
-git commit -m "Update OpenAPI specification"
-git push
+cp backend/openapi/openapi.json docs/api/openapi.json
 ```
-
-GitHub Pages автоматически пересоберется и опубликует обновленную документацию.
 
