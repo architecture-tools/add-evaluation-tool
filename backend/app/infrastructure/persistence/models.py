@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Dict
 from uuid import UUID
 
-from sqlalchemy import JSON, String, Text, DateTime, ForeignKey
+from sqlalchemy import JSON, String, Text, DateTime, ForeignKey, Enum, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -94,5 +94,43 @@ class NonFunctionalRequirementModel(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=datetime.utcnow
+    )
+
+
+class DiagramImpactModel(Base):
+    __tablename__ = "diagram_nfr_component_impacts"
+    __table_args__ = (
+        UniqueConstraint("diagram_id", "nfr_id", "component_id", name="uq_matrix_cell"),
+    )
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True)
+    diagram_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("diagrams.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    nfr_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("non_functional_requirements.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    component_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("components.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    impact: Mapped[str] = mapped_column(
+        Enum("POSITIVE", "NO_EFFECT", "NEGATIVE", name="impact_value"),
+        nullable=False,
+        default="NO_EFFECT",
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=datetime.utcnow
+    )
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=datetime.utcnow
     )
