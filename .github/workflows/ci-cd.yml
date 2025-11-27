@@ -431,6 +431,20 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: arch_eval_db
+          POSTGRES_USER: arch_eval
+          POSTGRES_PASSWORD: arch_eval_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U arch_eval"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Check if should run
         id: should_run
@@ -483,6 +497,13 @@ jobs:
         if: steps.should_run.outputs.run == 'true'
         working-directory: backend
         run: poetry install --no-ansi --no-interaction
+
+      - name: Wait for PostgreSQL
+        if: steps.should_run.outputs.run == 'true'
+        run: |
+          echo "Waiting for PostgreSQL to be ready..."
+          timeout 90 bash -c 'until nc -z localhost 5432; do sleep 2; done' || (echo "PostgreSQL did not become ready in time" && exit 1)
+          echo "PostgreSQL is ready."
 
       - name: Start backend server
         if: steps.should_run.outputs.run == 'true'
