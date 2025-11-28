@@ -32,30 +32,33 @@ class _NFRPerformanceWidgetState extends State<NFRPerformanceWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'NFR Performance',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'NFR Performance',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textPrimary,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Latest evaluation metrics',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
+                      const SizedBox(height: 4),
+                      Text(
+                        'Latest evaluation metrics',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textSecondary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
                       icon: const Icon(Icons.add, size: 20),
@@ -72,7 +75,7 @@ class _NFRPerformanceWidgetState extends State<NFRPerformanceWidget> {
               ],
             ),
             const SizedBox(height: 20),
-            if (widget.metrics.isEmpty && widget.nfrs.isEmpty)
+            if (widget.metrics.isEmpty)
               const Text(
                 'No NFR metrics available yet.',
                 style: TextStyle(

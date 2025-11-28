@@ -6,104 +6,289 @@ import '../models/nfr_matrix.dart';
 import '../network/src/api.dart';
 import '../utils/date_time_utils.dart';
 import 'diagram_repository.dart';
-import 'mock_data_service.dart';
+import 'matrix_repository.dart';
 import 'nfr_repository.dart';
 
 class DashboardService {
   DashboardService({
     DiagramRepository? diagramRepository,
     NFRRepository? nfrRepository,
+    MatrixRepository? matrixRepository,
   })  : _diagramRepository = diagramRepository ?? DiagramRepository(),
-        _nfrRepository = nfrRepository ?? NFRRepository();
+        _nfrRepository = nfrRepository ?? NFRRepository(),
+        _matrixRepository = matrixRepository ?? MatrixRepository();
 
   final DiagramRepository _diagramRepository;
   final NFRRepository _nfrRepository;
+  final MatrixRepository _matrixRepository;
 
   Future<DashboardViewData> loadDashboard() async {
-    final diagrams = await _diagramRepository.fetchDiagrams();
-    final nfrs = await _nfrRepository.fetchNFRs();
-    final metrics = DashboardMetrics.fromDiagrams(diagrams);
-    final timeline = _buildTimeline(diagrams);
+    List<DiagramResponse> diagrams = [];
+    List<NFRResponse> nfrs = [];
 
-    // Build matrix from real NFRs and components from parsed diagrams
-    final matrix = _buildMatrixFromData(nfrs, diagrams);
+    try {
+      diagrams = await _diagramRepository.fetchDiagrams();
+    } catch (error) {
+      debugPrint('Failed to load diagrams: $error');
+    }
+
+    try {
+      nfrs = await _nfrRepository.fetchNFRs();
+    } catch (error) {
+      debugPrint('Failed to load NFRs: $error');
+    }
+
+    final selectedDiagram = _selectDiagramForMatrix(diagrams);
+    DiagramMatrixResponse? matrixResponse;
+    ParseDiagramResponse? parseResponse;
+
+    if (selectedDiagram != null) {
+      try {
+        matrixResponse =
+            await _matrixRepository.fetchMatrix(selectedDiagram.id);
+      } catch (_) {
+        // Fallback handled below; surfaced in UI via mock data.
+      }
+
+      if (_shouldFetchComponents(selectedDiagram)) {
+        try {
+          parseResponse =
+              await _diagramRepository.parseDiagram(selectedDiagram.id);
+        } catch (_) {
+          // Non-fatal: we can still show IDs as labels.
+        }
+      }
+    }
+
+    final matrix = _buildMatrixFromData(
+      nfrs,
+      matrixResponse,
+      parseResponse,
+      selectedDiagram: selectedDiagram,
+    );
 
     // Convert NFRResponse to NFRMetric for display
-    final nfrMetrics = nfrs.map((nfr) {
-      // Use a default score for now (could be calculated from evaluations)
-      return NFRMetric(
-        nfr.name,
-        7.5, // Default score, could be enhanced with actual evaluation data
-        _getNFRColor(nfr.name),
-      );
-    }).toList();
+    final nfrMetrics = _buildNfrMetrics(
+      nfrs,
+      matrixResponse?.nfrScores,
+    );
+
+    final metrics = DashboardMetrics.fromDiagrams(diagrams);
+    final timeline = _buildTimeline(
+      diagrams,
+      selectedDiagramId: selectedDiagram?.id,
+      overrideScore:
+          _scoreFromMatrix(matrixResponse) ?? _scoreFromMatrixData(matrix),
+    );
 
     return DashboardViewData(
       diagrams: diagrams,
       metrics: metrics,
       timeline: timeline,
-      nfrMetrics:
-          nfrMetrics.isNotEmpty ? nfrMetrics : MockDataService.getNFRMetrics(),
+      nfrMetrics: nfrMetrics,
       matrix: matrix,
       nfrs: nfrs,
       fetchedAt: DateTime.now(),
+      selectedDiagram: selectedDiagram,
     );
   }
 
   NfrMatrixData _buildMatrixFromData(
-      List<NFRResponse> nfrs, List<DiagramResponse> diagrams) {
-    // Extract components from parsed diagrams
-    final components = <String>{};
-    for (final diagram in diagrams) {
-      if (diagram.status == DiagramStatus.parsed ||
-          diagram.status == DiagramStatus.analysisReady) {
-        // For now, use mock components. In the future, fetch from parseDiagram response
-        // This would require calling getDiagram or parseDiagram to get components
-        components.addAll([
-          'API Gateway',
-          'Auth Service',
-          'Payment',
-          'Order Mgmt',
-          'Database'
-        ]);
-      }
+    List<NFRResponse> nfrs,
+    DiagramMatrixResponse? matrixResponse,
+    ParseDiagramResponse? parseResponse, {
+    DiagramResponse? selectedDiagram,
+  }) {
+    if (selectedDiagram == null) {
+      return _buildEmptyMatrixData(
+        diagram: null,
+        components: const [],
+        nfrs: nfrs,
+      );
     }
 
-    // If no components found, use default
-    final componentList = components.isEmpty
-        ? ['API Gateway', 'Auth Service', 'Payment', 'Order Mgmt', 'Database']
-        : components.toList()
-      ..sort();
+    final components = _deriveComponentColumns(
+      parseResponse,
+      matrixResponse,
+    );
 
-    // Build matrix rows from NFRs
-    final rows = nfrs.map((nfr) {
-      // Initialize scores with 0 for all components
-      final scores = <String, int>{
-        for (final component in componentList) component: 0,
+    if (matrixResponse == null) {
+      return _buildEmptyMatrixData(
+        diagram: selectedDiagram,
+        components: components,
+        nfrs: nfrs,
+        canPersist: components.isNotEmpty,
+      );
+    }
+
+    final entriesByNfr = <String, Map<String, ImpactValue>>{};
+    for (final entry in matrixResponse.entries) {
+      final row = entriesByNfr.putIfAbsent(entry.nfrId, () => {});
+      row[entry.componentId] = entry.impact;
+    }
+
+    final nfrById = {for (final nfr in nfrs) nfr.id: nfr};
+    final nfrIds =
+        {...nfrById.keys, ...entriesByNfr.keys}.toList(growable: false)
+          ..sort((a, b) {
+            final aName = nfrById[a]?.name ?? a;
+            final bName = nfrById[b]?.name ?? b;
+            return aName.compareTo(bName);
+          });
+
+    if (components.isEmpty || nfrIds.isEmpty) {
+      return _buildEmptyMatrixData(
+        diagram: selectedDiagram,
+        components: components,
+        nfrs: nfrs,
+        canPersist: components.isNotEmpty,
+      );
+    }
+
+    final rows = nfrIds.map((nfrId) {
+      final nfr = nfrById[nfrId];
+      final label = nfr?.name ?? 'NFR ${_shortId(nfrId)}';
+      final componentScores = <String, int>{
+        for (final component in components)
+          component.id: _scoreFromImpact(
+            entriesByNfr[nfrId]?[component.id],
+          ),
       };
 
       return NfrMatrixRow(
-        nfr: nfr.name,
-        color: _getNFRColor(nfr.name),
-        scores: scores,
+        nfrId: nfrId,
+        nfr: label,
+        color: _getNFRColor(label),
+        scores: componentScores,
       );
     }).toList();
 
-    // If no NFRs, use default matrix
-    if (rows.isEmpty) {
-      return MockDataService.getDefaultMatrix();
+    return NfrMatrixData(
+      diagramId: selectedDiagram.id,
+      version: selectedDiagram.name,
+      lastUpdated: selectedDiagram.parsedAt ?? selectedDiagram.uploadedAt,
+      components: components,
+      rows: rows,
+      sourceUrl: selectedDiagram.sourceUrl,
+      isPersistent: true,
+    );
+  }
+
+  List<ComponentColumn> _deriveComponentColumns(
+    ParseDiagramResponse? parseResponse,
+    DiagramMatrixResponse? matrixResponse,
+  ) {
+    final componentNames = <String, String>{};
+
+    if (parseResponse != null) {
+      for (final component in parseResponse.components) {
+        componentNames[component.id] = component.name;
+      }
     }
 
-    // Get the latest diagram version for matrix version
-    final latestDiagram = diagrams.isNotEmpty ? diagrams.first : null;
-    final version = latestDiagram?.name ?? 'v2.3.1';
+    if (matrixResponse != null) {
+      for (final entry in matrixResponse.entries) {
+        componentNames.putIfAbsent(
+          entry.componentId,
+          () => 'Component ${_shortId(entry.componentId)}',
+        );
+      }
+    }
+
+    return componentNames.entries
+        .map((entry) =>
+            ComponentColumn(id: entry.key, label: entry.value.trim()))
+        .toList()
+      ..sort((a, b) => a.label.compareTo(b.label));
+  }
+
+  NfrMatrixData _buildEmptyMatrixData({
+    required DiagramResponse? diagram,
+    required List<ComponentColumn> components,
+    required List<NFRResponse> nfrs,
+    bool canPersist = false,
+  }) {
+    final rows = nfrs.map((nfr) {
+      final zeroScores = <String, int>{
+        for (final component in components) component.id: 0,
+      };
+      return NfrMatrixRow(
+        nfrId: nfr.id,
+        nfr: nfr.name,
+        color: _getNFRColor(nfr.name),
+        scores: zeroScores,
+      );
+    }).toList();
+
+    final timestamp =
+        diagram?.parsedAt ?? diagram?.uploadedAt ?? DateTime.now();
 
     return NfrMatrixData(
-      version: version,
-      lastUpdated: DateTime.now(),
-      components: componentList,
+      diagramId: diagram?.id ?? '',
+      version: diagram?.name ?? 'No diagrams available',
+      lastUpdated: timestamp,
+      components: components,
       rows: rows,
+      sourceUrl: diagram?.sourceUrl,
+      isPersistent: canPersist,
     );
+  }
+
+  List<NFRMetric> _buildNfrMetrics(
+    List<NFRResponse> nfrs,
+    List<NFRScoreResponse>? scores,
+  ) {
+    if (scores == null || scores.isEmpty) {
+      return [];
+    }
+
+    final nfrById = {for (final nfr in nfrs) nfr.id: nfr};
+    return scores.map((score) {
+      final nfr = nfrById[score.nfrId];
+      final label = nfr?.name ?? 'NFR ${_shortId(score.nfrId)}';
+      return NFRMetric(
+        label,
+        score.score.toDouble(),
+        _getNFRColor(label),
+      );
+    }).toList();
+  }
+
+  DiagramResponse? _selectDiagramForMatrix(List<DiagramResponse> diagrams) {
+    if (diagrams.isEmpty) {
+      return null;
+    }
+
+    return diagrams.firstWhere(
+      (diagram) =>
+          diagram.status == DiagramStatus.analysisReady ||
+          diagram.status == DiagramStatus.parsed,
+      orElse: () => diagrams.first,
+    );
+  }
+
+  bool _shouldFetchComponents(DiagramResponse diagram) {
+    return diagram.status == DiagramStatus.parsed ||
+        diagram.status == DiagramStatus.analysisReady;
+  }
+
+  int _scoreFromImpact(ImpactValue? impact) {
+    switch (impact) {
+      case ImpactValue.POSITIVE:
+        return 1;
+      case ImpactValue.NEGATIVE:
+        return -1;
+      case ImpactValue.NO_EFFECT:
+      default:
+        return 0;
+    }
+  }
+
+  String _shortId(String id) {
+    if (id.length <= 8) {
+      return id;
+    }
+    return id.substring(0, 8);
   }
 
   Color _getNFRColor(String name) {
@@ -128,11 +313,18 @@ class DashboardService {
     return _diagramRepository.parseDiagram(diagramId);
   }
 
-  List<VersionInfo> _buildTimeline(List<DiagramResponse> diagrams) {
+  List<VersionInfo> _buildTimeline(
+    List<DiagramResponse> diagrams, {
+    String? selectedDiagramId,
+    double? overrideScore,
+  }) {
     return diagrams
         .mapIndexed((index, diagram) {
           final trend = _deriveTrend(diagram.status);
-          final score = _deriveScore(diagram.status);
+          final score = _deriveScore(
+            diagram.status,
+            actualScore: diagram.id == selectedDiagramId ? overrideScore : null,
+          );
           final statusLabel = _statusLabel(diagram.status);
           final description = diagram.sourceUrl.isNotEmpty
               ? diagram.sourceUrl
@@ -164,7 +356,10 @@ class DashboardService {
     return VersionTrend.neutral;
   }
 
-  double _deriveScore(DiagramStatus status) {
+  double _deriveScore(DiagramStatus status, {double? actualScore}) {
+    if (actualScore != null) {
+      return actualScore;
+    }
     switch (status) {
       case DiagramStatus.analysisReady:
         return 8.8;
@@ -176,6 +371,62 @@ class DashboardService {
         return 3.5;
     }
     return 6.0;
+  }
+
+  double? _scoreFromMatrix(DiagramMatrixResponse? matrix) {
+    if (matrix == null) {
+      return null;
+    }
+
+    if (matrix.overallScore != null) {
+      return double.parse(matrix.overallScore!.toStringAsFixed(1));
+    }
+
+    if (matrix.entries.isEmpty) {
+      return null;
+    }
+
+    final total = matrix.entries.fold<int>(0, (sum, entry) {
+      switch (entry.impact) {
+        case ImpactValue.POSITIVE:
+          return sum + 1;
+        case ImpactValue.NEGATIVE:
+          return sum - 1;
+        case ImpactValue.NO_EFFECT:
+        default:
+          return sum;
+      }
+    });
+
+    final average = total / matrix.entries.length;
+    return double.parse(average.toStringAsFixed(1));
+  }
+
+  double? _scoreFromMatrixData(NfrMatrixData matrix) {
+    if (matrix.rows.isEmpty || matrix.components.isEmpty) {
+      return null;
+    }
+
+    bool hasSignal = false;
+    int total = 0;
+    int count = 0;
+
+    for (final row in matrix.rows) {
+      for (final score in row.scores.values) {
+        total += score;
+        count++;
+        if (score != 0) {
+          hasSignal = true;
+        }
+      }
+    }
+
+    if (!hasSignal || count == 0) {
+      return null;
+    }
+
+    final average = total / count;
+    return double.parse(average.toStringAsFixed(1));
   }
 
   String _statusLabel(DiagramStatus status) {
@@ -202,6 +453,7 @@ class DashboardViewData {
     required this.matrix,
     required this.fetchedAt,
     this.nfrs = const [],
+    this.selectedDiagram,
   });
 
   final List<DiagramResponse> diagrams;
@@ -211,6 +463,7 @@ class DashboardViewData {
   final NfrMatrixData matrix;
   final List<NFRResponse> nfrs;
   final DateTime fetchedAt;
+  final DiagramResponse? selectedDiagram;
 }
 
 class DashboardMetrics {
