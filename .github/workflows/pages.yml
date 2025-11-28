@@ -1,11 +1,13 @@
 name: Deploy GitHub Pages
 
 on:
-  workflow_run:
-    workflows:
-      - CI/CD
-    types:
-      - completed
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'backend/openapi/**'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -19,27 +21,10 @@ concurrency:
 
 jobs:
   build:
-    if: >
-      ${{
-        github.event_name == 'workflow_dispatch' ||
-        (
-          github.event.workflow_run.conclusion == 'success' &&
-          github.event.workflow_run.head_branch == 'main'
-        )
-      }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout latest main
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.workflow_run.repository.full_name || github.repository }}
-          fetch-depth: 0
-
-      - name: Sync with origin/main
-        run: |
-          git fetch origin main
-          git checkout origin/main
-          git status --short
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -51,6 +36,13 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
+
+      - name: Copy OpenAPI specification
+        run: |
+          mkdir -p docs/api
+          cp backend/openapi/openapi.json docs/api/openapi.json
+          echo "OpenAPI spec copied to docs/api/openapi.json"
+          ls -la docs/api/
 
       - name: Build with Jekyll
         working-directory: ./docs/.github-pages
