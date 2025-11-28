@@ -3,15 +3,18 @@ from functools import lru_cache
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
+from app.application.diagrams.matrix_service import DiagramMatrixService
 from app.application.diagrams.services import DiagramService
 from app.application.nfr.services import NFRService
 from app.core.config import get_settings
 from app.domain.diagrams.repositories import DiagramRepository
+from app.domain.diagrams.matrix_repository import DiagramMatrixRepository
 from app.domain.nfr.repositories import NonFunctionalRequirementRepository
 from app.infrastructure.parsing.plantuml_parser import RegexPlantUMLParser
 from app.infrastructure.persistence.database import get_db
 from app.infrastructure.persistence.postgresql import (
     PostgreSQLDiagramRepository,
+    PostgreSQLDiagramMatrixRepository,
     PostgreSQLNFRRepository,
 )
 from app.infrastructure.storage.local import LocalDiagramStorage
@@ -57,3 +60,21 @@ def get_nfr_service(
     repository: NonFunctionalRequirementRepository = Depends(get_nfr_repository),
 ) -> NFRService:
     return NFRService(repository)
+
+
+def get_diagram_matrix_repository(
+    db: Session = Depends(get_db),
+) -> DiagramMatrixRepository:
+    return PostgreSQLDiagramMatrixRepository(db)
+
+
+def get_diagram_matrix_service(
+    matrix_repository: DiagramMatrixRepository = Depends(get_diagram_matrix_repository),
+    nfr_repository: NonFunctionalRequirementRepository = Depends(get_nfr_repository),
+    diagram_repository: DiagramRepository = Depends(get_diagram_repository),
+) -> DiagramMatrixService:
+    return DiagramMatrixService(
+        matrix_repository,
+        nfr_repository,
+        diagram_repository,
+    )

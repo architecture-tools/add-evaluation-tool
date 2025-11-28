@@ -5,6 +5,13 @@ from .diagrams import (
     RelationshipResponse,
 )
 from .nfrs import CreateNFRRequest, NFRResponse
+from .matrix import (
+    DiagramMatrixResponse,
+    MatrixCellResponse,
+    MatrixCellUpdateResponse,
+    NFRScoreResponse,
+    UpdateMatrixCellRequest,
+)
 
 __all__ = [
     "ComponentResponse",
@@ -13,4 +20,9 @@ __all__ = [
     "RelationshipResponse",
     "CreateNFRRequest",
     "NFRResponse",
+    "DiagramMatrixResponse",
+    "MatrixCellResponse",
+    "MatrixCellUpdateResponse",
+    "NFRScoreResponse",
+    "UpdateMatrixCellRequest",
 ]

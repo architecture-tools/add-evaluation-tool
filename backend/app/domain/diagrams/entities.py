@@ -67,3 +67,18 @@ class Relationship:
     direction: RelationshipDirection = RelationshipDirection.UNIDIRECTIONAL
     metadata: Dict[str, str] = field(default_factory=dict)
     id: UUID = field(default_factory=uuid4)
+
+
+class ImpactValue(str, Enum):
+    POSITIVE = "POSITIVE"
+    NO_EFFECT = "NO_EFFECT"
+    NEGATIVE = "NEGATIVE"
+
+
+@dataclass(slots=True)
+class DiagramNFRComponentImpact:
+    diagram_id: UUID
+    nfr_id: UUID
+    component_id: UUID
+    impact: ImpactValue = ImpactValue.NO_EFFECT
+    id: UUID = field(default_factory=uuid4)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Iterable, Optional, Sequence
 from uuid import UUID
 
@@ -8,12 +9,15 @@ from sqlalchemy.orm import Session
 from app.domain.diagrams.entities import (
     Component,
     Diagram,
-    Relationship,
+    DiagramNFRComponentImpact,
     DiagramStatus,
+    ImpactValue,
     ComponentType,
+    Relationship,
     RelationshipDirection,
 )
 from app.domain.diagrams.repositories import DiagramRepository
+from app.domain.diagrams.matrix_repository import DiagramMatrixRepository
 from app.domain.nfr.entities import NonFunctionalRequirement
 from app.domain.nfr.repositories import NonFunctionalRequirementRepository
 from app.infrastructure.persistence.models import (
@@ -21,6 +25,7 @@ from app.infrastructure.persistence.models import (
     ComponentModel,
     RelationshipModel,
     NonFunctionalRequirementModel,
+    DiagramImpactModel,
 )
 
 
@@ -266,4 +271,119 @@ class PostgreSQLNFRRepository(NonFunctionalRequirementRepository):
             name=model.name,
             description=model.description,
             created_at=model.created_at,
+        )
+
+
+class PostgreSQLDiagramMatrixRepository(DiagramMatrixRepository):
+    """PostgreSQL implementation for diagram matrix storage."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def list_by_diagram(self, diagram_id: UUID) -> Sequence[DiagramNFRComponentImpact]:
+        models = (
+            self._session.query(DiagramImpactModel)
+            .filter(DiagramImpactModel.diagram_id == diagram_id)
+            .all()
+        )
+        return [self._to_domain_entity(model) for model in models]
+
+    def upsert(
+        self,
+        diagram_id: UUID,
+        nfr_id: UUID,
+        component_id: UUID,
+        impact: ImpactValue,
+    ) -> DiagramNFRComponentImpact:
+        try:
+            model = (
+                self._session.query(DiagramImpactModel)
+                .filter(
+                    DiagramImpactModel.diagram_id == diagram_id,
+                    DiagramImpactModel.nfr_id == nfr_id,
+                    DiagramImpactModel.component_id == component_id,
+                )
+                .one_or_none()
+            )
+            if model is None:
+                model = DiagramImpactModel(
+                    diagram_id=diagram_id,
+                    nfr_id=nfr_id,
+                    component_id=component_id,
+                    impact=impact.value,
+                )
+                self._session.add(model)
+            else:
+                model.impact = impact.value
+                model.updated_at = datetime.utcnow()
+            self._session.commit()
+            self._session.refresh(model)
+            return self._to_domain_entity(model)
+        except Exception:
+            self._session.rollback()
+            raise
+
+    def ensure_pairs(
+        self,
+        diagram_id: UUID,
+        pairs: Iterable[tuple[UUID, UUID]],
+        default_impact: ImpactValue = ImpactValue.NO_EFFECT,
+    ) -> None:
+        try:
+            pairs_set = set(pairs)
+            if not pairs_set:
+                return
+
+            existing = (
+                self._session.query(
+                    DiagramImpactModel.nfr_id, DiagramImpactModel.component_id
+                )
+                .filter(DiagramImpactModel.diagram_id == diagram_id)
+                .all()
+            )
+            existing_set = {(row[0], row[1]) for row in existing}
+            missing = pairs_set - existing_set
+
+            if missing:
+                entries = [
+                    DiagramImpactModel(
+                        diagram_id=diagram_id,
+                        nfr_id=nfr_id,
+                        component_id=component_id,
+                        impact=default_impact.value,
+                    )
+                    for nfr_id, component_id in missing
+                ]
+                self._session.add_all(entries)
+            self._session.commit()
+        except Exception:
+            self._session.rollback()
+            raise
+
+    def delete_missing_components(
+        self, diagram_id: UUID, component_ids: Iterable[UUID]
+    ) -> None:
+        try:
+            component_ids_set = set(component_ids)
+            query = self._session.query(DiagramImpactModel).filter(
+                DiagramImpactModel.diagram_id == diagram_id
+            )
+            if component_ids_set:
+                query = query.filter(
+                    ~DiagramImpactModel.component_id.in_(component_ids_set)
+                )
+            # If there are no components, remove all entries for the diagram
+            query.delete(synchronize_session=False)
+            self._session.commit()
+        except Exception:
+            self._session.rollback()
+            raise
+
+    def _to_domain_entity(self, model: DiagramImpactModel) -> DiagramNFRComponentImpact:
+        return DiagramNFRComponentImpact(
+            id=model.id,
+            diagram_id=model.diagram_id,
+            nfr_id=model.nfr_id,
+            component_id=model.component_id,
+            impact=ImpactValue(model.impact),
         )

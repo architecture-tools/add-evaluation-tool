@@ -1,18 +1,27 @@
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from uuid import UUID
 
+from app.application.diagrams.matrix_service import DiagramMatrixService
 from app.application.diagrams.services import DiagramService
 from app.domain.diagrams.exceptions import (
     DiagramAlreadyExistsError,
     DiagramNotFoundError,
     ParseError,
 )
-from app.presentation.api.dependencies import get_diagram_service
+from app.presentation.api.dependencies import (
+    get_diagram_matrix_service,
+    get_diagram_service,
+)
 from app.presentation.api.v1.schemas import (
     ComponentResponse,
     DiagramResponse,
+    DiagramMatrixResponse,
+    MatrixCellResponse,
+    MatrixCellUpdateResponse,
+    NFRScoreResponse,
     ParseDiagramResponse,
     RelationshipResponse,
+    UpdateMatrixCellRequest,
 )
 
 router = APIRouter()
@@ -94,6 +103,7 @@ async def get_diagram(
 async def parse_diagram(
     diagram_id: UUID,
     service: DiagramService = Depends(get_diagram_service),
+    matrix_service: DiagramMatrixService = Depends(get_diagram_matrix_service),
 ) -> ParseDiagramResponse:
     try:
         components, relationships = service.parse_diagram(diagram_id)
@@ -124,8 +134,74 @@ async def parse_diagram(
             },
         )
 
+    # Ensure matrix defaults exist for all components/NFR pairs
+    matrix_service.ensure_defaults(diagram_id)
+
     return ParseDiagramResponse(
         diagram=DiagramResponse.from_domain(diagram),
         components=[ComponentResponse.from_domain(c) for c in components],
         relationships=[RelationshipResponse.from_domain(r) for r in relationships],
+    )
+
+
+@router.get(
+    "/diagrams/{diagram_id}/matrix",
+    response_model=DiagramMatrixResponse,
+    summary="Get NFR × Component impact matrix for a diagram",
+)
+async def get_matrix(
+    diagram_id: UUID,
+    diagram_service: DiagramService = Depends(get_diagram_service),
+    matrix_service: DiagramMatrixService = Depends(get_diagram_matrix_service),
+) -> DiagramMatrixResponse:
+    diagram = diagram_service.get_diagram(diagram_id)
+    if not diagram:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "code": "diagram/not-found",
+                "message": f"Diagram with ID {diagram_id} not found",
+            },
+        )
+    entries, scores = matrix_service.list_matrix_with_scores(diagram_id)
+    return DiagramMatrixResponse(
+        entries=[MatrixCellResponse.from_domain(entry) for entry in entries],
+        nfr_scores=[
+            NFRScoreResponse(nfr_id=nfr_id, score=score)
+            for nfr_id, score in scores.items()
+        ],
+    )
+
+
+@router.put(
+    "/diagrams/{diagram_id}/matrix",
+    response_model=MatrixCellUpdateResponse,
+    summary="Set impact of a component on an NFR for the diagram",
+)
+async def update_matrix_cell(
+    diagram_id: UUID,
+    payload: UpdateMatrixCellRequest,
+    diagram_service: DiagramService = Depends(get_diagram_service),
+    matrix_service: DiagramMatrixService = Depends(get_diagram_matrix_service),
+) -> MatrixCellUpdateResponse:
+    diagram = diagram_service.get_diagram(diagram_id)
+    if not diagram:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "code": "diagram/not-found",
+                "message": f"Diagram with ID {diagram_id} not found",
+            },
+        )
+    entry = matrix_service.update_impact(
+        diagram_id,
+        payload.nfr_id,
+        payload.component_id,
+        payload.impact,
+    )
+    _, scores = matrix_service.list_matrix_with_scores(diagram_id)
+    nfr_score = scores.get(payload.nfr_id, 0)
+    return MatrixCellUpdateResponse(
+        entry=MatrixCellResponse.from_domain(entry),
+        nfr_score=NFRScoreResponse(nfr_id=payload.nfr_id, score=nfr_score),
     )
