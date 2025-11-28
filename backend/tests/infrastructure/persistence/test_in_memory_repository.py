@@ -75,3 +75,46 @@ def test_checksum_lookup_and_component_relationship_grouping() -> None:
     assert repository.get_components(diagram.id) == components
     assert repository.get_relationships(diagram.id) == relationships
 
+
+def test_update_and_delete_components_and_relationships() -> None:
+    repository = InMemoryDiagramRepository()
+    diagram = Diagram(
+        name="Lifecycle",
+        source_url="diagram://lifecycle",
+        content="[]",
+        checksum="lifecycle-123",
+    )
+    repository.add(diagram)
+
+    api = Component(diagram_id=diagram.id, name="API", type=ComponentType.COMPONENT)
+    db = Component(diagram_id=diagram.id, name="DB", type=ComponentType.DATABASE)
+
+    repository.add_components([api, db])
+
+    updated_api = Component(
+        diagram_id=diagram.id, name="API v2", type=ComponentType.COMPONENT, id=api.id
+    )
+
+    repository.update_components([updated_api])
+
+    stored_components = repository.get_components(diagram.id)
+    assert stored_components[0].name == "API v2"
+
+    repository.delete_components(diagram.id, [db.id])
+    remaining_components = repository.get_components(diagram.id)
+    assert remaining_components == [db]
+
+    repository.delete_components(diagram.id)
+    assert repository.get_components(diagram.id) == []
+
+    relationship = Relationship(
+        diagram_id=diagram.id,
+        source_component_id=api.id,
+        target_component_id=db.id,
+    )
+    repository.add_relationships([relationship])
+    assert repository.get_relationships(diagram.id) == [relationship]
+
+    repository.delete_relationships(diagram.id)
+    assert repository.get_relationships(diagram.id) == []
+

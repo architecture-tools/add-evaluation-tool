@@ -163,9 +163,7 @@ async def get_matrix(
                 "message": f"Diagram with ID {diagram_id} not found",
             },
         )
-    entries, scores, overall_score = matrix_service.list_matrix_with_scores(
-        diagram_id
-    )
+    entries, scores, overall_score = matrix_service.list_matrix_with_scores(diagram_id)
     return DiagramMatrixResponse(
         entries=[MatrixCellResponse.from_domain(entry) for entry in entries],
         nfr_scores=[

@@ -79,9 +79,7 @@ class RegexPlantUMLParser(PlantUMLParser):
             components.append((name, ComponentType.ACTOR, alias))
 
         # Match participant "Name" or participant Name as Alias (sequence diagrams)
-        participant_pattern = (
-            r'participant\s+(?:"([^"]+)"|(\w+))(?:\s+as\s+(\w+))?'
-        )
+        participant_pattern = r'participant\s+(?:"([^"]+)"|(\w+))(?:\s+as\s+(\w+))?'
         for match in re.finditer(participant_pattern, content, re.IGNORECASE):
             name = (match.group(1) or match.group(2) or "").strip()
             if not name:

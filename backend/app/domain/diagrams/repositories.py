@@ -57,9 +57,5 @@ class DiagramRepository(ABC):
         """Retrieve all relationships for a diagram."""
 
     @abstractmethod
-    def delete_components(self, diagram_id: UUID) -> None:
-        """Remove all components for a diagram."""
-
-    @abstractmethod
     def delete_relationships(self, diagram_id: UUID) -> None:
         """Remove all relationships for a diagram."""

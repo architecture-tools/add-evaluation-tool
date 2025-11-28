@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from hashlib import sha256
-from typing import Iterable, Dict
+from typing import Iterable, Dict, Sequence
 from uuid import UUID, uuid5
 
 from app.domain.diagrams.entities import Component, Diagram, Relationship
@@ -104,7 +104,7 @@ class DiagramService:
         return list(components), list(relationships)
 
     def _sync_components(
-        self, diagram_id: UUID, components: list[Component]
+        self, diagram_id: UUID, components: Sequence[Component]
     ) -> Dict[UUID, UUID]:
         existing_components = self._repository.get_components(diagram_id)
         existing_by_name = {
