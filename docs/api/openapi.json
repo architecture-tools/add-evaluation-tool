@@ -495,8 +495,14 @@
             "title": "Nfr Scores"
           },
           "overall_score": {
-            "type": "number",
-            "format": "float",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Overall Score"
           }
         },
@@ -630,8 +636,14 @@
             "$ref": "#/components/schemas/NFRScoreResponse"
           },
           "overall_score": {
-            "type": "number",
-            "format": "float",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Overall Score"
           }
         },
@@ -687,7 +699,6 @@
           },
           "score": {
             "type": "number",
-            "format": "float",
             "title": "Score"
           }
         },
