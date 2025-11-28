@@ -44,11 +44,39 @@ class InMemoryDiagramRepository(DiagramRepository):
                 self._components[component.diagram_id] = []
             self._components[component.diagram_id].append(component)
 
+    def update_components(self, components: Sequence[Component]) -> None:
+        for component in components:
+            diagram_components = self._components.setdefault(component.diagram_id, [])
+            for idx, existing in enumerate(diagram_components):
+                if existing.id == component.id:
+                    diagram_components[idx] = component
+                    break
+
+    def delete_components(
+        self, diagram_id: UUID, component_ids: Iterable[UUID] | None = None
+    ) -> None:
+        if component_ids is None:
+            self._components.pop(diagram_id, None)
+            return
+
+        ids_to_keep = set(component_ids)
+        if not ids_to_keep:
+            self._components.pop(diagram_id, None)
+            return
+
+        diagram_components = self._components.get(diagram_id, [])
+        self._components[diagram_id] = [
+            component for component in diagram_components if component.id in ids_to_keep
+        ]
+
     def add_relationships(self, relationships: Sequence[Relationship]) -> None:
         for relationship in relationships:
             if relationship.diagram_id not in self._relationships:
                 self._relationships[relationship.diagram_id] = []
             self._relationships[relationship.diagram_id].append(relationship)
+
+    def delete_relationships(self, diagram_id: UUID) -> None:
+        self._relationships.pop(diagram_id, None)
 
     def get_components(self, diagram_id: UUID) -> Sequence[Component]:
         return self._components.get(diagram_id, [])

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:architecture_evaluation_tool/services/dashboard_service.dart';
 import 'package:architecture_evaluation_tool/services/diagram_repository.dart';
 import 'package:architecture_evaluation_tool/services/nfr_repository.dart';
+import 'package:architecture_evaluation_tool/services/matrix_repository.dart';
 import 'package:architecture_evaluation_tool/network/src/api.dart';
 import 'package:architecture_evaluation_tool/models/mock_models.dart';
 import 'package:mocktail/mocktail.dart';
@@ -13,18 +14,52 @@ class MockDiagramRepository extends Mock implements DiagramRepository {}
 // Mock NFRRepository using mocktail
 class MockNFRRepository extends Mock implements NFRRepository {}
 
+class MockMatrixRepository extends Mock implements MatrixRepository {}
+
+DiagramMatrixResponse _createMockMatrixResponse() {
+  return DiagramMatrixResponse(
+    entries: [
+      MatrixCellResponse(
+        id: 'entry-1',
+        diagramId: 'diagram-1',
+        nfrId: 'nfr-1',
+        componentId: 'component-1',
+        impact: ImpactValue.POSITIVE,
+      ),
+    ],
+    nfrScores: [
+      NFRScoreResponse(
+        nfrId: 'nfr-1',
+        score: 0.8,
+      ),
+    ],
+    overallScore: 0.2,
+  );
+}
+
 void main() {
   group('DashboardService', () {
     late DashboardService service;
     late MockDiagramRepository mockRepository;
     late MockNFRRepository mockNFRRepository;
+    late MockMatrixRepository mockMatrixRepository;
 
     setUp(() {
       mockRepository = MockDiagramRepository();
       mockNFRRepository = MockNFRRepository();
+      mockMatrixRepository = MockMatrixRepository();
       service = DashboardService(
         diagramRepository: mockRepository,
         nfrRepository: mockNFRRepository,
+        matrixRepository: mockMatrixRepository,
+      );
+
+      when(() => mockMatrixRepository.fetchMatrix(any()))
+          .thenAnswer((_) async => _createMockMatrixResponse());
+      when(() => mockRepository.parseDiagram(any())).thenAnswer(
+        (invocation) async => TestHelpers.createMockParseResponse(
+          diagramId: invocation.positionalArguments.first as String,
+        ),
       );
     });
 
@@ -33,8 +68,15 @@ void main() {
       final mockDiagrams = TestHelpers.createMockDiagrams();
       when(() => mockRepository.fetchDiagrams())
           .thenAnswer((_) async => mockDiagrams);
-      when(() => mockNFRRepository.fetchNFRs())
-          .thenAnswer((_) async => <NFRResponse>[]);
+      when(() => mockNFRRepository.fetchNFRs()).thenAnswer(
+        (_) async => [
+          NFRResponse(
+            id: 'nfr-1',
+            name: 'Performance',
+            createdAt: DateTime.now(),
+          ),
+        ],
+      );
 
       final result = await service.loadDashboard();
 
@@ -51,8 +93,15 @@ void main() {
       final mockDiagrams = TestHelpers.createMockDiagrams();
       when(() => mockRepository.fetchDiagrams())
           .thenAnswer((_) async => mockDiagrams);
-      when(() => mockNFRRepository.fetchNFRs())
-          .thenAnswer((_) async => <NFRResponse>[]);
+      when(() => mockNFRRepository.fetchNFRs()).thenAnswer(
+        (_) async => [
+          NFRResponse(
+            id: 'nfr-1',
+            name: 'Performance',
+            createdAt: DateTime.now(),
+          ),
+        ],
+      );
 
       final result = await service.loadDashboard();
       final metrics = result.metrics;
@@ -68,8 +117,15 @@ void main() {
       final mockDiagrams = TestHelpers.createMockDiagrams();
       when(() => mockRepository.fetchDiagrams())
           .thenAnswer((_) async => mockDiagrams);
-      when(() => mockNFRRepository.fetchNFRs())
-          .thenAnswer((_) async => <NFRResponse>[]);
+      when(() => mockNFRRepository.fetchNFRs()).thenAnswer(
+        (_) async => [
+          NFRResponse(
+            id: 'nfr-1',
+            name: 'Performance',
+            createdAt: DateTime.now(),
+          ),
+        ],
+      );
 
       final result = await service.loadDashboard();
 

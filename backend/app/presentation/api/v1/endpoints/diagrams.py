@@ -163,13 +163,14 @@ async def get_matrix(
                 "message": f"Diagram with ID {diagram_id} not found",
             },
         )
-    entries, scores = matrix_service.list_matrix_with_scores(diagram_id)
+    entries, scores, overall_score = matrix_service.list_matrix_with_scores(diagram_id)
     return DiagramMatrixResponse(
         entries=[MatrixCellResponse.from_domain(entry) for entry in entries],
         nfr_scores=[
             NFRScoreResponse(nfr_id=nfr_id, score=score)
             for nfr_id, score in scores.items()
         ],
+        overall_score=overall_score,
     )
 
 
@@ -199,9 +200,10 @@ async def update_matrix_cell(
         payload.component_id,
         payload.impact,
     )
-    _, scores = matrix_service.list_matrix_with_scores(diagram_id)
+    _, scores, overall_score = matrix_service.list_matrix_with_scores(diagram_id)
     nfr_score = scores.get(payload.nfr_id, 0)
     return MatrixCellUpdateResponse(
         entry=MatrixCellResponse.from_domain(entry),
         nfr_score=NFRScoreResponse(nfr_id=payload.nfr_id, score=nfr_score),
+        overall_score=overall_score,
     )

@@ -62,6 +62,27 @@ class InMemoryDiagramRepository(DiagramRepository):
     def add_relationships(self, relationships):
         return None
 
+    def update_components(self, components: Sequence[Component]) -> None:
+        for component in components:
+            self.components = [
+                component if existing.id == component.id else existing
+                for existing in self.components
+            ]
+
+    def delete_components(
+        self, diagram_id: UUID, component_ids: Iterable[UUID] | None = None
+    ) -> None:
+        ids_to_keep = set(component_ids or [])
+        if ids_to_keep:
+            self.components = [
+                component for component in self.components if component.id in ids_to_keep
+            ]
+        else:
+            self.components = []
+
+    def delete_relationships(self, diagram_id: UUID) -> None:
+        return None
+
     def get_components(self, diagram_id: UUID) -> Sequence[Component]:
         return list(self.components)
 
@@ -183,7 +204,7 @@ def test_update_impact_changes_value() -> None:
     assert entry.impact == ImpactValue.POSITIVE
 
 
-def test_list_matrix_with_scores_returns_totals() -> None:
+def test_list_matrix_with_scores_returns_averages_and_overall_score() -> None:
     diagram_repo = InMemoryDiagramRepository()
     nfr_repo = InMemoryNFRRepository()
     matrix_repo = InMemoryMatrixRepository()
@@ -202,7 +223,11 @@ def test_list_matrix_with_scores_returns_totals() -> None:
         diagram_repo.components[1].id,
         ImpactValue.NEGATIVE,
     )
-    entries, scores = service.list_matrix_with_scores(diagram_repo.diagram.id)
+    entries, scores, overall = service.list_matrix_with_scores(
+        diagram_repo.diagram.id
+    )
 
     assert len(entries) == len(diagram_repo.components) * len(nfr_repo.items)
     assert scores[nfr_repo.items[0].id] == 0
+    assert scores[nfr_repo.items[1].id] == 0
+    assert overall == 0

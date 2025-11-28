@@ -27,12 +27,13 @@ class MatrixCellResponse(BaseModel):
 
 class NFRScoreResponse(BaseModel):
     nfr_id: UUID
-    score: int
+    score: float
 
 
 class DiagramMatrixResponse(BaseModel):
     entries: list[MatrixCellResponse]
     nfr_scores: list[NFRScoreResponse]
+    overall_score: float | None = None
 
 
 class UpdateMatrixCellRequest(BaseModel):
@@ -44,3 +45,4 @@ class UpdateMatrixCellRequest(BaseModel):
 class MatrixCellUpdateResponse(BaseModel):
     entry: MatrixCellResponse
     nfr_score: NFRScoreResponse
+    overall_score: float | None = None

@@ -56,13 +56,21 @@ class TestHelpers {
   static ParseDiagramResponse createMockParseResponse({
     String? diagramId,
     DiagramStatus? status,
+    List<ComponentResponse>? components,
   }) {
     return ParseDiagramResponse(
       diagram: createMockDiagram(
         id: diagramId ?? 'test-diagram-1',
         status: status ?? DiagramStatus.parsed,
       ),
-      components: [],
+      components: components ??
+          [
+            ComponentResponse(
+              id: 'component-1',
+              name: 'API Gateway',
+              type: ComponentType.component,
+            ),
+          ],
       relationships: [],
     );
   }

@@ -78,6 +78,17 @@ class RegexPlantUMLParser(PlantUMLParser):
                 alias_to_name[alias] = name
             components.append((name, ComponentType.ACTOR, alias))
 
+        # Match participant "Name" or participant Name as Alias (sequence diagrams)
+        participant_pattern = r'participant\s+(?:"([^"]+)"|(\w+))(?:\s+as\s+(\w+))?'
+        for match in re.finditer(participant_pattern, content, re.IGNORECASE):
+            name = (match.group(1) or match.group(2) or "").strip()
+            if not name:
+                continue
+            alias = match.group(3)
+            if alias:
+                alias_to_name[alias] = name
+            components.append((name, ComponentType.INTERFACE, alias))
+
         # Match system "System Name" or system "Name" as Alias
         system_pattern = r'system\s+"([^"]+)"(?:\s+as\s+(\w+))?'
         for match in re.finditer(system_pattern, content, re.IGNORECASE):

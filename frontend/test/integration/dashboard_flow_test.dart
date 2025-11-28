@@ -33,8 +33,13 @@ void main() {
       await tester.pumpWidget(const ArchitectureEvaluationTool());
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      // Tap on Upload Diagram in sidebar
-      await tester.tap(find.text('Upload Diagram'), warnIfMissed: false);
+      // Tap on Upload Diagram in sidebar (disambiguate from quick action buttons)
+      final uploadNav = find.descendant(
+        of: find.byType(Sidebar),
+        matching: find.text('Upload Diagram'),
+      );
+      expect(uploadNav, findsWidgets);
+      await tester.tap(uploadNav.first, warnIfMissed: false);
       await tester.pumpAndSettle();
 
       // Should show upload screen

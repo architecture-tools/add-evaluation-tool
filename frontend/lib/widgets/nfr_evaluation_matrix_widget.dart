@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../models/nfr_matrix.dart';
 import '../network/src/api.dart';
 import '../services/nfr_repository.dart';
+import '../services/matrix_repository.dart';
 import '../theme/app_theme.dart';
 import '../utils/date_time_utils.dart';
 
@@ -26,7 +26,9 @@ class NfrEvaluationMatrixWidget extends StatefulWidget {
 
 class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
   late Map<String, Map<String, int>> _scores;
+  final Map<String, Map<String, int>> _pendingChanges = {};
   final NFRRepository _nfrRepository = NFRRepository();
+  final MatrixRepository _matrixRepository = MatrixRepository();
   bool _hasUnsavedChanges = false;
   bool _isSaving = false;
 
@@ -36,58 +38,33 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
   @override
   void initState() {
     super.initState();
-    _loadSavedScores();
+    _initializeScores();
   }
 
-  void _loadSavedScores() {
-    // Start with data from widget
+  @override
+  void didUpdateWidget(covariant NfrEvaluationMatrixWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.data.diagramId != widget.data.diagramId ||
+        oldWidget.data.lastUpdated != widget.data.lastUpdated) {
+      _initializeScores();
+    }
+  }
+
+  void _initializeScores() {
     _scores = {
       for (final row in widget.data.rows)
-        row.nfr: Map<String, int>.from(row.scores),
+        _rowKey(row): _normalizeScores(row.scores),
     };
-
-    // Try to load from localStorage (web only)
-    if (kIsWeb) {
-      try {
-        // Using dart:html for web localStorage
-        // Note: This requires import 'dart:html' as html;
-        // For now, we'll use a try-catch approach
-        final saved = _getFromStorage();
-        if (saved != null) {
-          // Merge saved scores with current data
-          for (final entry in saved.entries) {
-            if (_scores.containsKey(entry.key)) {
-              _scores[entry.key] = Map<String, int>.from(entry.value);
-            }
-          }
-        }
-      } catch (_) {
-        // localStorage not available or error
-      }
-    }
+    _pendingChanges.clear();
+    _hasUnsavedChanges = false;
   }
 
-  Map<String, Map<String, int>>? _getFromStorage() {
-    if (!kIsWeb) return null;
-    try {
-      // This will work in web context
-      // In a real implementation, we'd use shared_preferences or dart:html
-      // For now, return null and we'll implement proper storage
-      return null;
-    } catch (_) {
-      return null;
+  Map<String, int> _normalizeScores(Map<String, int> rawScores) {
+    final normalized = Map<String, int>.from(rawScores);
+    for (final component in widget.data.components) {
+      normalized.putIfAbsent(component.id, () => 0);
     }
-  }
-
-  void _saveToStorage(Map<String, Map<String, int>> scores) {
-    if (!kIsWeb) return;
-    try {
-      // Save to localStorage
-      // In a real implementation, we'd use shared_preferences or dart:html
-      // For now, this is a placeholder
-    } catch (_) {
-      // Storage not available
-    }
+    return normalized;
   }
 
   @override
@@ -185,21 +162,31 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
             ),
             const SizedBox(width: 8),
             if (_hasUnsavedChanges)
-              ElevatedButton.icon(
-                onPressed: _isSaving ? null : _saveMatrix,
-                icon: _isSaving
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.save, size: 18),
-                label: Text(_isSaving ? 'Saving...' : 'Save Matrix'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.green,
-                  foregroundColor: Colors.white,
-                ),
-              ),
+              widget.data.canPersistChanges
+                  ? ElevatedButton.icon(
+                      onPressed: _isSaving ? null : _saveMatrix,
+                      icon: _isSaving
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.save, size: 18),
+                      label: Text(_isSaving ? 'Saving...' : 'Save Matrix'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.green,
+                        foregroundColor: Colors.white,
+                      ),
+                    )
+                  : Tooltip(
+                      message:
+                          'Matrix is read-only until a parsed diagram is available.',
+                      child: OutlinedButton.icon(
+                        onPressed: null,
+                        icon: const Icon(Icons.lock, size: 18),
+                        label: const Text('Read-only'),
+                      ),
+                    ),
             const SizedBox(width: 8),
             FilledButton(
               onPressed: () {
@@ -231,6 +218,25 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
   Widget _buildTable(BuildContext context) {
     final components = widget.data.components;
 
+    if (components.isEmpty || widget.data.rows.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppTheme.background,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppTheme.borderColor),
+        ),
+        child: const Text(
+          'Matrix data will appear once a diagram is parsed and NFRs are defined.',
+          style: TextStyle(
+            fontSize: 13,
+            color: AppTheme.textSecondary,
+          ),
+        ),
+      );
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Table(
@@ -248,7 +254,8 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
             decoration: BoxDecoration(color: AppTheme.background),
             children: [
               _buildHeaderCell('NFR'),
-              for (final component in components) _buildHeaderCell(component),
+              for (final component in components)
+                _buildHeaderCell(component.label),
               _buildHeaderCell('Avg Score'),
             ],
           ),
@@ -258,7 +265,7 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
     );
   }
 
-  TableRow _buildDataRow(NfrMatrixRow row, List<String> components) {
+  TableRow _buildDataRow(NfrMatrixRow row, List<ComponentColumn> components) {
     return TableRow(
       decoration: const BoxDecoration(color: Colors.white),
       children: [
@@ -266,19 +273,18 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
         for (final component in components)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: _buildScoreCell(row.nfr, component),
+            child: _buildScoreCell(row, component),
           ),
-        _buildAverageCell(row.nfr),
+        _buildAverageCell(row),
       ],
     );
   }
 
   Widget _buildNfrCell(NfrMatrixRow row) {
-    // Find corresponding NFRResponse if available
     final nfrResponse = widget.nfrs.firstWhere(
-      (n) => n.name == row.nfr,
+      (n) => n.id == row.nfrId,
       orElse: () => NFRResponse(
-        id: '',
+        id: row.nfrId,
         name: row.nfr,
         createdAt: DateTime.now(),
       ),
@@ -320,8 +326,9 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
     );
   }
 
-  Widget _buildScoreCell(String nfr, String component) {
-    final value = _scores[nfr]?[component] ?? 0;
+  Widget _buildScoreCell(NfrMatrixRow row, ComponentColumn component) {
+    final rowKey = _rowKey(row);
+    final value = _scores[rowKey]?[component.id] ?? 0;
     final background = _backgroundForValue(value);
     final textColor = _textColorForValue(value);
 
@@ -349,20 +356,27 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
                     ),
                   ))
               .toList(),
-          onChanged: (selected) {
-            if (selected == null) return;
-            setState(() {
-              _scores[nfr]?[component] = selected;
-              _hasUnsavedChanges = true;
-            });
-          },
+          onChanged: _isSaving
+              ? null
+              : (selected) {
+                  if (selected == null) return;
+                  setState(() {
+                    _scores[rowKey]?[component.id] = selected;
+                    if (_shouldTrackChange(row, component)) {
+                      final pending =
+                          _pendingChanges.putIfAbsent(row.nfrId, () => {});
+                      pending[component.id] = selected;
+                    }
+                    _hasUnsavedChanges = true;
+                  });
+                },
         ),
       ),
     );
   }
 
-  Widget _buildAverageCell(String nfr) {
-    final average = _calculateAverage(_scores[nfr]);
+  Widget _buildAverageCell(NfrMatrixRow row) {
+    final average = _calculateAverage(_scores[_rowKey(row)]);
     final averageLabel = average.toStringAsFixed(1);
     final color = average > 0.5
         ? AppTheme.green
@@ -576,51 +590,58 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
   }
 
   Future<void> _saveMatrix() async {
+    if (_pendingChanges.isEmpty) {
+      setState(() {
+        _hasUnsavedChanges = false;
+      });
+      return;
+    }
+
+    if (widget.data.diagramId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Matrix cannot be persisted: missing diagram context'),
+          backgroundColor: AppTheme.red,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isSaving = true;
     });
 
     try {
-      // TODO: When backend endpoint is available, use POST to save matrix scores
-      // For now, save to localStorage as temporary storage
-      _saveToStorage(_scores);
-
-      // Simulate API call delay
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      if (mounted) {
-        setState(() {
-          _hasUnsavedChanges = false;
-          _isSaving = false;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white, size: 20),
-                SizedBox(width: 8),
-                Text('Matrix scores saved locally'),
-              ],
-            ),
-            backgroundColor: AppTheme.green,
-            action: SnackBarAction(
-              label: 'Note',
-              textColor: Colors.white,
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text(
-                      'Matrix scores are saved locally. Backend endpoint needed for persistent storage.',
-                    ),
-                    duration: const Duration(seconds: 4),
-                  ),
-                );
-              },
-            ),
-          ),
-        );
+      for (final entry in _pendingChanges.entries) {
+        final nfrId = entry.key;
+        for (final componentEntry in entry.value.entries) {
+          await _matrixRepository.updateCell(
+            diagramId: widget.data.diagramId,
+            nfrId: nfrId,
+            componentId: componentEntry.key,
+            impact: _impactFromScore(componentEntry.value),
+          );
+        }
       }
+
+      if (!mounted) return;
+
+      final updatedCells = _pendingChangeCount();
+
+      setState(() {
+        _pendingChanges.clear();
+        _hasUnsavedChanges = false;
+        _isSaving = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Saved $updatedCells matrix ${updatedCells == 1 ? 'cell' : 'cells'}'),
+          backgroundColor: AppTheme.green,
+        ),
+      );
+      widget.onRefresh?.call();
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -635,6 +656,30 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
         );
       }
     }
+  }
+
+  ImpactValue _impactFromScore(int score) {
+    if (score > 0) {
+      return ImpactValue.POSITIVE;
+    } else if (score < 0) {
+      return ImpactValue.NEGATIVE;
+    }
+    return ImpactValue.NO_EFFECT;
+  }
+
+  int _pendingChangeCount() {
+    return _pendingChanges.values
+        .fold<int>(0, (sum, entry) => sum + entry.length);
+  }
+
+  bool _shouldTrackChange(NfrMatrixRow row, ComponentColumn component) {
+    return widget.data.canPersistChanges &&
+        row.nfrId.isNotEmpty &&
+        component.id.isNotEmpty;
+  }
+
+  String _rowKey(NfrMatrixRow row) {
+    return row.nfrId.isNotEmpty ? row.nfrId : row.nfr;
   }
 }
 
