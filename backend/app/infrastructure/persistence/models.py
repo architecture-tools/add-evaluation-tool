@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Dict
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import JSON, String, Text, DateTime, ForeignKey, Enum, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
@@ -104,7 +104,9 @@ class DiagramImpactModel(Base):
         UniqueConstraint("diagram_id", "nfr_id", "component_id", name="uq_matrix_cell"),
     )
 
-    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True)
+    id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), primary_key=True, default=uuid4
+    )
     diagram_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True),
         ForeignKey("diagrams.id", ondelete="CASCADE"),

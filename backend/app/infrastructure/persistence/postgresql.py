@@ -111,6 +111,8 @@ class PostgreSQLDiagramRepository(DiagramRepository):
 
     def add_components(self, components: Sequence[Component]) -> None:
         """Persist components for a diagram."""
+        if not components:
+            return
         try:
             component_models = [
                 ComponentModel(
@@ -123,6 +125,46 @@ class PostgreSQLDiagramRepository(DiagramRepository):
                 for component in components
             ]
             self._session.add_all(component_models)
+            self._session.commit()
+        except Exception:
+            self._session.rollback()
+            raise
+
+    def update_components(self, components: Sequence[Component]) -> None:
+        """Update existing components for a diagram."""
+        if not components:
+            return
+        try:
+            for component in components:
+                component_model = (
+                    self._session.query(ComponentModel)
+                    .filter(ComponentModel.id == component.id)
+                    .first()
+                )
+                if component_model is None:
+                    continue
+                component_model.name = component.name
+                component_model.type = component.type.value
+                component_model.meta_data = component.metadata
+            self._session.commit()
+        except Exception:
+            self._session.rollback()
+            raise
+
+    def delete_components(
+        self, diagram_id: UUID, component_ids: Iterable[UUID] | None = None
+    ) -> None:
+        """Delete components for a diagram."""
+        try:
+            query = self._session.query(ComponentModel).filter(
+                ComponentModel.diagram_id == diagram_id
+            )
+            if component_ids is not None:
+                ids = list(component_ids)
+                if not ids:
+                    return
+                query = query.filter(ComponentModel.id.in_(ids))
+            query.delete(synchronize_session=False)
             self._session.commit()
         except Exception:
             self._session.rollback()
@@ -166,6 +208,19 @@ class PostgreSQLDiagramRepository(DiagramRepository):
             .all()
         )
         return [self._to_relationship_entity(model) for model in relationship_models]
+
+    def delete_relationships(self, diagram_id: UUID) -> None:
+        """Delete all relationships for a diagram."""
+        try:
+            (
+                self._session.query(RelationshipModel)
+                .filter(RelationshipModel.diagram_id == diagram_id)
+                .delete(synchronize_session=False)
+            )
+            self._session.commit()
+        except Exception:
+            self._session.rollback()
+            raise
 
     def _to_domain_entity(self, model: DiagramModel) -> Diagram:
         """Convert database model to domain entity."""

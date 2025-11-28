@@ -35,6 +35,16 @@ class DiagramRepository(ABC):
         """Persist components for a diagram."""
 
     @abstractmethod
+    def update_components(self, components: Sequence[Component]) -> None:
+        """Update existing components for a diagram."""
+
+    @abstractmethod
+    def delete_components(
+        self, diagram_id: UUID, component_ids: Iterable[UUID] | None = None
+    ) -> None:
+        """Delete components for a diagram. When component_ids is None, delete all."""
+
+    @abstractmethod
     def add_relationships(self, relationships: Sequence[Relationship]) -> None:
         """Persist relationships for a diagram."""
 
@@ -45,3 +55,11 @@ class DiagramRepository(ABC):
     @abstractmethod
     def get_relationships(self, diagram_id: UUID) -> Sequence[Relationship]:
         """Retrieve all relationships for a diagram."""
+
+    @abstractmethod
+    def delete_components(self, diagram_id: UUID) -> None:
+        """Remove all components for a diagram."""
+
+    @abstractmethod
+    def delete_relationships(self, diagram_id: UUID) -> None:
+        """Remove all relationships for a diagram."""

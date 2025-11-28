@@ -35,12 +35,30 @@ class DiagramMatrixService:
 
     def list_matrix_with_scores(
         self, diagram_id: UUID
-    ) -> tuple[Sequence[DiagramNFRComponentImpact], dict[UUID, int]]:
+    ) -> tuple[
+        Sequence[DiagramNFRComponentImpact],
+        dict[UUID, float],
+        float | None,
+    ]:
         entries = self._matrix_repository.list_by_diagram(diagram_id)
-        scores: dict[UUID, int] = defaultdict(int)
+        aggregates: dict[UUID, list[int]] = defaultdict(lambda: [0, 0])
         for entry in entries:
-            scores[entry.nfr_id] += self._IMPACT_SCORES[entry.impact]
-        return entries, dict(scores)
+            score = self._IMPACT_SCORES[entry.impact]
+            aggregate = aggregates[entry.nfr_id]
+            aggregate[0] += score
+            aggregate[1] += 1
+
+        averages: dict[UUID, float] = {}
+        for nfr_id, (total, count) in aggregates.items():
+            if count == 0:
+                continue
+            averages[nfr_id] = total / count
+
+        overall_score: float | None = None
+        if averages:
+            overall_score = sum(averages.values()) / len(averages)
+
+        return entries, averages, overall_score
 
     def update_impact(
         self,

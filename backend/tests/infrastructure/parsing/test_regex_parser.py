@@ -26,3 +26,23 @@ def test_regex_parser_extracts_components_and_relationships() -> None:
     assert relationships[0].direction == RelationshipDirection.UNIDIRECTIONAL
     assert relationships[1].direction == RelationshipDirection.BIDIRECTIONAL
 
+
+def test_regex_parser_handles_participants_with_aliases() -> None:
+    parser = RegexPlantUMLParser()
+    content = """
+    @startuml
+    participant User
+    participant "Browser UI" as UI
+    participant API as BackendAPI
+    User -> UI : clicks
+    UI -> BackendAPI : request
+    @enduml
+    """.strip()
+
+    components, relationships = parser.parse(content)
+
+    names = {component.name: component for component in components}
+    assert {"User", "Browser UI", "API"} == set(names)
+    assert names["Browser UI"].type == ComponentType.INTERFACE
+    assert len(relationships) == 2
+

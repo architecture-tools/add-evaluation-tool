@@ -493,6 +493,11 @@
             },
             "type": "array",
             "title": "Nfr Scores"
+          },
+          "overall_score": {
+            "type": "number",
+            "format": "float",
+            "title": "Overall Score"
           }
         },
         "type": "object",
@@ -623,6 +628,11 @@
           },
           "nfr_score": {
             "$ref": "#/components/schemas/NFRScoreResponse"
+          },
+          "overall_score": {
+            "type": "number",
+            "format": "float",
+            "title": "Overall Score"
           }
         },
         "type": "object",
@@ -676,7 +686,8 @@
             "title": "Nfr Id"
           },
           "score": {
-            "type": "integer",
+            "type": "number",
+            "format": "float",
             "title": "Score"
           }
         },

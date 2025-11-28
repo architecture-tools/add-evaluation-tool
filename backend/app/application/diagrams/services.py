@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from hashlib import sha256
-from typing import Iterable
-from uuid import UUID
+from typing import Iterable, Dict
+from uuid import UUID, uuid5
 
 from app.domain.diagrams.entities import Component, Diagram, Relationship
 from app.domain.diagrams.exceptions import (
@@ -77,15 +77,24 @@ class DiagramService:
             self._repository.update(diagram)
             raise ParseError(f"Failed to parse diagram: {exc}") from exc
 
-        # Set diagram_id for all components and relationships
         for component in components:
             component.diagram_id = diagram_id
 
+        id_mapping = self._sync_components(diagram_id, components)
+
         for relationship in relationships:
             relationship.diagram_id = diagram_id
+            if relationship.source_component_id in id_mapping:
+                relationship.source_component_id = id_mapping[
+                    relationship.source_component_id
+                ]
+            if relationship.target_component_id in id_mapping:
+                relationship.target_component_id = id_mapping[
+                    relationship.target_component_id
+                ]
 
-        # Persist components and relationships
-        self._repository.add_components(components)
+        # Replace relationships atomically (components are upserted)
+        self._repository.delete_relationships(diagram_id)
         self._repository.add_relationships(relationships)
 
         # Update diagram status
@@ -93,3 +102,66 @@ class DiagramService:
         self._repository.update(diagram)
 
         return list(components), list(relationships)
+
+    def _sync_components(
+        self, diagram_id: UUID, components: list[Component]
+    ) -> Dict[UUID, UUID]:
+        existing_components = self._repository.get_components(diagram_id)
+        existing_by_name = {
+            self._normalize_name(component.name): component
+            for component in existing_components
+        }
+
+        final_ids: set[UUID] = set()
+        components_to_add: list[Component] = []
+        components_to_update: list[Component] = []
+        id_mapping: Dict[UUID, UUID] = {}
+
+        for component in components:
+            original_id = component.id
+            normalized_name = self._normalize_name(component.name)
+            if normalized_name in existing_by_name:
+                existing = existing_by_name[normalized_name]
+                component.id = existing.id
+                final_ids.add(existing.id)
+                id_mapping[original_id] = existing.id
+
+                if (
+                    existing.name != component.name
+                    or existing.type != component.type
+                    or existing.metadata != component.metadata
+                ):
+                    components_to_update.append(component)
+            else:
+                stable_id = self._stable_component_id(diagram_id, component)
+                component.id = stable_id
+                final_ids.add(stable_id)
+                id_mapping[original_id] = stable_id
+                components_to_add.append(component)
+
+        obsolete_ids = [
+            component.id
+            for component in existing_components
+            if component.id not in final_ids
+        ]
+
+        if obsolete_ids:
+            self._repository.delete_components(diagram_id, obsolete_ids)
+
+        if components_to_add:
+            self._repository.add_components(components_to_add)
+
+        if components_to_update:
+            self._repository.update_components(components_to_update)
+
+        return id_mapping
+
+    @staticmethod
+    def _stable_component_id(diagram_id: UUID, component: Component) -> UUID:
+        """Return deterministic UUID per diagram/component name+type."""
+        key = f"{component.name.strip().lower()}::{component.type.value}"
+        return uuid5(diagram_id, key)
+
+    @staticmethod
+    def _normalize_name(name: str) -> str:
+        return " ".join(name.split()).lower()
