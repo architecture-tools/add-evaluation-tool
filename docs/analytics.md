@@ -13,9 +13,11 @@ nav_order: 6
 
 ### Top 3-5 Business or User Goals
 
-1. **Enable systematic architecture evaluation**: Users successfully evaluate architectures using matrix-based approach following ADD methodology.
+1. **Enable systematic architecture evaluation**: Users successfully evaluate
+   architectures using matrix-based approach following ADD methodology.
 
-2. **Improve architecture decision-making efficiency**: Users complete core workflow (upload → matrix → score → compare) faster than manual methods.
+2. **Improve architecture decision-making efficiency**: Users complete core
+   workflow (upload → matrix → score → compare) faster than manual methods.
 
 3. **Support learning and adoption**: Students and researchers learn and apply architecture evaluation methodologies effectively.
 
@@ -26,38 +28,58 @@ nav_order: 6
 ### Questions to Answer for Each Goal
 
 #### Goal 1: Enable systematic architecture evaluation
-- Q1.1: How many users successfully complete a full evaluation cycle (upload → matrix → score → save)?
-- Q1.2: What percentage of uploaded PlantUML diagrams are successfully parsed and converted to matrices?
-- Q1.3: How many NFR-component relationships do users typically evaluate per session?
-- Q1.4: Do users return to evaluate multiple architecture versions over time?
-- Q1.5: What is the average time from diagram upload to completed evaluation matrix?
+
+- Q1.1: How many users successfully complete a full evaluation cycle
+  (upload → matrix → score → save)?
+- Q1.2: What percentage of uploaded PlantUML diagrams are successfully
+  parsed and converted to matrices?
+- Q1.3: How many NFR-component relationships do users typically evaluate
+  per session?
+- Q1.4: Do users return to evaluate multiple architecture versions over
+  time?
+- Q1.5: What is the average time from diagram upload to completed
+  evaluation matrix?
 
 #### Goal 2: Improve architecture decision-making efficiency
-- Q2.1: How long does it take users to complete the core workflow (upload → matrix → score → compare)?
-- Q2.2: How many interactions (clicks, edits) are required to complete an evaluation?
-- Q2.3: What percentage of users complete evaluations without errors or needing to restart?
+
+- Q2.1: How long does it take users to complete the core workflow
+  (upload → matrix → score → compare)?
+- Q2.2: How many interactions (clicks, edits) are required to complete
+  an evaluation?
+- Q2.3: What percentage of users complete evaluations without errors or
+  needing to restart?
 - Q2.4: How often do users use version comparison features?
-- Q2.5: What is the time difference between first-time and returning users?
+- Q2.5: What is the time difference between first-time and returning
+  users?
 
 #### Goal 3: Support learning and adoption
+
 - Q3.1: How many unique users actively use the tool over time?
-- Q3.2: What is the user retention rate (users who return after first use)?
+- Q3.2: What is the user retention rate (users who return after first
+  use)?
 - Q3.3: How many evaluation sessions do users typically complete?
-- Q3.4: Do users explore advanced features (version comparison, diff visualization)?
-- Q3.5: What is the learning curve (time to first successful evaluation)?
+- Q3.4: Do users explore advanced features (version comparison, diff
+  visualization)?
+- Q3.5: What is the learning curve (time to first successful
+  evaluation)?
 
 #### Goal 4: Enable architecture evolution tracking
-- Q4.1: How many users create and compare multiple versions of their architectures?
+
+- Q4.1: How many users create and compare multiple versions of their
+  architectures?
 - Q4.2: What is the average number of versions per architecture?
 - Q4.3: How often do users use diff visualization features?
 - Q4.4: Do users track quality improvements/regressions over time?
 - Q4.5: What is the time span between version comparisons?
 
 #### Goal 5: Provide actionable insights
+
 - Q5.1: Do users modify their architectures based on evaluation results?
-- Q5.2: What percentage of evaluations result in score changes over time?
+- Q5.2: What percentage of evaluations result in score changes over
+  time?
 - Q5.3: How do users interact with evaluation reports?
-- Q5.4: What features do users find most valuable (matrix, diff, scoring)?
+- Q5.4: What features do users find most valuable (matrix, diff,
+  scoring)?
 - Q5.5: Do users export or share evaluation results?
 
 ---
@@ -70,7 +92,8 @@ nav_order: 6
    - **Priority**: Critical - Directly measures core value proposition
 
 2. **Q2.1**: How long does it take users to complete the core workflow?
-   - **Priority**: Critical - Relates to efficiency goal and threshold of success (2 minutes for matrix)
+   - **Priority**: Critical - Relates to efficiency goal and threshold of
+     success (2 minutes for matrix)
 
 3. **Q3.2**: What is the user retention rate?
    - **Priority**: High - Indicates whether tool provides ongoing value
@@ -79,17 +102,36 @@ nav_order: 6
 
 #### Hypothesis 1: Evaluation Cycle Completion (North Star)
 
-**We believe that** the automated matrix population feature **for** software architects, students, and researchers **will result in** at least 70% of users successfully completing a full evaluation cycle (upload PlantUML → auto-populated matrix → score adjustments → save version) **when** they upload a valid PlantUML component diagram **because** automation reduces manual effort and eliminates need to manually map components to NFRs, making evaluation process accessible and efficient.
+**We believe that** the automated matrix population feature **for**
+software architects, students, and researchers **will result in** at least
+70% of users successfully completing a full evaluation cycle (upload
+PlantUML → auto-populated matrix → score adjustments → save version)
+**when** they upload a valid PlantUML component diagram **because**
+automation reduces manual effort and eliminates need to manually map
+components to NFRs, making evaluation process accessible and efficient.
 
-**Primary Indicator of Value (North Star)**: This is our North Star metric because it directly measures core value proposition, captures end-to-end user success, validates that tool solves the real problem, and combines technical capability, usability, and value delivery.
+**Primary Indicator of Value (North Star)**: This is our North Star
+metric because it directly measures core value proposition, captures
+end-to-end user success, validates that tool solves the real problem, and
+combines technical capability, usability, and value delivery.
 
 #### Hypothesis 2: Workflow Efficiency
 
-**We believe that** the integrated evaluation workflow (upload → auto-populate → score → compare) **for** architecture practitioners **will result in** users completing the core workflow in under 5 minutes (including version comparison) **when** they have a valid PlantUML diagram ready **because** automation eliminates manual matrix population, reduces cognitive load, and provides immediate visual feedback.
+**We believe that** the integrated evaluation workflow (upload →
+auto-populate → score → compare) **for** architecture practitioners
+**will result in** users completing the core workflow in under 5 minutes
+(including version comparison) **when** they have a valid PlantUML
+diagram ready **because** automation eliminates manual matrix population,
+reduces cognitive load, and provides immediate visual feedback.
 
 #### Hypothesis 3: User Retention
 
-**We believe that** the version comparison and evolution tracking features **for** students and researchers working on architecture projects **will result in** at least 40% of first-time users returning within 7 days to create or compare additional architecture versions **because** architecture evaluation is iterative, and ability to track evolution provides ongoing value.
+**We believe that** the version comparison and evolution tracking features
+**for** students and researchers working on architecture projects **will
+result in** at least 40% of first-time users returning within 7 days to
+create or compare additional architecture versions **because** architecture
+evaluation is iterative, and ability to track evolution provides ongoing
+value.
 
 ---
 
@@ -111,8 +153,10 @@ nav_order: 6
 
 #### Data Collection and Processing
 
-- **Collection**: Instrument frontend and backend to track user actions and API calls using OpenTelemetry spans and events
-- **Processing**: Aggregate events by session_id, calculate completion rates, identify dropoff points, compute time-to-completion metrics
+- **Collection**: Instrument frontend and backend to track user actions and
+  API calls using OpenTelemetry spans and events
+- **Processing**: Aggregate events by session_id, calculate completion
+  rates, identify dropoff points, compute time-to-completion metrics
 
 ### Hypothesis 2: Workflow Efficiency
 
@@ -130,8 +174,10 @@ nav_order: 6
 
 #### Data Collection and Processing
 
-- **Collection**: Use OpenTelemetry spans to measure operation durations, track frontend performance, instrument API endpoints
-- **Processing**: Calculate workflow stage durations, aggregate by user type, compute percentiles, compare against target thresholds
+- **Collection**: Use OpenTelemetry spans to measure operation durations,
+  track frontend performance, instrument API endpoints
+- **Processing**: Calculate workflow stage durations, aggregate by user
+  type, compute percentiles, compare against target thresholds
 
 ### Hypothesis 3: User Retention
 
@@ -149,8 +195,10 @@ nav_order: 6
 
 #### Data Collection and Processing
 
-- **Collection**: Track user sessions with persistent identifiers, record session times, track feature usage
-- **Processing**: Calculate retention cohorts, compute 7-day and 30-day retention rates, analyze returning user behavior patterns
+- **Collection**: Track user sessions with persistent identifiers, record
+  session times, track feature usage
+- **Processing**: Calculate retention cohorts, compute 7-day and 30-day
+  retention rates, analyze returning user behavior patterns
 
 ---
 
@@ -158,7 +206,7 @@ nav_order: 6
 
 ### Architecture Overview
 
-```
+```text
 Frontend (Flutter) → Backend (FastAPI) → OpenTelemetry SDK → Grafana Cloud (OTLP)
 ```
 
@@ -195,4 +243,3 @@ Frontend (Flutter) → Backend (FastAPI) → OpenTelemetry SDK → Grafana Cloud
 - Future: Add user consent for analytics (GDPR compliance)
 - Data retention: 30 days minimum, 90 days recommended
 - Anonymization: No personal information, only behavioral data
-
