@@ -1,8 +1,7 @@
-version: '3.8'
-
 # Note: Before running docker-compose, copy defaults.env to .env:
 #   cp defaults.env .env
 # The .env file is gitignored and contains your local configuration.
+# In CI/CD, defaults.env is used directly or environment variables are set.
 
 services:
   beyla:
@@ -60,8 +59,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    # Load environment variables from .env file
+    # Load environment variables from .env file if it exists
     # Create .env by copying defaults.env: cp defaults.env .env
+    # In CI/CD, .env is created from defaults.env before docker-compose runs
     env_file:
       - .env
     environment:

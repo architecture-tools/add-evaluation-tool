@@ -340,6 +340,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Create .env file for docker-compose
+        run: |
+          cp defaults.env .env || echo "defaults.env not found, creating minimal .env"
+          if [ ! -f .env ]; then
+            echo "# Minimal .env for CI/CD" > .env
+            echo "TELEMETRY_ENABLED=false" >> .env
+          fi
+
       - name: Start services with docker compose
         run: |
           docker compose up -d --build

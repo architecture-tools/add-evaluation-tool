@@ -124,7 +124,7 @@ def setup_telemetry(app: FastAPI, settings: Settings) -> None:
             if settings.telemetry_otlp_headers:
                 if isinstance(settings.telemetry_otlp_headers, dict):
                     metric_headers = settings.telemetry_otlp_headers
-            
+
             metric_exporter = OTLPMetricExporterHTTP(
                 endpoint=http_endpoint,
                 headers=metric_headers,
@@ -160,7 +160,7 @@ def setup_telemetry(app: FastAPI, settings: Settings) -> None:
             if settings.telemetry_otlp_headers:
                 if isinstance(settings.telemetry_otlp_headers, dict):
                     log_headers = settings.telemetry_otlp_headers
-            
+
             log_exporter = OTLPLogExporterHTTP(
                 endpoint=http_endpoint,
                 headers=log_headers,
