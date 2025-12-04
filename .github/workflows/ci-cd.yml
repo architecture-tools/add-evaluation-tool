@@ -342,13 +342,26 @@ jobs:
 
       - name: Create .env file for docker-compose
         run: |
-          cp defaults.env .env || echo "defaults.env not found, creating minimal .env"
-          if [ ! -f .env ]; then
+          cd ${{ github.workspace }}
+          if [ -f defaults.env ]; then
+            cp defaults.env .env
+            echo "✅ Created .env from defaults.env"
+          else
             echo "# Minimal .env for CI/CD" > .env
             echo "TELEMETRY_ENABLED=false" >> .env
+            echo "TELEMETRY_TRACES_ENABLED=false" >> .env
+            echo "TELEMETRY_METRICS_ENABLED=false" >> .env
+            echo "TELEMETRY_LOGS_ENABLED=false" >> .env
+            echo "✅ Created minimal .env file"
           fi
+          ls -la .env || echo "⚠️ .env file not created!"
+          cat .env | head -5
 
       - name: Start services with docker compose
+        run: |
+          cd ${{ github.workspace }}
+          docker compose up -d --build
+          docker compose ps
         run: |
           docker compose up -d --build
           docker compose ps
