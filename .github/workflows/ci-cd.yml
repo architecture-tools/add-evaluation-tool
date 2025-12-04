@@ -362,9 +362,6 @@ jobs:
           cd ${{ github.workspace }}
           docker compose up -d --build
           docker compose ps
-        run: |
-          docker compose up -d --build
-          docker compose ps
 
       - name: Wait for services to be healthy
         run: |
