@@ -1,10 +1,13 @@
 # Grafana Beyla Integration
 
-This document describes the Grafana Beyla integration for automatic telemetry collection.
+This document describes the Grafana Beyla integration for automatic telemetry
+collection.
 
 ## What is Beyla?
 
-Beyla is an eBPF-based application auto-instrumentation tool that provides automatic observability for your applications without requiring code changes. It automatically captures:
+Beyla is an eBPF-based application auto-instrumentation tool that provides
+automatic observability for your applications without requiring code changes. It
+automatically captures:
 
 - HTTP/HTTPS requests and responses
 - gRPC calls
@@ -48,18 +51,21 @@ beyla:
 Beyla automatically collects:
 
 1. **HTTP Metrics**:
+
    - Request count
    - Response time (latency)
    - Status codes (2xx, 4xx, 5xx)
    - Request/response sizes
 
 2. **Distributed Traces**:
+
    - Span for each HTTP request
    - Timing information
    - HTTP method, path, status code
    - Request and response headers (configurable)
 
 3. **Resource Attributes**:
+
    - Service name
    - Service version
    - Deployment environment
@@ -112,11 +118,13 @@ Beyla automatically collects:
 ### Debugging
 
 Enable debug logging by adding to Beyla environment:
+
 ```yaml
 - BEYLA_LOG_LEVEL=DEBUG
 ```
 
 View traces in console:
+
 ```bash
 docker-compose logs beyla | grep "trace"
 ```
@@ -126,11 +134,13 @@ docker-compose logs beyla | grep "trace"
 To disable Beyla:
 
 1. Stop Beyla container:
+
    ```bash
    docker-compose stop beyla
    ```
 
 2. Or remove from docker-compose.yml and restart:
+
    ```bash
    docker-compose down
    docker-compose up -d
@@ -139,6 +149,7 @@ To disable Beyla:
 ## Performance Impact
 
 Beyla uses eBPF which has minimal performance impact:
+
 - CPU overhead: < 1%
 - Memory overhead: ~50-100 MB
 - No application code changes needed
@@ -149,4 +160,3 @@ Beyla uses eBPF which has minimal performance impact:
 - [Beyla Documentation](https://grafana.com/docs/beyla/)
 - [Beyla GitHub](https://github.com/grafana/beyla)
 - [eBPF Introduction](https://ebpf.io/)
-

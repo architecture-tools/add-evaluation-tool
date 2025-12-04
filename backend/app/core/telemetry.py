@@ -6,13 +6,6 @@ from typing import Optional
 from fastapi import FastAPI
 from opentelemetry import trace
 from opentelemetry._logs import set_logger_provider
-from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
-from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import (
-    OTLPMetricExporter,
-)
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
-    OTLPSpanExporter,
-)
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
     OTLPSpanExporter as OTLPSpanExporterHTTP,
 )
@@ -63,13 +56,18 @@ def setup_telemetry(app: FastAPI, settings: Settings) -> None:
         trace.set_tracer_provider(trace_provider)
 
         if settings.telemetry_otlp_endpoint:
-            headers = settings.telemetry_otlp_headers or {}
+            # Ensure headers is a dict (field_validator converts string to dict)
+            headers: dict[str, str] = {}
+            if settings.telemetry_otlp_headers:
+                if isinstance(settings.telemetry_otlp_headers, dict):
+                    headers = settings.telemetry_otlp_headers
             # Use HTTP exporter for Grafana Cloud
             # Grafana Cloud endpoint format: https://otlp-gateway-prod-<region>.grafana.net/otlp
             # HTTP exporter automatically appends /v1/traces to the base endpoint
             # If endpoint contains /otlp, we need to use it as base (exporter adds /v1/traces -> /otlp/v1/traces)
             # But Grafana Cloud might expect just /otlp, so we use the endpoint as-is
             from urllib.parse import urlparse, urlunparse
+
             parsed = urlparse(settings.telemetry_otlp_endpoint)
             # Remove :443 port if present (default HTTPS port)
             if ":443" in parsed.netloc:
@@ -80,13 +78,15 @@ def setup_telemetry(app: FastAPI, settings: Settings) -> None:
             # HTTP exporter will append /v1/traces -> /otlp/v1/traces
             path = parsed.path if parsed.path else "/otlp"
             http_endpoint = urlunparse((parsed.scheme, netloc, path, "", "", ""))
-            
+
             logging.info(
                 f"Setting up OTLP exporter: endpoint={settings.telemetry_otlp_endpoint}, "
-                f"headers_keys={list(headers.keys()) if headers else 'none'}"
+                f"headers_keys={list(headers.keys()) if headers else 'none'}"  # type: ignore[union-attr]
             )
-            logging.info(f"HTTP endpoint will be: {http_endpoint} (exporter adds /v1/traces)")
-            
+            logging.info(
+                f"HTTP endpoint will be: {http_endpoint} (exporter adds /v1/traces)"
+            )
+
             otlp_exporter = OTLPSpanExporterHTTP(
                 endpoint=http_endpoint,
                 headers=headers,
@@ -109,6 +109,7 @@ def setup_telemetry(app: FastAPI, settings: Settings) -> None:
     if settings.telemetry_metrics_enabled:
         if settings.telemetry_otlp_endpoint:
             from urllib.parse import urlparse, urlunparse
+
             parsed = urlparse(settings.telemetry_otlp_endpoint)
             if ":443" in parsed.netloc:
                 netloc = parsed.netloc.replace(":443", "")
@@ -117,10 +118,16 @@ def setup_telemetry(app: FastAPI, settings: Settings) -> None:
             # HTTP exporter will append /v1/metrics automatically -> /otlp/v1/metrics
             path = parsed.path if parsed.path else "/otlp"
             http_endpoint = urlunparse((parsed.scheme, netloc, path, "", "", ""))
+
+            # Ensure headers is a dict (field_validator converts string to dict)
+            metric_headers: dict[str, str] = {}
+            if settings.telemetry_otlp_headers:
+                if isinstance(settings.telemetry_otlp_headers, dict):
+                    metric_headers = settings.telemetry_otlp_headers
             
             metric_exporter = OTLPMetricExporterHTTP(
                 endpoint=http_endpoint,
-                headers=settings.telemetry_otlp_headers or {},
+                headers=metric_headers,
             )
             metric_reader = PeriodicExportingMetricReader(
                 exporter=metric_exporter, export_interval_millis=60000
@@ -138,6 +145,7 @@ def setup_telemetry(app: FastAPI, settings: Settings) -> None:
 
         if settings.telemetry_otlp_endpoint:
             from urllib.parse import urlparse, urlunparse
+
             parsed = urlparse(settings.telemetry_otlp_endpoint)
             if ":443" in parsed.netloc:
                 netloc = parsed.netloc.replace(":443", "")
@@ -146,19 +154,23 @@ def setup_telemetry(app: FastAPI, settings: Settings) -> None:
             # HTTP exporter will append /v1/logs automatically -> /otlp/v1/logs
             path = parsed.path if parsed.path else "/otlp"
             http_endpoint = urlunparse((parsed.scheme, netloc, path, "", "", ""))
+
+            # Ensure headers is a dict (field_validator converts string to dict)
+            log_headers: dict[str, str] = {}
+            if settings.telemetry_otlp_headers:
+                if isinstance(settings.telemetry_otlp_headers, dict):
+                    log_headers = settings.telemetry_otlp_headers
             
             log_exporter = OTLPLogExporterHTTP(
                 endpoint=http_endpoint,
-                headers=settings.telemetry_otlp_headers or {},
+                headers=log_headers,
             )
             logger_provider.add_log_record_processor(
                 BatchLogRecordProcessor(log_exporter)
             )
 
         # Configure root logger to use OpenTelemetry handler
-        handler = LoggingHandler(
-            level=logging.NOTSET, logger_provider=logger_provider
-        )
+        handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
         logging.getLogger().addHandler(handler)
         logging.getLogger().setLevel(logging.INFO)
 
@@ -170,4 +182,3 @@ def get_tracer(name: Optional[str] = None):
     if not trace.get_tracer_provider():
         return trace.NoOpTracer()
     return trace.get_tracer(name or __name__)
-

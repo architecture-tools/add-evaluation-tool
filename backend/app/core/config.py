@@ -63,10 +63,13 @@ class Settings(BaseSettings):
                     decoded = unquote(v)
                     parsed = parse_qs(decoded, keep_blank_values=True)
                     # Convert to dict format expected by OTLP exporter
-                    return {
-                        k: v[0] if isinstance(v, list) and len(v) == 1 else v
-                        for k, v in parsed.items()
-                    }
+                    result: Dict[str, str] = {}
+                    for k, v in parsed.items():
+                        if isinstance(v, list) and len(v) > 0:
+                            result[k] = v[0]
+                        else:
+                            result[k] = str(v)
+                    return result
                 except Exception:
                     # If both fail, treat as single header value
                     # Format: "Authorization=Basic ..." -> {"Authorization": "Basic ..."}
