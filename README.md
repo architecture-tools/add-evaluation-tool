@@ -117,7 +117,7 @@ This tool addresses this gap by providing:
    docker-compose up --build
    ```
 
-3. Access the application:
+4. Access the application:
 
    - Frontend: <http://localhost>
    - Backend API: <http://localhost:8000>
