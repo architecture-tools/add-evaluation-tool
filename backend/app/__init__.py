@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .core.config import get_settings
+from .core.telemetry import setup_telemetry
 from .infrastructure.persistence.database import init_db
 from .presentation.api.routes import api_router
 
@@ -38,6 +39,9 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(api_router, prefix=settings.api_prefix)
+
+    # Setup OpenTelemetry instrumentation
+    setup_telemetry(app, settings)
 
     return app
 

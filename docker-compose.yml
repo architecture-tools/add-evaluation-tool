@@ -1,6 +1,41 @@
-version: '3.8'
+# Note: Before running docker-compose, copy defaults.env to .env:
+#   cp defaults.env .env
+# The .env file is gitignored and contains your local configuration.
+# In CI/CD, defaults.env is used directly or environment variables are set.
 
 services:
+  beyla:
+    image: grafana/beyla:latest
+    pid: "service:backend"
+    privileged: true
+    environment:
+      - BEYLA_EXECUTABLE_NAME=python
+      - BEYLA_OPEN_PORT=8000
+      - BEYLA_PRINT_TRACES=true
+      - BEYLA_LOG_LEVEL=INFO
+      - BEYLA_INTERNAL_METRICS_PROMETHEUS_PORT=8999
+      - OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-eu-north-0.grafana.net/otlp
+      - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic MTQ1OTUzNDpnbGNfZXlKdklqb2lNVFl3T0RZM05pSXNJbTRpT2lKcGRIQmtNaTFuY21GbVlXNWhMWFJ2YTJWdUlpd2lheUk2SWxwck5tcGxiMUoxZEV3ME9VOU5NamgxT1ZoT05qYzBNQ0lzSW0waU9uc2ljaUk2SW5CeWIyUXRaWFV0Ym05eWRHZ3RNQ0o5ZlE9PQ==
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_SERVICE_NAME=open_telemetry
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=dev,service.namespace=add-evaluation-tool,service.version=0.1.0
+    ports:
+      - "8999:8999"
+    depends_on:
+      backend:
+        condition: service_started
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+    restart: unless-stopped
+
   postgres:
     image: postgres:15-alpine
     environment:
@@ -8,7 +43,7 @@ services:
       POSTGRES_PASSWORD: arch_eval_password
       POSTGRES_DB: arch_eval_db
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -24,9 +59,17 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    # Load environment variables from .env file if it exists
+    # Create .env by copying defaults.env: cp defaults.env .env
+    # In CI/CD, .env is created from defaults.env before docker-compose runs
+    env_file:
+      - .env
     environment:
       - ENV=development
+      # Override DATABASE_URL for Docker network (postgres hostname)
       - DATABASE_URL=postgresql://arch_eval:arch_eval_password@postgres:5432/arch_eval_db
+      # Disable built-in telemetry - Beyla will handle it
+      - TELEMETRY_ENABLED=false
     volumes:
       - ./backend:/app
     depends_on:
