@@ -11,6 +11,21 @@ A tool for architecture evaluation using evolution theory matrix to help
 software architects, students, and researchers follow structured design
 approaches like Attribute-Driven Design (ADD).
 
+## Observability
+
+The application includes integrated telemetry using **Grafana Beyla** - an
+eBPF-based auto-instrumentation tool that automatically collects:
+
+- **Traces**: Distributed tracing of all HTTP requests
+- **Metrics**: Request latency, throughput, error rates
+- **No code changes required**: Beyla uses eBPF to instrument applications
+  automatically
+
+Data is sent directly to Grafana Cloud for visualization and analysis.
+
+See [Beyla Integration](./docs/beyla-integration.md) and
+[TELEMETRY_SETUP.md](./TELEMETRY_SETUP.md) for details.
+
 ## Project Goal(s)
 
 To create a tool that helps architects evaluate software architectures by:
@@ -87,7 +102,16 @@ This tool addresses this gap by providing:
    cd add-evaluation-tool
    ```
 
-2. Start the application:
+2. Set up environment variables:
+
+   ```bash
+   cp defaults.env .env
+   ```
+
+   Edit `.env` if needed (e.g., to enable telemetry or change database
+   settings).
+
+3. Start the application:
 
    ```bash
    docker-compose up --build
@@ -100,6 +124,17 @@ This tool addresses this gap by providing:
    - API Documentation: <http://localhost:8000/docs>
 
 ### Local Development
+
+#### Environment Configuration
+
+1. Copy the default environment file:
+
+   ```bash
+   cp defaults.env .env
+   ```
+
+2. Edit `.env` file to customize settings for your local environment (database
+   URL, telemetry settings, etc.)
 
 #### Backend (FastAPI)
 
