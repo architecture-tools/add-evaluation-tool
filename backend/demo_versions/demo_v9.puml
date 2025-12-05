@@ -1,0 +1,24 @@
+@startuml
+skinparam componentStyle rectangle
+
+package "Demo System" {
+  interface "Frontend Interface" as Frontend
+  [API Gateway] as ApiGateway
+  [Evaluation Engine] as Engine
+  database "PostgreSQL" as Database
+  [Redis Cache] as Cache
+  queue "Message Queue" as Queue
+  [External Analytics] as Analytics
+}
+
+Frontend --> ApiGateway : HTTP/HTTPS
+ApiGateway <--> Engine : bidirectional sync
+Engine --> Database : persist results
+ApiGateway --> Database : fetch history
+Engine --> Cache : cache results
+Cache --> Database : invalidate on update
+Engine --> Queue : publish events
+Queue --> Analytics : send metrics
+
+@enduml
+
