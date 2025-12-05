@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import UUID
 
+from typing import Literal
+
 from pydantic import BaseModel
 
 from app.domain.diagrams.entities import (
@@ -86,3 +88,27 @@ class ParseDiagramResponse(BaseModel):
     diagram: DiagramResponse
     components: list[ComponentResponse]
     relationships: list[RelationshipResponse]
+
+
+class ComponentDiffResponse(BaseModel):
+    name: str
+    change_type: Literal["added", "removed", "modified"]
+    previous_type: ComponentType | None = None
+    new_type: ComponentType | None = None
+
+
+class RelationshipDiffResponse(BaseModel):
+    source: str
+    target: str
+    change_type: Literal["added", "removed", "modified"]
+    previous_label: str | None = None
+    new_label: str | None = None
+    previous_direction: RelationshipDirection | None = None
+    new_direction: RelationshipDirection | None = None
+
+
+class DiagramDiffResponse(BaseModel):
+    base_diagram_id: UUID
+    target_diagram_id: UUID
+    components: list[ComponentDiffResponse]
+    relationships: list[RelationshipDiffResponse]
