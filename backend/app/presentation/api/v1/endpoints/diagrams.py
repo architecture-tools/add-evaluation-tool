@@ -14,12 +14,15 @@ from app.presentation.api.dependencies import (
 )
 from app.presentation.api.v1.schemas import (
     ComponentResponse,
+    ComponentDiffResponse,
     DiagramResponse,
     DiagramMatrixResponse,
+    DiagramDiffResponse,
     MatrixCellResponse,
     MatrixCellUpdateResponse,
     NFRScoreResponse,
     ParseDiagramResponse,
+    RelationshipDiffResponse,
     RelationshipResponse,
     UpdateMatrixCellRequest,
 )
@@ -206,4 +209,54 @@ async def update_matrix_cell(
         entry=MatrixCellResponse.from_domain(entry),
         nfr_score=NFRScoreResponse(nfr_id=payload.nfr_id, score=nfr_score),
         overall_score=overall_score,
+    )
+
+
+@router.get(
+    "/diagrams/{base_diagram_id}/diff/{target_diagram_id}",
+    response_model=DiagramDiffResponse,
+    summary="Get differences between two diagrams",
+)
+async def diff_diagrams(
+    base_diagram_id: UUID,
+    target_diagram_id: UUID,
+    service: DiagramService = Depends(get_diagram_service),
+) -> DiagramDiffResponse:
+    try:
+        component_diffs, relationship_diffs = service.diff_diagrams(
+            base_diagram_id=base_diagram_id, target_diagram_id=target_diagram_id
+        )
+    except DiagramNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "code": "diagram/not-found",
+                "message": str(exc),
+            },
+        ) from exc
+
+    return DiagramDiffResponse(
+        base_diagram_id=base_diagram_id,
+        target_diagram_id=target_diagram_id,
+        components=[
+            ComponentDiffResponse(
+                name=diff.name,
+                change_type=diff.change_type,
+                previous_type=diff.previous_type,
+                new_type=diff.new_type,
+            )
+            for diff in component_diffs
+        ],
+        relationships=[
+            RelationshipDiffResponse(
+                source=diff.source,
+                target=diff.target,
+                change_type=diff.change_type,
+                previous_label=diff.previous_label,
+                new_label=diff.new_label,
+                previous_direction=diff.previous_direction,
+                new_direction=diff.new_direction,
+            )
+            for diff in relationship_diffs
+        ],
     )

@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from hashlib import sha256
-from typing import Iterable, Dict, Sequence
+from typing import Dict, Iterable, Literal, Sequence
 from uuid import UUID, uuid5
 
-from app.domain.diagrams.entities import Component, Diagram, Relationship
+from app.domain.diagrams.entities import (
+    Component,
+    ComponentType,
+    Diagram,
+    Relationship,
+    RelationshipDirection,
+)
 from app.domain.diagrams.exceptions import (
     DiagramAlreadyExistsError,
     DiagramNotFoundError,
@@ -14,6 +21,25 @@ from app.domain.diagrams.parsers import PlantUMLParser
 from app.domain.diagrams.repositories import DiagramRepository
 
 from .ports import DiagramStorage
+
+
+@dataclass(slots=True)
+class ComponentDiff:
+    name: str
+    change_type: Literal["added", "removed", "modified"]
+    previous_type: ComponentType | None = None
+    new_type: ComponentType | None = None
+
+
+@dataclass(slots=True)
+class RelationshipDiff:
+    source: str
+    target: str
+    change_type: Literal["added", "removed", "modified"]
+    previous_label: str | None = None
+    new_label: str | None = None
+    previous_direction: RelationshipDirection | None = None
+    new_direction: RelationshipDirection | None = None
 
 
 class DiagramService:
@@ -165,3 +191,165 @@ class DiagramService:
     @staticmethod
     def _normalize_name(name: str) -> str:
         return " ".join(name.split()).lower()
+
+    def diff_diagrams(
+        self, base_diagram_id: UUID, target_diagram_id: UUID
+    ) -> tuple[list[ComponentDiff], list[RelationshipDiff]]:
+        base = self._repository.get(base_diagram_id)
+        target = self._repository.get(target_diagram_id)
+        if base is None or target is None:
+            missing_id = base_diagram_id if base is None else target_diagram_id
+            raise DiagramNotFoundError(f"Diagram {missing_id} not found")
+
+        base_components = self._repository.get_components(base_diagram_id)
+        target_components = self._repository.get_components(target_diagram_id)
+
+        components_diff = self._build_component_diff(
+            base_components=base_components, target_components=target_components
+        )
+
+        base_relationships = self._repository.get_relationships(base_diagram_id)
+        target_relationships = self._repository.get_relationships(target_diagram_id)
+
+        relationships_diff = self._build_relationship_diff(
+            base_components=base_components,
+            target_components=target_components,
+            base_relationships=base_relationships,
+            target_relationships=target_relationships,
+        )
+
+        return components_diff, relationships_diff
+
+    def _build_component_diff(
+        self,
+        base_components: Sequence[Component],
+        target_components: Sequence[Component],
+    ) -> list[ComponentDiff]:
+        base_by_name = {
+            self._normalize_name(component.name): component
+            for component in base_components
+        }
+        target_by_name = {
+            self._normalize_name(component.name): component
+            for component in target_components
+        }
+
+        diffs: list[ComponentDiff] = []
+
+        # Added or modified
+        for name_key, target_component in target_by_name.items():
+            if name_key not in base_by_name:
+                diffs.append(
+                    ComponentDiff(
+                        name=target_component.name,
+                        change_type="added",
+                        new_type=target_component.type,
+                    )
+                )
+                continue
+
+            base_component = base_by_name[name_key]
+            if base_component.type != target_component.type:
+                diffs.append(
+                    ComponentDiff(
+                        name=target_component.name,
+                        change_type="modified",
+                        previous_type=base_component.type,
+                        new_type=target_component.type,
+                    )
+                )
+
+        # Removed
+        for name_key, base_component in base_by_name.items():
+            if name_key not in target_by_name:
+                diffs.append(
+                    ComponentDiff(
+                        name=base_component.name,
+                        change_type="removed",
+                        previous_type=base_component.type,
+                    )
+                )
+
+        return diffs
+
+    def _build_relationship_diff(
+        self,
+        base_components: Sequence[Component],
+        target_components: Sequence[Component],
+        base_relationships: Sequence[Relationship],
+        target_relationships: Sequence[Relationship],
+    ) -> list[RelationshipDiff]:
+        base_names_by_id = {
+            component.id: component.name for component in base_components
+        }
+        target_names_by_id = {
+            component.id: component.name for component in target_components
+        }
+
+        def _relationship_key(source_name: str, target_name: str) -> tuple[str, str]:
+            return (
+                self._normalize_name(source_name),
+                self._normalize_name(target_name),
+            )
+
+        base_by_key: dict[tuple[str, str], Relationship] = {}
+        for relationship in base_relationships:
+            source_name = base_names_by_id.get(relationship.source_component_id)
+            target_name = base_names_by_id.get(relationship.target_component_id)
+            if source_name and target_name:
+                base_by_key[_relationship_key(source_name, target_name)] = relationship
+
+        diffs: list[RelationshipDiff] = []
+
+        for relationship in target_relationships:
+            source_name = target_names_by_id.get(relationship.source_component_id)
+            target_name = target_names_by_id.get(relationship.target_component_id)
+            if not source_name or not target_name:
+                continue
+
+            key = _relationship_key(source_name, target_name)
+            if key not in base_by_key:
+                diffs.append(
+                    RelationshipDiff(
+                        source=source_name,
+                        target=target_name,
+                        change_type="added",
+                        new_label=relationship.label,
+                        new_direction=relationship.direction,
+                    )
+                )
+                continue
+
+            base_relationship = base_by_key.pop(key)
+            if (
+                base_relationship.label != relationship.label
+                or base_relationship.direction != relationship.direction
+            ):
+                diffs.append(
+                    RelationshipDiff(
+                        source=source_name,
+                        target=target_name,
+                        change_type="modified",
+                        previous_label=base_relationship.label,
+                        new_label=relationship.label,
+                        previous_direction=base_relationship.direction,
+                        new_direction=relationship.direction,
+                    )
+                )
+
+        # Relationships removed from target
+        for key, relationship in base_by_key.items():
+            source_name = base_names_by_id.get(relationship.source_component_id)
+            target_name = base_names_by_id.get(relationship.target_component_id)
+            if source_name and target_name:
+                diffs.append(
+                    RelationshipDiff(
+                        source=source_name,
+                        target=target_name,
+                        change_type="removed",
+                        previous_label=relationship.label,
+                        previous_direction=relationship.direction,
+                    )
+                )
+
+        return diffs
