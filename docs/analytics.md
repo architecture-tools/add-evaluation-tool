@@ -251,13 +251,13 @@ Frontend (Flutter) → Backend (FastAPI) → OpenTelemetry SDK → Grafana Cloud
 ### Analytics Dashboards
 
 All analytics dashboards are available in Grafana Cloud. Access them at:
-[Grafana Cloud Dashboards](https://grafana.com/orgs/<your-org>/dashboards)
+[Grafana Cloud Dashboards](https://ilyapechersky.grafana.net/dashboards)
 
 #### North Star Metric Dashboard
 
 **Purpose:** Track evaluation cycle completion rate (primary success metric)
 
-**Link:** [North Star Metric Dashboard](https://grafana.com/orgs/<your-org>/dashboards/north-star-metric)
+**Link:** [Analytics - North Star Metric Dashboard](https://ilyapechersky.grafana.net/d/Analytics-North-Star-Metric/analytics-north-star-metric)
 
 **Key Panels:**
 
@@ -285,7 +285,7 @@ All analytics dashboards are available in Grafana Cloud. Access them at:
 
 **Purpose:** Monitor time to complete core workflow
 
-**Link:** [Workflow Efficiency Dashboard](https://grafana.com/orgs/<your-org>/dashboards/workflow-efficiency)
+**Link:** [Workflow Efficiency Dashboard](https://ilyapechersky.grafana.net/d/Workflow-Efficiency/workflow-efficiency)
 
 **Key Panels:**
 
@@ -312,7 +312,7 @@ All analytics dashboards are available in Grafana Cloud. Access them at:
 
 **Purpose:** Track user retention and engagement
 
-**Link:** [User Retention Dashboard](https://grafana.com/orgs/<your-org>/dashboards/user-retention)
+**Link:** [User Retention Dashboard](https://ilyapechersky.grafana.net/d/User-Retention/user-retention)
 
 **Key Panels:**
 

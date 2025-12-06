@@ -446,13 +446,13 @@ graph TB
 ### Monitoring and Diagnostics Dashboards
 
 All monitoring dashboards are available in Grafana Cloud. Access them at:
-[Grafana Cloud Dashboards](https://grafana.com/orgs/<your-org>/dashboards)
+[Grafana Cloud Dashboards](https://ilyapechersky.grafana.net/dashboards)
 
 #### API Availability SLO Dashboard
 
 **Purpose:** Monitor API availability SLO (99.5% success rate)
 
-**Link:** [API Availability SLO Dashboard](https://grafana.com/orgs/<your-org>/dashboards/api-availability-slo)
+**Link:** [API Availability SLO Dashboard](https://ilyapechersky.grafana.net/d/API-Availability-SLO/api-availability-slo)
 
 **Key Panels:**
 
@@ -485,7 +485,7 @@ All monitoring dashboards are available in Grafana Cloud. Access them at:
 
 **Purpose:** Monitor parsing performance SLO (p95 < 3 seconds)
 
-**Link:** [Parsing Performance Dashboard](https://grafana.com/orgs/<your-org>/dashboards/parsing-performance)
+**Link:** [PlantUML Parsing Performance Dashboard](https://ilyapechersky.grafana.net/d/PlantUML-Parsing-Performance/plantuml-parsing-performance)
 
 **Key Panels:**
 
@@ -520,7 +520,7 @@ All monitoring dashboards are available in Grafana Cloud. Access them at:
 
 **Purpose:** Monitor overall system health and resource usage
 
-**Link:** [System Health Dashboard](https://grafana.com/orgs/<your-org>/dashboards/system-health)
+**Link:** [System Health Dashboard](https://ilyapechersky.grafana.net/d/System-Health/system-health)
 
 **Key Panels:**
 
@@ -552,7 +552,7 @@ All monitoring dashboards are available in Grafana Cloud. Access them at:
 
 **Purpose:** Investigate request flows and identify bottlenecks
 
-**Link:** [Tempo Explore](https://grafana.com/orgs/<your-org>/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Tempo%22%5D)
+**Link:** [Tempo Explore](https://ilyapechersky.grafana.net/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Tempo%22%5D)
 
 **Query Examples:**
 
@@ -570,7 +570,7 @@ All monitoring dashboards are available in Grafana Cloud. Access them at:
 
 **Purpose:** Search and analyze application logs
 
-**Link:** [Loki Explore](https://grafana.com/orgs/<your-org>/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Loki%22%5D)
+**Link:** [Loki Explore](https://ilyapechersky.grafana.net/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Loki%22%5D)
 
 **Query Examples:**
 
