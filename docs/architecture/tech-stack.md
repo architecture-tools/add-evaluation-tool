@@ -100,6 +100,98 @@ fast command for both correctness and coverage validation.
 - **Future: HTTPS termination**: TLS handled by the reverse proxy or platform
   provider in production.
 
+## Analytics
+
+### Instrumentation Tools
+
+- **OpenTelemetry SDK (Python)**: Manual instrumentation for business metrics
+  (diagram uploads, parsing operations, evaluation completions). Chosen because
+  it provides fine-grained control over what we measure, allows custom
+  attributes for business context, and integrates seamlessly with our existing
+  Python codebase. We instrument key user actions like diagram uploads,
+  parsing success/failure, and evaluation cycle completions to track our North
+  Star metric.
+
+- **Grafana Cloud (Prometheus)**: Metrics storage and querying backend.
+  Chosen for its 15-month retention, PromQL query language, and tight
+  integration with Grafana dashboards. Stores both HTTP metrics from Beyla and
+  custom business metrics from OpenTelemetry SDK.
+
+- **Grafana**: Visualization and dashboard platform. Chosen for its powerful
+  query builder, flexible dashboard creation, alerting capabilities, and
+  unified interface for metrics, traces, and logs. Enables us to create
+  business-focused dashboards tracking evaluation cycle completion rates and
+  user engagement metrics.
+
+### Why These Tools
+
+We chose OpenTelemetry SDK for analytics because it allows us to track
+business-specific events (like evaluation completions) that aren't captured
+by generic HTTP metrics. The SDK's counter and histogram instruments let us
+measure user workflows end-to-end, which is essential for understanding if
+users are finding value in the tool. Grafana Cloud provides the storage and
+querying infrastructure we need without managing our own Prometheus instance,
+and Grafana's dashboards make it easy for stakeholders to understand business
+metrics at a glance.
+
+## Observability
+
+### Instrumentation Tools
+
+- **Grafana Beyla**: eBPF-based auto-instrumentation for HTTP metrics and
+  traces. Chosen because it requires zero code changes, automatically captures
+  all HTTP traffic, and provides low-overhead instrumentation via eBPF. Beyla
+  eliminates the need to manually instrument every endpoint and ensures we
+  capture metrics even for endpoints we might forget to instrument manually.
+  It's language-agnostic and works seamlessly with our FastAPI backend.
+
+- **OpenTelemetry SDK (Python)**: Manual instrumentation for custom metrics
+  (parsing duration histograms, error tracking) and distributed tracing.
+  Chosen because it provides detailed control over what we instrument,
+  supports custom attributes for debugging context, and allows us to track
+  business logic that happens outside HTTP requests (like PlantUML parsing
+  operations). The SDK integrates with our existing Python logging and
+  provides structured telemetry data.
+
+- **Grafana Cloud**: Unified observability platform providing Prometheus
+  (metrics), Tempo (traces), and Loki (logs). Chosen because it eliminates
+  the operational overhead of running our own observability stack, provides
+  long retention periods (15 months for metrics, 30 days for logs), and
+  offers a single interface for all three pillars of observability. The OTLP
+  protocol ensures vendor-agnostic data export.
+
+- **Grafana**: Visualization, alerting, and dashboard platform. Chosen for its
+  powerful PromQL query language, flexible dashboard creation, built-in
+  alerting rules, and ability to correlate metrics, traces, and logs in a
+  single interface. Enables us to create SLO dashboards, set up alerting based
+  on service level objectives, and investigate issues by jumping from metrics
+  to traces to logs.
+
+### Why These Tools
+
+We chose Grafana Beyla as our primary instrumentation tool because it
+provides automatic, zero-code observability for all HTTP traffic. This means
+we get comprehensive metrics and traces without modifying application code,
+reducing the risk of missing instrumentation and ensuring consistent
+coverage. The eBPF-based approach has minimal performance overhead and works
+regardless of the application framework.
+
+OpenTelemetry SDK complements Beyla by allowing us to instrument business
+logic that doesn't involve HTTP requests (like PlantUML parsing) and to add
+custom attributes that provide business context. The SDK's histogram
+instruments are essential for tracking parsing performance against our SLO
+(p95 < 3 seconds).
+
+Grafana Cloud was chosen over self-hosted solutions because it eliminates
+operational complexity while providing enterprise-grade features like long
+retention, high availability, and automatic scaling. The unified platform
+means we don't need to manage separate systems for metrics, traces, and logs.
+
+Grafana provides the visualization layer that makes our observability data
+actionable. Its PromQL support allows us to create complex queries for SLO
+monitoring, and its alerting system integrates with our notification channels
+(PagerDuty, Slack, Email) to ensure we respond quickly to issues.
+
 ### CI/CD (Planned)
 
 - **GitHub Actions**: Automated lint/build/test for backend and frontend;

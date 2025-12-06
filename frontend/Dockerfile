@@ -34,8 +34,14 @@ RUN mkdir -p lib/network/src && \
 COPY frontend/scripts/fix_generated_code.py scripts/
 RUN python3 scripts/fix_generated_code.py
 
-# Copy source code
+# Backup generated network/src before copying frontend code
+RUN cp -r lib/network/src lib/network/src.generated
+
+# Copy source code (after API generation)
 COPY frontend/ .
+
+# Restore generated network/src (overwrite any old version from frontend/)
+RUN rm -rf lib/network/src && mv lib/network/src.generated lib/network/src
 
 # Clean previous builds
 RUN flutter clean
