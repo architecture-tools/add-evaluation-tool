@@ -4,16 +4,13 @@ import 'package:architecture_evaluation_tool/widgets/dashboard_header.dart';
 
 void main() {
   group('DashboardHeader Widget Tests', () {
-    testWidgets('displays project name and version', (tester) async {
-      // Set larger screen size to avoid overflow
+    testWidgets('displays title and logo', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: DashboardHeader(
-              projectName: 'Test Project',
-              version: '1.0.0',
               onUpload: (context) async {},
             ),
           ),
@@ -21,7 +18,8 @@ void main() {
       );
 
       expect(find.text('Architecture Dashboard'), findsOneWidget);
-      expect(find.text('Test Project - Version 1.0.0'), findsOneWidget);
+      expect(find.text('Architecture Evaluator'), findsOneWidget);
+      expect(find.byIcon(Icons.architecture), findsOneWidget);
 
       addTearDown(() => tester.binding.setSurfaceSize(null));
     });
@@ -33,8 +31,6 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: DashboardHeader(
-              projectName: 'Test Project',
-              version: '1.0.0',
               onUpload: (context) async {},
             ),
           ),
@@ -55,8 +51,6 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: DashboardHeader(
-              projectName: 'Test Project',
-              version: '1.0.0',
               onUpload: (context) async {
                 uploadCalled = true;
               },
@@ -73,63 +67,27 @@ void main() {
       addTearDown(() => tester.binding.setSurfaceSize(null));
     });
 
-    testWidgets('displays search field', (tester) async {
+    testWidgets('displays health status indicator', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: DashboardHeader(
-              projectName: 'Test Project',
-              version: '1.0.0',
               onUpload: (context) async {},
             ),
           ),
         ),
       );
 
-      expect(find.byType(TextField), findsOneWidget);
-      expect(find.text('Search...'), findsOneWidget);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      addTearDown(() => tester.binding.setSurfaceSize(null));
-    });
-
-    testWidgets('displays notifications icon', (tester) async {
-      await tester.binding.setSurfaceSize(const Size(1920, 1080));
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: DashboardHeader(
-              projectName: 'Test Project',
-              version: '1.0.0',
-              onUpload: (context) async {},
-            ),
-          ),
-        ),
-      );
-
-      expect(find.byIcon(Icons.notifications_outlined), findsOneWidget);
-
-      addTearDown(() => tester.binding.setSurfaceSize(null));
-    });
-
-    testWidgets('displays architecture icon', (tester) async {
-      await tester.binding.setSurfaceSize(const Size(1920, 1080));
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: DashboardHeader(
-              projectName: 'Test Project',
-              version: '1.0.0',
-              onUpload: (context) async {},
-            ),
-          ),
-        ),
-      );
-
-      expect(find.byIcon(Icons.architecture), findsOneWidget);
+      // Health status should be displayed (Online or Offline)
+      final onlineFinder = find.textContaining('Online');
+      final offlineFinder = find.textContaining('Offline');
+      final hasOnline = tester.widgetList(onlineFinder).isNotEmpty;
+      final hasOffline = tester.widgetList(offlineFinder).isNotEmpty;
+      expect(hasOnline || hasOffline, isTrue);
 
       addTearDown(() => tester.binding.setSurfaceSize(null));
     });

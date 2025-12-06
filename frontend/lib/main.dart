@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'services/api_config.dart';
 import 'services/diagram_repository.dart';
 import 'theme/app_theme.dart';
-import 'widgets/sidebar.dart';
 import 'widgets/dashboard_header.dart';
 import 'screens/dashboard_screen.dart';
 import 'network/src/api.dart';
@@ -41,21 +40,7 @@ class _MainLayoutState extends State<MainLayout> {
   final _dashboardKey = GlobalKey<DashboardScreenState>();
   final DiagramRepository _diagramRepository = DiagramRepository();
 
-  String _selectedRoute = '/dashboard';
-  String _selectedProject = 'E-commerce Platform';
   bool _isUploading = false;
-
-  void _handleNavigate(String route) {
-    setState(() {
-      _selectedRoute = route;
-    });
-  }
-
-  void _handleProjectSelect(String project) {
-    setState(() {
-      _selectedProject = project;
-    });
-  }
 
   Future<void> _handleUpload(BuildContext context) async {
     if (_isUploading) {
@@ -154,67 +139,22 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
+      body: Column(
         children: [
-          // Sidebar
-          Sidebar(
-            selectedRoute: _selectedRoute,
-            selectedProject: _selectedProject,
-            onNavigate: _handleNavigate,
-            onProjectSelect: _handleProjectSelect,
+          // Header
+          DashboardHeader(
+            onUpload: _handleUpload,
           ),
 
-          // Main content
+          // Content area
           Expanded(
-            child: Column(
-              children: [
-                // Header
-                DashboardHeader(
-                  projectName: _selectedProject,
-                  version: '2.3.1',
-                  onUpload: _handleUpload,
-                ),
-
-                // Content area
-                Expanded(
-                  child: _buildContent(),
-                ),
-              ],
+            child: DashboardScreen(
+              key: _dashboardKey,
+              onUpload: _handleUpload,
             ),
           ),
         ],
       ),
     );
-  }
-
-  Widget _buildContent() {
-    switch (_selectedRoute) {
-      case '/dashboard':
-        return DashboardScreen(
-          key: _dashboardKey,
-          onUpload: _handleUpload,
-        );
-      case '/upload':
-        return Center(
-          child: ElevatedButton.icon(
-            onPressed: () => _handleUpload(context),
-            icon: const Icon(Icons.upload_file),
-            label: const Text('Select Diagram to Upload'),
-          ),
-        );
-      case '/matrix':
-        return const Center(child: Text('Evaluation Matrix - Coming Soon'));
-      case '/versions':
-        return const Center(child: Text('Versions - Coming Soon'));
-      case '/compare':
-        return const Center(child: Text('Compare - Coming Soon'));
-      case '/reports':
-        return const Center(child: Text('Reports - Coming Soon'));
-      default:
-        return DashboardScreen(
-          key: _dashboardKey,
-          onUpload: _handleUpload,
-        );
-    }
   }
 }

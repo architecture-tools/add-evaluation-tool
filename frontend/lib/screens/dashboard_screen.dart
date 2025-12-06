@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../services/dashboard_service.dart';
@@ -8,27 +6,32 @@ import '../utils/date_time_utils.dart';
 import '../widgets/kpi_card.dart';
 import '../widgets/nfr_evaluation_matrix_widget.dart';
 import '../widgets/nfr_performance_widget.dart';
-import '../widgets/quick_actions_widget.dart';
 import '../widgets/version_timeline_widget.dart';
 
 typedef UploadHandler = Future<void> Function(BuildContext context);
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key, required this.onUpload});
+  const DashboardScreen({
+    super.key,
+    required this.onUpload,
+    this.dashboardService,
+  });
 
   final UploadHandler onUpload;
+  final DashboardService? dashboardService;
 
   @override
   DashboardScreenState createState() => DashboardScreenState();
 }
 
 class DashboardScreenState extends State<DashboardScreen> {
-  final DashboardService _dashboardService = DashboardService();
+  late final DashboardService _dashboardService;
   late Future<DashboardViewData> _dashboardFuture;
 
   @override
   void initState() {
     super.initState();
+    _dashboardService = widget.dashboardService ?? DashboardService();
     _dashboardFuture = _dashboardService.loadDashboard();
   }
 
@@ -135,32 +138,16 @@ class DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Bottom Layout: Quick actions, NFR performance, version timeline
+                // Bottom Layout: NFR performance and version timeline
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       flex: 1,
-                      child: Column(
-                        children: [
-                          QuickActionsWidget(
-                            onUpload: () {
-                              unawaited(widget.onUpload(context));
-                            },
-                            onEvaluateMatrix: () =>
-                                _showComingSoon('Evaluate Matrix'),
-                            onCompare: () =>
-                                _showComingSoon('Compare Versions'),
-                            onExport: () => _showComingSoon('Export Report'),
-                            onAiInsights: () => _showComingSoon('AI Insights'),
-                          ),
-                          const SizedBox(height: 16),
-                          NFRPerformanceWidget(
-                            metrics: data.nfrMetrics,
-                            nfrs: data.nfrs,
-                            onRefresh: _refresh,
-                          ),
-                        ],
+                      child: NFRPerformanceWidget(
+                        metrics: data.nfrMetrics,
+                        nfrs: data.nfrs,
+                        onRefresh: _refresh,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -206,12 +193,6 @@ class DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  void _showComingSoon(String featureName) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$featureName is coming soon.')),
     );
   }
 }

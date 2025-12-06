@@ -13,11 +13,16 @@ class NfrEvaluationMatrixWidget extends StatefulWidget {
     required this.data,
     this.nfrs = const [],
     this.onRefresh,
-  });
+    NFRRepository? nfrRepository,
+    MatrixRepository? matrixRepository,
+  }) : _nfrRepository = nfrRepository,
+       _matrixRepository = matrixRepository;
 
   final NfrMatrixData data;
   final List<NFRResponse> nfrs;
   final VoidCallback? onRefresh;
+  final NFRRepository? _nfrRepository;
+  final MatrixRepository? _matrixRepository;
 
   @override
   State<NfrEvaluationMatrixWidget> createState() =>
@@ -27,19 +32,22 @@ class NfrEvaluationMatrixWidget extends StatefulWidget {
 class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
   late Map<String, Map<String, int>> _scores;
   final Map<String, Map<String, int>> _pendingChanges = {};
-  final NFRRepository _nfrRepository = NFRRepository();
-  final MatrixRepository _matrixRepository = MatrixRepository();
+  late final NFRRepository _nfrRepository;
+  late final MatrixRepository _matrixRepository;
   bool _hasUnsavedChanges = false;
   bool _isSaving = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    _nfrRepository = widget._nfrRepository ?? NFRRepository();
+    _matrixRepository = widget._matrixRepository ?? MatrixRepository();
+    _initializeScores();
+  }
 
   static const List<int> _options = [1, 0, -1];
   static const Map<int, String> _labels = {1: '+1', 0: '0', -1: '-1'};
 
-  @override
-  void initState() {
-    super.initState();
-    _initializeScores();
-  }
 
   @override
   void didUpdateWidget(covariant NfrEvaluationMatrixWidget oldWidget) {
@@ -187,16 +195,6 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
                         label: const Text('Read-only'),
                       ),
                     ),
-            const SizedBox(width: 8),
-            FilledButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Full matrix view coming soon.')),
-                );
-              },
-              child: const Text('Open Full Matrix'),
-            ),
           ],
         ),
       ],
@@ -281,15 +279,13 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
   }
 
   Widget _buildNfrCell(NfrMatrixRow row) {
-    final nfrResponse = widget.nfrs.firstWhere(
-      (n) => n.id == row.nfrId,
-      orElse: () => NFRResponse(
-        id: row.nfrId,
-        name: row.nfr,
-        createdAt: DateTime.now(),
-      ),
+    final matchingNfr = widget.nfrs.where((n) => n.id == row.nfrId).firstOrNull;
+    final nfrResponse = matchingNfr ?? NFRResponse(
+      id: row.nfrId,
+      name: row.nfr,
+      createdAt: DateTime.now(),
     );
-    final canDelete = nfrResponse.id.isNotEmpty;
+    final canDelete = matchingNfr != null && matchingNfr.id.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
