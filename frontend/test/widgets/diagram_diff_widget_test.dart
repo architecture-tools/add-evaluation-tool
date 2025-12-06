@@ -123,6 +123,8 @@ void main() {
         ),
       );
 
+      await tester.pumpAndSettle();
+
       expect(find.text('Components'), findsOneWidget);
       expect(find.text('Relationships'), findsOneWidget);
       expect(find.text('Component 1'), findsOneWidget);
