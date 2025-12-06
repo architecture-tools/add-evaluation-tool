@@ -243,3 +243,122 @@ Frontend (Flutter) → Backend (FastAPI) → OpenTelemetry SDK → Grafana Cloud
 - Future: Add user consent for analytics (GDPR compliance)
 - Data retention: 30 days minimum, 90 days recommended
 - Anonymization: No personal information, only behavioral data
+
+---
+
+## Visualization and Dashboards
+
+### Analytics Dashboards
+
+All analytics dashboards are available in Grafana Cloud. Access them at:
+[Grafana Cloud Dashboards](https://ilyapechersky.grafana.net/dashboards)
+
+#### North Star Metric Dashboard
+
+**Purpose:** Track evaluation cycle completion rate (primary success metric)
+
+**Link:** [Analytics - North Star Metric Dashboard](https://ilyapechersky.grafana.net/d/Analytics-North-Star-Metric/analytics-north-star-metric)
+
+**Key Panels:**
+
+1. **Evaluation Cycle Completion Rate**
+   - Metric: `evaluation_completed_total / diagram_uploaded_total * 100`
+   - Target: ≥ 70%
+   - Visualization: Time series graph with target line
+
+2. **Workflow Funnel**
+   - Stages: Upload → Parse → Matrix → Score → Save
+   - Metric: Drop-off rate at each stage
+   - Visualization: Funnel chart
+
+3. **Completion Rate Over Time**
+   - Metric: Rolling 7-day completion rate
+   - Visualization: Line chart with trend
+
+**Screenshot:**
+
+![North Star Metric Dashboard](assets/analytics-north-star-dashboard.png)
+
+*Note: Replace with actual screenshot after dashboard creation*
+
+#### Workflow Efficiency Dashboard
+
+**Purpose:** Monitor time to complete core workflow
+
+**Link:** [Workflow Efficiency Dashboard](https://ilyapechersky.grafana.net/d/Workflow-Efficiency/workflow-efficiency)
+
+**Key Panels:**
+
+1. **Total Workflow Time**
+   - Metric: p50, p95, p99 percentiles
+   - Target: < 5 minutes (p95)
+   - Visualization: Time series with percentiles
+
+2. **Stage Duration Breakdown**
+   - Metrics: Upload time, parsing time, matrix population time, scoring time
+   - Visualization: Stacked bar chart
+
+3. **First-time vs Returning Users**
+   - Metric: Average workflow time by user type
+   - Visualization: Comparison bar chart
+
+**Screenshot:**
+
+![Workflow Efficiency Dashboard](assets/analytics-workflow-efficiency-dashboard.png)
+
+*Note: Replace with actual screenshot after dashboard creation*
+
+#### User Retention Dashboard
+
+**Purpose:** Track user retention and engagement
+
+**Link:** [User Retention Dashboard](https://ilyapechersky.grafana.net/d/User-Retention/user-retention)
+
+**Key Panels:**
+
+1. **7-Day Retention Rate**
+   - Metric: Users returning within 7 days / Total first-time users
+   - Target: ≥ 40%
+   - Visualization: Time series with target line
+
+2. **30-Day Retention Rate**
+   - Metric: Users returning within 30 days / Total first-time users
+   - Visualization: Time series
+
+3. **Retention Cohort Analysis**
+   - Metric: Retention by signup cohort
+   - Visualization: Heatmap
+
+4. **Feature Usage**
+   - Metrics: Diff comparisons, version saves, evaluations completed
+   - Visualization: Bar chart
+
+**Screenshot:**
+
+![User Retention Dashboard](assets/analytics-retention-dashboard.png)
+
+*Note: Replace with actual screenshot after dashboard creation*
+
+### Metrics Available
+
+The following metrics are collected and available in Grafana Cloud:
+
+- `diagram_uploaded_total` - Total diagrams uploaded
+- `parsing_succeeded_total` - Successful parsing operations
+- `parsing_failed_total` - Failed parsing operations
+- `evaluation_completed_total` - Completed evaluation cycles
+- `version_saved_total` - Saved versions
+- `diff_comparison_total` - Diagram diff comparisons
+- `plantuml_parsing_duration_seconds` - Parsing duration histogram
+
+### Creating Dashboards
+
+To create these dashboards in Grafana Cloud:
+
+1. Navigate to **Dashboards** → **New Dashboard**
+2. Add panels using Prometheus queries for the metrics above
+3. Use Grafana's query builder or PromQL:
+   - `rate(diagram_uploaded_total[5m])` - Upload rate
+   - `rate(evaluation_completed_total[5m])` - Completion rate
+   - `histogram_quantile(0.95, rate(plantuml_parsing_duration_seconds_bucket[5m]))` - p95 parsing latency
+4. Configure alerts based on North Star metric thresholds

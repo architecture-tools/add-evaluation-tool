@@ -438,3 +438,184 @@ graph TB
 4. **Storage Layer:** Tempo (traces), Prometheus (metrics), Loki (logs)
 5. **Visualization & Alerting:** Grafana dashboards, Alert Manager,
    PagerDuty/Slack/Email notifications
+
+---
+
+## Visualization and Dashboards
+
+### Monitoring and Diagnostics Dashboards
+
+All monitoring dashboards are available in Grafana Cloud. Access them at:
+[Grafana Cloud Dashboards](https://ilyapechersky.grafana.net/dashboards)
+
+#### API Availability SLO Dashboard
+
+**Purpose:** Monitor API availability SLO (99.5% success rate)
+
+**Link:** [API Availability SLO Dashboard](https://ilyapechersky.grafana.net/d/API-Availability-SLO/api-availability-slo)
+
+**Key Panels:**
+
+1. **HTTP Request Success Rate**
+   - Metric: `(sum(rate(http_server_request_count{http_status_code=~"2.."}[5m])) /
+     (sum(rate(http_server_request_count{http_status_code=~"2.."}[5m])) +
+     sum(rate(http_server_request_count{http_status_code=~"5.."}[5m])))) * 100`
+   - Target: ≥ 99.5%
+   - Visualization: Time series with SLO threshold line
+
+2. **Error Rate by Endpoint**
+   - Metric: `sum(rate(http_server_request_count{http_status_code=~"5.."}[5m])) by (http_route)`
+   - Visualization: Bar chart
+
+3. **Request Latency Distribution**
+   - Metrics: p50, p95, p99 latencies
+   - Visualization: Time series with multiple percentiles
+
+4. **30-Day Rolling Success Rate**
+   - Metric: `avg_over_time(success_rate[30d])`
+   - Visualization: Single stat with trend
+
+**Screenshot:**
+
+![API Availability SLO Dashboard](assets/observability-api-availability-dashboard.png)
+
+*Note: Replace with actual screenshot after dashboard creation*
+
+#### PlantUML Parsing Performance Dashboard
+
+**Purpose:** Monitor parsing performance SLO (p95 < 3 seconds)
+
+**Link:** [PlantUML Parsing Performance Dashboard](https://ilyapechersky.grafana.net/d/PlantUML-Parsing-Performance/plantuml-parsing-performance)
+
+**Key Panels:**
+
+1. **p95 Parsing Latency**
+   - Metric: `histogram_quantile(0.95, sum(rate(plantuml_parsing_duration_seconds_bucket[5m])) by (le))`
+   - Target: < 3 seconds
+   - Visualization: Time series with SLO threshold line
+
+2. **Parsing Latency Distribution**
+   - Metrics: p50, p95, p99 percentiles
+   - Visualization: Time series with multiple percentiles
+
+3. **Parsing Latency by File Size**
+   - Metric: `histogram_quantile(0.95, sum(rate(plantuml_parsing_duration_seconds_bucket[5m])) by (le, file_size_bucket))`
+   - Visualization: Heatmap
+
+4. **Parsing Error Rate**
+   - Metric: `sum(rate(plantuml_parsing_duration_seconds_count{status="error"}[5m])) / sum(rate(plantuml_parsing_duration_seconds_count[5m]))`
+   - Visualization: Time series
+
+5. **7-Day Rolling p95 Latency**
+   - Metric: `histogram_quantile(0.95, sum(rate(plantuml_parsing_duration_seconds_bucket[7d])) by (le))`
+   - Visualization: Single stat with trend
+
+**Screenshot:**
+
+![Parsing Performance Dashboard](assets/observability-parsing-performance-dashboard.png)
+
+*Note: Replace with actual screenshot after dashboard creation*
+
+#### System Health Dashboard
+
+**Purpose:** Monitor overall system health and resource usage
+
+**Link:** [System Health Dashboard](https://ilyapechersky.grafana.net/d/System-Health/system-health)
+
+**Key Panels:**
+
+1. **Container Resource Usage**
+   - Metrics: CPU usage, memory usage, restart count
+   - Visualization: Time series graphs
+
+2. **Database Connection Pool**
+   - Metrics: Active connections, idle connections, pool size
+   - Visualization: Time series
+
+3. **Request Rate**
+   - Metric: `rate(http_server_request_count[5m])`
+   - Visualization: Time series
+
+4. **Error Rate**
+   - Metric: `rate(http_server_request_count{http_status_code=~"5.."}[5m])`
+   - Visualization: Time series
+
+**Screenshot:**
+
+![System Health Dashboard](assets/observability-system-health-dashboard.png)
+
+*Note: Replace with actual screenshot after dashboard creation*
+
+### Traces and Logs
+
+#### Distributed Traces (Tempo)
+
+**Purpose:** Investigate request flows and identify bottlenecks
+
+**Link:** [Tempo Explore](https://ilyapechersky.grafana.net/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Tempo%22%5D)
+
+**Query Examples:**
+
+- `{service.name="open_telemetry"}` - All traces
+- `{service.name="open_telemetry" status="error"}` - Error traces
+- `{service.name="open_telemetry" operation="diagram.parse"}` - Parsing operations
+
+**Screenshot:**
+
+![Tempo Traces](assets/observability-tempo-traces.png)
+
+*Note: Replace with actual screenshot after dashboard creation*
+
+#### Structured Logs (Loki)
+
+**Purpose:** Search and analyze application logs
+
+**Link:** [Loki Explore](https://ilyapechersky.grafana.net/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Loki%22%5D)
+
+**Query Examples:**
+
+- `{service="backend"} |= "ERROR"` - Error logs
+- `{service="backend"} |= "parsing"` - Parsing-related logs
+- `{service="backend"} | json` - Structured JSON logs
+
+**Screenshot:**
+
+![Loki Logs](assets/observability-loki-logs.png)
+
+*Note: Replace with actual screenshot after dashboard creation*
+
+### Metrics Available
+
+The following metrics are collected and available in Grafana Cloud:
+
+**HTTP Metrics (via Beyla):**
+
+- `http_server_request_count` - Request count by status code
+- `http_server_request_duration_seconds` - Request duration histogram
+- `http_server_request_size` - Request size histogram
+- `http_server_response_size` - Response size histogram
+
+**Custom Metrics (via OpenTelemetry SDK):**
+
+- `plantuml_parsing_duration_seconds` - Parsing duration histogram (SLO 2)
+- `diagram_uploaded_total` - Diagram upload counter
+- `parsing_succeeded_total` - Successful parsing counter
+- `parsing_failed_total` - Failed parsing counter
+
+**Infrastructure Metrics:**
+
+- `container_memory_usage_bytes` - Container memory usage
+- `container_cpu_usage_seconds_total` - Container CPU usage
+- `container_restart_count` - Container restart count
+
+### Creating Dashboards
+
+To create these dashboards in Grafana Cloud:
+
+1. Navigate to **Dashboards** → **New Dashboard**
+2. Add panels using Prometheus queries for the metrics above
+3. Use Grafana's query builder or PromQL:
+   - `rate(http_server_request_count[5m])` - Request rate
+   - `histogram_quantile(0.95, rate(plantuml_parsing_duration_seconds_bucket[5m]))` - p95 parsing latency
+4. Configure alerts based on SLO thresholds defined in this document
+5. Set up alert rules in **Alerting** → **Alert Rules**

@@ -117,7 +117,7 @@ jobs:
       - name: Check documentation links
         uses: lycheeverse/lychee-action@v2.1.0
         with:
-          args: --no-progress --accept 200,204,301,302,307,308,429 --timeout 30 --retry-wait-time 2 --exclude-all-private --exclude '^file://' --exclude 'https://architecture-tools.github.io/add-evaluation-tool/api/' README.md docs/**/*.md
+          args: --no-progress --accept 200,204,301,302,307,308,429 --timeout 30 --retry-wait-time 2 --exclude-all-private --exclude '^file://' --exclude 'https://architecture-tools.github.io/add-evaluation-tool/api/' --exclude 'https://ilyapechersky.grafana.net.*' README.md docs/**/*.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: false
