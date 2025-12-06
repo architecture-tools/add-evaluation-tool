@@ -42,6 +42,24 @@ class DashboardService {
     DiagramMatrixResponse? matrixResponse;
     ParseDiagramResponse? parseResponse;
 
+    // Fetch matrices for all diagrams to calculate their scores
+    final Map<String, double> diagramScores = {};
+    for (final diagram in diagrams) {
+      // Only fetch matrix for diagrams that are parsed or analysis ready
+      if (diagram.status == DiagramStatus.parsed ||
+          diagram.status == DiagramStatus.analysisReady) {
+        try {
+          final matrix = await _matrixRepository.fetchMatrix(diagram.id);
+          final score = _scoreFromMatrix(matrix);
+          if (score != null) {
+            diagramScores[diagram.id] = score;
+          }
+        } catch (_) {
+          // Non-fatal: continue with other diagrams
+        }
+      }
+    }
+
     if (selectedDiagram != null) {
       try {
         matrixResponse =
@@ -76,9 +94,7 @@ class DashboardService {
     final metrics = DashboardMetrics.fromDiagrams(diagrams);
     final timeline = _buildTimeline(
       diagrams,
-      selectedDiagramId: selectedDiagram?.id,
-      overrideScore:
-          _scoreFromMatrix(matrixResponse) ?? _scoreFromMatrixData(matrix),
+      diagramScores: diagramScores,
     );
 
     return DashboardViewData(
@@ -315,16 +331,13 @@ class DashboardService {
 
   List<VersionInfo> _buildTimeline(
     List<DiagramResponse> diagrams, {
-    String? selectedDiagramId,
-    double? overrideScore,
+    Map<String, double>? diagramScores,
   }) {
     return diagrams
         .mapIndexed((index, diagram) {
           final trend = _deriveTrend(diagram.status);
-          final score = _deriveScore(
-            diagram.status,
-            actualScore: diagram.id == selectedDiagramId ? overrideScore : null,
-          );
+          // Use actual score from diagramScores map if available
+          final score = diagramScores?[diagram.id] ?? 0.0;
           final statusLabel = _statusLabel(diagram.status);
           final description = diagram.sourceUrl.isNotEmpty
               ? diagram.sourceUrl
@@ -356,23 +369,6 @@ class DashboardService {
     return VersionTrend.neutral;
   }
 
-  double _deriveScore(DiagramStatus status, {double? actualScore}) {
-    if (actualScore != null) {
-      return actualScore;
-    }
-    switch (status) {
-      case DiagramStatus.analysisReady:
-        return 8.8;
-      case DiagramStatus.parsed:
-        return 7.5;
-      case DiagramStatus.uploaded:
-        return 6.2;
-      case DiagramStatus.failed:
-        return 3.5;
-    }
-    return 6.0;
-  }
-
   double? _scoreFromMatrix(DiagramMatrixResponse? matrix) {
     if (matrix == null) {
       return null;
@@ -399,33 +395,6 @@ class DashboardService {
     });
 
     final average = total / matrix.entries.length;
-    return double.parse(average.toStringAsFixed(1));
-  }
-
-  double? _scoreFromMatrixData(NfrMatrixData matrix) {
-    if (matrix.rows.isEmpty || matrix.components.isEmpty) {
-      return null;
-    }
-
-    bool hasSignal = false;
-    int total = 0;
-    int count = 0;
-
-    for (final row in matrix.rows) {
-      for (final score in row.scores.values) {
-        total += score;
-        count++;
-        if (score != 0) {
-          hasSignal = true;
-        }
-      }
-    }
-
-    if (!hasSignal || count == 0) {
-      return null;
-    }
-
-    final average = total / count;
     return double.parse(average.toStringAsFixed(1));
   }
 

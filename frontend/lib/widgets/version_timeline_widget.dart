@@ -10,10 +10,12 @@ class VersionTimelineWidget extends StatelessWidget {
     super.key,
     required this.timeline,
     this.diagrams = const [],
-  });
+    DiagramRepository? diagramRepository,
+  }) : _diagramRepository = diagramRepository;
 
   final List<VersionInfo> timeline;
   final List<DiagramResponse> diagrams;
+  final DiagramRepository? _diagramRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -47,10 +49,6 @@ class VersionTimelineWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('View All'),
-                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -83,8 +81,8 @@ class VersionTimelineWidget extends StatelessWidget {
                       ? diagrams[index]
                       : null,
                   onCompare: index > 0 && diagrams.length > index
-                      ? () => _showDiffDialog(
-                          context, diagrams[index], diagrams[index - 1])
+                      ? () => _showDiffDialog(context, diagrams[index],
+                          diagrams[index - 1], _diagramRepository)
                       : null,
                 );
               }),
@@ -98,12 +96,14 @@ class VersionTimelineWidget extends StatelessWidget {
     BuildContext context,
     DiagramResponse targetDiagram,
     DiagramResponse baseDiagram,
+    DiagramRepository? diagramRepository,
   ) {
     showDialog(
       context: context,
       builder: (context) => _DiffDialog(
         baseDiagram: baseDiagram,
         targetDiagram: targetDiagram,
+        diagramRepository: diagramRepository,
       ),
     );
   }
@@ -113,26 +113,30 @@ class _DiffDialog extends StatefulWidget {
   const _DiffDialog({
     required this.baseDiagram,
     required this.targetDiagram,
-  });
+    DiagramRepository? diagramRepository,
+  }) : _diagramRepository = diagramRepository;
 
   final DiagramResponse baseDiagram;
   final DiagramResponse targetDiagram;
+  final DiagramRepository? _diagramRepository;
 
   @override
   State<_DiffDialog> createState() => _DiffDialogState();
 }
 
 class _DiffDialogState extends State<_DiffDialog> {
-  final DiagramRepository _repository = DiagramRepository();
-  DiagramDiffResponse? _diff;
-  bool _isLoading = true;
-  String? _error;
+  late final DiagramRepository _repository;
 
   @override
   void initState() {
     super.initState();
+    _repository = widget._diagramRepository ?? DiagramRepository();
     _loadDiff();
   }
+
+  DiagramDiffResponse? _diff;
+  bool _isLoading = true;
+  String? _error;
 
   Future<void> _loadDiff() async {
     try {
