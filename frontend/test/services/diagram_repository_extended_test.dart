@@ -32,7 +32,8 @@ void main() {
       final result = await repository.diffDiagrams('base-1', 'target-1');
 
       expect(result, equals(expectedDiff));
-      verify(mockApi.diffDiagramsApiV1DiagramsBaseDiagramIdDiffTargetDiagramIdGet(
+      verify(
+          mockApi.diffDiagramsApiV1DiagramsBaseDiagramIdDiffTargetDiagramIdGet(
         'base-1',
         'target-1',
       )).called(1);
@@ -50,4 +51,3 @@ void main() {
     });
   });
 }
-

@@ -66,7 +66,8 @@ void main() {
       expect(find.text('Compare'), findsOneWidget);
     });
 
-    testWidgets('does not display compare button for first item', (tester) async {
+    testWidgets('does not display compare button for first item',
+        (tester) async {
       final timeline = [
         VersionInfo(
           version: 'v1.0',
@@ -165,13 +166,14 @@ void main() {
       // Dialog should appear (may show loading or error due to HTTP call)
       final dialogTitle = find.text('Diagram Comparison');
       final loadingIndicator = find.byType(CircularProgressIndicator);
-      final errorText = find.textContaining('Failed to load', findRichText: true);
-      
+      final errorText =
+          find.textContaining('Failed to load', findRichText: true);
+
       // One of these should be present
       expect(
         dialogTitle.evaluate().isNotEmpty ||
-        loadingIndicator.evaluate().isNotEmpty ||
-        errorText.evaluate().isNotEmpty,
+            loadingIndicator.evaluate().isNotEmpty ||
+            errorText.evaluate().isNotEmpty,
         isTrue,
       );
     });
@@ -326,4 +328,3 @@ void main() {
     });
   });
 }
-

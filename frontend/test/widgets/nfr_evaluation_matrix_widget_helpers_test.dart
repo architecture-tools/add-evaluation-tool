@@ -8,6 +8,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:flutter/material.dart';
 
 class MockNFRRepository extends Mock implements NFRRepository {}
+
 class MockMatrixRepository extends Mock implements MatrixRepository {}
 
 void main() {
@@ -191,7 +192,8 @@ void main() {
       expect(find.text('0'), findsOneWidget);
     });
 
-    testWidgets('_normalizeScores adds missing component scores', (tester) async {
+    testWidgets('_normalizeScores adds missing component scores',
+        (tester) async {
       final data = NfrMatrixData(
         diagramId: 'diagram-1',
         version: '1.0',
@@ -302,7 +304,8 @@ void main() {
       expect(find.text('Performance'), findsOneWidget);
     });
 
-    testWidgets('_shouldTrackChange returns false when cannot persist', (tester) async {
+    testWidgets('_shouldTrackChange returns false when cannot persist',
+        (tester) async {
       final data = NfrMatrixData(
         diagramId: '',
         version: '1.0',
@@ -347,4 +350,3 @@ void main() {
     // Removed _impactFromScore test - this is tested indirectly through save functionality
   });
 }
-

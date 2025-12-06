@@ -128,7 +128,8 @@ void main() {
       expect(find.text('Added'), findsOneWidget);
     });
 
-    testWidgets('displays relationship with removed change type', (tester) async {
+    testWidgets('displays relationship with removed change type',
+        (tester) async {
       final diff = DiagramDiffResponse(
         baseDiagramId: 'base-1',
         targetDiagramId: 'target-1',
@@ -160,7 +161,8 @@ void main() {
       expect(find.text('Removed'), findsOneWidget);
     });
 
-    testWidgets('displays relationship with modified change type', (tester) async {
+    testWidgets('displays relationship with modified change type',
+        (tester) async {
       final diff = DiagramDiffResponse(
         baseDiagramId: 'base-1',
         targetDiagramId: 'target-1',
@@ -235,4 +237,3 @@ void main() {
     });
   });
 }
-

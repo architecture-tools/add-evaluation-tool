@@ -8,7 +8,9 @@ import 'package:mocktail/mocktail.dart';
 import '../helpers/test_helpers.dart';
 
 class MockDiagramRepository extends Mock implements DiagramRepository {}
+
 class MockNFRRepository extends Mock implements NFRRepository {}
+
 class MockMatrixRepository extends Mock implements MatrixRepository {}
 
 void main() {
@@ -70,7 +72,8 @@ void main() {
       expect(result, completes);
     });
 
-    test('_getNFRColor returns correct colors for different NFR names', () async {
+    test('_getNFRColor returns correct colors for different NFR names',
+        () async {
       final diagrams = TestHelpers.createMockDiagrams();
       when(() => mockDiagramRepo.fetchDiagrams())
           .thenAnswer((_) async => diagrams);
@@ -120,7 +123,8 @@ void main() {
       expect(result.nfrMetrics.length, greaterThan(0));
     });
 
-    test('_buildEmptyMatrixData uses diagram timestamp when available', () async {
+    test('_buildEmptyMatrixData uses diagram timestamp when available',
+        () async {
       final now = DateTime.now();
       final diagram = TestHelpers.createMockDiagram(
         id: 'diagram-1',
@@ -298,4 +302,3 @@ void main() {
     });
   });
 }
-

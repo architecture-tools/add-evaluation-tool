@@ -8,6 +8,7 @@ import 'package:architecture_evaluation_tool/services/matrix_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockNFRRepository extends Mock implements NFRRepository {}
+
 class MockMatrixRepository extends Mock implements MatrixRepository {}
 
 void main() {
@@ -56,7 +57,8 @@ void main() {
 
     // This test is covered by extended_test.dart
 
-    testWidgets('displays correct average scores for different values', (tester) async {
+    testWidgets('displays correct average scores for different values',
+        (tester) async {
       final dataWithMixedScores = NfrMatrixData(
         diagramId: 'diagram-1',
         version: '1.0',
@@ -94,7 +96,8 @@ void main() {
       expect(find.text('0.0'), findsOneWidget);
     });
 
-    testWidgets('handles didUpdateWidget when diagramId changes', (tester) async {
+    testWidgets('handles didUpdateWidget when diagramId changes',
+        (tester) async {
       final widget = NfrEvaluationMatrixWidget(
         data: matrixData,
         nfrs: nfrs,
@@ -146,8 +149,10 @@ void main() {
       expect(find.text('NFR Evaluation Matrix - 2.0'), findsOneWidget);
     });
 
-    testWidgets('displays create NFR dialog when add button is tapped', (tester) async {
-      when(() => mockNfrRepo.createNFR(name: any(named: 'name'), description: any(named: 'description')))
+    testWidgets('displays create NFR dialog when add button is tapped',
+        (tester) async {
+      when(() => mockNfrRepo.createNFR(
+              name: any(named: 'name'), description: any(named: 'description')))
           .thenAnswer((_) async => NFRResponse(
                 id: 'nfr-2',
                 name: 'Test NFR',
@@ -179,7 +184,8 @@ void main() {
     });
 
     testWidgets('validates NFR name in create dialog', (tester) async {
-      when(() => mockNfrRepo.createNFR(name: any(named: 'name'), description: any(named: 'description')))
+      when(() => mockNfrRepo.createNFR(
+              name: any(named: 'name'), description: any(named: 'description')))
           .thenAnswer((_) async => NFRResponse(
                 id: 'nfr-2',
                 name: 'Test NFR',
@@ -213,7 +219,8 @@ void main() {
       expect(find.text('Name is required'), findsOneWidget);
     });
 
-    testWidgets('displays delete NFR dialog when delete button is tapped', (tester) async {
+    testWidgets('displays delete NFR dialog when delete button is tapped',
+        (tester) async {
       when(() => mockNfrRepo.deleteNFR(any())).thenAnswer((_) async => {});
 
       await tester.pumpWidget(
@@ -234,7 +241,7 @@ void main() {
       // Tap delete button - wait a bit for widget to fully render
       final deleteButtons = find.byIcon(Icons.delete_outline);
       expect(deleteButtons, findsWidgets);
-      
+
       // Wait for widget to be fully interactive
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(deleteButtons.first);
@@ -243,10 +250,12 @@ void main() {
 
       // Dialog should appear
       expect(find.text('Delete NFR'), findsOneWidget);
-      expect(find.textContaining('Are you sure you want to delete'), findsOneWidget);
+      expect(find.textContaining('Are you sure you want to delete'),
+          findsOneWidget);
     });
 
-    testWidgets('displays correct background colors for score values', (tester) async {
+    testWidgets('displays correct background colors for score values',
+        (tester) async {
       final dataWithAllScores = NfrMatrixData(
         diagramId: 'diagram-1',
         version: '1.0',
@@ -282,9 +291,16 @@ void main() {
             body: NfrEvaluationMatrixWidget(
               data: dataWithAllScores,
               nfrs: [
-                NFRResponse(id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
-                NFRResponse(id: 'nfr-2', name: 'Security', createdAt: DateTime.now()),
-                NFRResponse(id: 'nfr-3', name: 'Scalability', createdAt: DateTime.now()),
+                NFRResponse(
+                    id: 'nfr-1',
+                    name: 'Performance',
+                    createdAt: DateTime.now()),
+                NFRResponse(
+                    id: 'nfr-2', name: 'Security', createdAt: DateTime.now()),
+                NFRResponse(
+                    id: 'nfr-3',
+                    name: 'Scalability',
+                    createdAt: DateTime.now()),
               ],
               nfrRepository: mockNfrRepo,
               matrixRepository: mockMatrixRepo,
@@ -408,4 +424,3 @@ void main() {
     // Removed complex tests that were failing - these scenarios are covered by simpler tests
   });
 }
-

@@ -8,6 +8,7 @@ import 'package:architecture_evaluation_tool/services/matrix_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockNFRRepository extends Mock implements NFRRepository {}
+
 class MockMatrixRepository extends Mock implements MatrixRepository {}
 
 void main() {
@@ -24,7 +25,8 @@ void main() {
       mockMatrixRepo = MockMatrixRepository();
     });
 
-    testWidgets('displays table with multiple components and rows', (tester) async {
+    testWidgets('displays table with multiple components and rows',
+        (tester) async {
       final matrixData = NfrMatrixData(
         diagramId: 'diagram-1',
         version: '1.0',
@@ -52,7 +54,8 @@ void main() {
       );
 
       final nfrs = [
-        NFRResponse(id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
+        NFRResponse(
+            id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
         NFRResponse(id: 'nfr-2', name: 'Security', createdAt: DateTime.now()),
       ];
 
@@ -62,16 +65,16 @@ void main() {
             componentId: any(named: 'componentId'),
             impact: any(named: 'impact'),
           )).thenAnswer((_) async => MatrixCellUpdateResponse(
-                entry: MatrixCellResponse(
-                  id: 'cell-1',
-                  diagramId: 'diagram-1',
-                  nfrId: 'nfr-1',
-                  componentId: 'comp-1',
-                  impact: ImpactValue.POSITIVE,
-                ),
-                nfrScore: NFRScoreResponse(nfrId: 'nfr-1', score: 1.0),
-                overallScore: 0.5,
-              ));
+            entry: MatrixCellResponse(
+              id: 'cell-1',
+              diagramId: 'diagram-1',
+              nfrId: 'nfr-1',
+              componentId: 'comp-1',
+              impact: ImpactValue.POSITIVE,
+            ),
+            nfrScore: NFRScoreResponse(nfrId: 'nfr-1', score: 1.0),
+            overallScore: 0.5,
+          ));
 
       await tester.pumpWidget(
         MaterialApp(
@@ -140,9 +143,11 @@ void main() {
       );
 
       final nfrs = [
-        NFRResponse(id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
+        NFRResponse(
+            id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
         NFRResponse(id: 'nfr-2', name: 'Security', createdAt: DateTime.now()),
-        NFRResponse(id: 'nfr-3', name: 'Scalability', createdAt: DateTime.now()),
+        NFRResponse(
+            id: 'nfr-3', name: 'Scalability', createdAt: DateTime.now()),
       ];
 
       await tester.pumpWidget(
@@ -168,8 +173,8 @@ void main() {
       expect(find.text('0.0'), findsOneWidget);
     });
 
-
-    testWidgets('displays correct background colors for score values', (tester) async {
+    testWidgets('displays correct background colors for score values',
+        (tester) async {
       final matrixData = NfrMatrixData(
         diagramId: 'diagram-1',
         version: '1.0',
@@ -201,9 +206,11 @@ void main() {
       );
 
       final nfrs = [
-        NFRResponse(id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
+        NFRResponse(
+            id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
         NFRResponse(id: 'nfr-2', name: 'Security', createdAt: DateTime.now()),
-        NFRResponse(id: 'nfr-3', name: 'Scalability', createdAt: DateTime.now()),
+        NFRResponse(
+            id: 'nfr-3', name: 'Scalability', createdAt: DateTime.now()),
       ];
 
       await tester.pumpWidget(
@@ -228,7 +235,6 @@ void main() {
       expect(find.text('-1'), findsOneWidget);
       expect(find.text('0'), findsOneWidget);
     });
-
 
     testWidgets('handles create NFR error', (tester) async {
       final matrixData = NfrMatrixData(
@@ -306,10 +312,12 @@ void main() {
       );
 
       final nfrs = [
-        NFRResponse(id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
+        NFRResponse(
+            id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
       ];
 
-      when(() => mockNfrRepo.deleteNFR(any())).thenThrow(Exception('Network error'));
+      when(() => mockNfrRepo.deleteNFR(any()))
+          .thenThrow(Exception('Network error'));
 
       await tester.pumpWidget(
         MaterialApp(
@@ -368,7 +376,8 @@ void main() {
       );
 
       final nfrs = [
-        NFRResponse(id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
+        NFRResponse(
+            id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
       ];
 
       await tester.pumpWidget(
@@ -422,7 +431,8 @@ void main() {
       );
 
       final nfrs = [
-        NFRResponse(id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
+        NFRResponse(
+            id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
       ];
 
       await tester.pumpWidget(
@@ -450,4 +460,3 @@ void main() {
     });
   });
 }
-

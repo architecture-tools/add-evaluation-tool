@@ -15,8 +15,8 @@ class NfrEvaluationMatrixWidget extends StatefulWidget {
     this.onRefresh,
     NFRRepository? nfrRepository,
     MatrixRepository? matrixRepository,
-  }) : _nfrRepository = nfrRepository,
-       _matrixRepository = matrixRepository;
+  })  : _nfrRepository = nfrRepository,
+        _matrixRepository = matrixRepository;
 
   final NfrMatrixData data;
   final List<NFRResponse> nfrs;
@@ -36,7 +36,7 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
   late final MatrixRepository _matrixRepository;
   bool _hasUnsavedChanges = false;
   bool _isSaving = false;
-  
+
   @override
   void initState() {
     super.initState();
@@ -47,7 +47,6 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
 
   static const List<int> _options = [1, 0, -1];
   static const Map<int, String> _labels = {1: '+1', 0: '0', -1: '-1'};
-
 
   @override
   void didUpdateWidget(covariant NfrEvaluationMatrixWidget oldWidget) {
@@ -280,11 +279,12 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
 
   Widget _buildNfrCell(NfrMatrixRow row) {
     final matchingNfr = widget.nfrs.where((n) => n.id == row.nfrId).firstOrNull;
-    final nfrResponse = matchingNfr ?? NFRResponse(
-      id: row.nfrId,
-      name: row.nfr,
-      createdAt: DateTime.now(),
-    );
+    final nfrResponse = matchingNfr ??
+        NFRResponse(
+          id: row.nfrId,
+          name: row.nfr,
+          createdAt: DateTime.now(),
+        );
     final canDelete = matchingNfr != null && matchingNfr.id.isNotEmpty;
 
     return Padding(

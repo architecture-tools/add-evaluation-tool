@@ -8,6 +8,7 @@ import 'package:architecture_evaluation_tool/services/matrix_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockNFRRepository extends Mock implements NFRRepository {}
+
 class MockMatrixRepository extends Mock implements MatrixRepository {}
 
 void main() {
@@ -181,7 +182,8 @@ void main() {
       );
 
       final multiNfrs = [
-        NFRResponse(id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
+        NFRResponse(
+            id: 'nfr-1', name: 'Performance', createdAt: DateTime.now()),
         NFRResponse(id: 'nfr-2', name: 'Security', createdAt: DateTime.now()),
       ];
 
@@ -203,4 +205,3 @@ void main() {
     });
   });
 }
-

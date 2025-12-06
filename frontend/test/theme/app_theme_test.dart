@@ -54,7 +54,8 @@ void main() {
 
     test('lightTheme has correct elevatedButtonTheme', () {
       final theme = AppTheme.lightTheme;
-      expect(theme.elevatedButtonTheme?.style?.backgroundColor?.resolve({}), equals(AppTheme.primaryPurple));
+      expect(theme.elevatedButtonTheme?.style?.backgroundColor?.resolve({}),
+          equals(AppTheme.primaryPurple));
     });
 
     test('lightTheme has correct inputDecorationTheme', () {
@@ -64,4 +65,3 @@ void main() {
     });
   });
 }
-

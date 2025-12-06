@@ -56,7 +56,5 @@ void main() {
 
       expect(find.byIcon(Icons.add), findsOneWidget);
     });
-
   });
 }
-

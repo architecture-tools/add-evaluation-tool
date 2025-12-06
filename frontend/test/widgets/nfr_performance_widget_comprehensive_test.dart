@@ -16,8 +16,10 @@ void main() {
       mockNfrRepo = MockNFRRepository();
     });
 
-    testWidgets('displays create NFR dialog when add button is tapped', (tester) async {
-      when(() => mockNfrRepo.createNFR(name: any(named: 'name'), description: any(named: 'description')))
+    testWidgets('displays create NFR dialog when add button is tapped',
+        (tester) async {
+      when(() => mockNfrRepo.createNFR(
+              name: any(named: 'name'), description: any(named: 'description')))
           .thenAnswer((_) async => NFRResponse(
                 id: 'nfr-1',
                 name: 'Test NFR',
@@ -47,7 +49,8 @@ void main() {
     });
 
     testWidgets('validates NFR name in create dialog', (tester) async {
-      when(() => mockNfrRepo.createNFR(name: any(named: 'name'), description: any(named: 'description')))
+      when(() => mockNfrRepo.createNFR(
+              name: any(named: 'name'), description: any(named: 'description')))
           .thenAnswer((_) async => NFRResponse(
                 id: 'nfr-1',
                 name: 'Test NFR',
@@ -110,7 +113,8 @@ void main() {
       expect(find.text('Name must be 255 characters or less'), findsOneWidget);
     });
 
-    testWidgets('displays delete NFR dialog when delete button is tapped', (tester) async {
+    testWidgets('displays delete NFR dialog when delete button is tapped',
+        (tester) async {
       when(() => mockNfrRepo.deleteNFR(any())).thenAnswer((_) async => {});
 
       final metrics = [
@@ -147,7 +151,8 @@ void main() {
 
       // Dialog should appear
       expect(find.text('Delete NFR'), findsOneWidget);
-      expect(find.textContaining('Are you sure you want to delete'), findsOneWidget);
+      expect(find.textContaining('Are you sure you want to delete'),
+          findsOneWidget);
     });
 
     testWidgets('cancels delete NFR dialog', (tester) async {
@@ -336,7 +341,8 @@ void main() {
     });
 
     testWidgets('handles delete NFR error', (tester) async {
-      when(() => mockNfrRepo.deleteNFR(any())).thenThrow(Exception('Network error'));
+      when(() => mockNfrRepo.deleteNFR(any()))
+          .thenThrow(Exception('Network error'));
 
       final metrics = [
         NFRMetric('Performance', 0.8, Colors.blue),
@@ -377,7 +383,8 @@ void main() {
     });
 
     testWidgets('successfully creates NFR', (tester) async {
-      when(() => mockNfrRepo.createNFR(name: any(named: 'name'), description: any(named: 'description')))
+      when(() => mockNfrRepo.createNFR(
+              name: any(named: 'name'), description: any(named: 'description')))
           .thenAnswer((_) async => NFRResponse(
                 id: 'nfr-1',
                 name: 'New NFR',
@@ -419,7 +426,8 @@ void main() {
     });
 
     testWidgets('handles create NFR error', (tester) async {
-      when(() => mockNfrRepo.createNFR(name: any(named: 'name'), description: any(named: 'description')))
+      when(() => mockNfrRepo.createNFR(
+              name: any(named: 'name'), description: any(named: 'description')))
           .thenThrow(Exception('Network error'));
 
       await tester.pumpWidget(
@@ -452,7 +460,8 @@ void main() {
     });
 
     testWidgets('creates NFR with description', (tester) async {
-      when(() => mockNfrRepo.createNFR(name: any(named: 'name'), description: any(named: 'description')))
+      when(() => mockNfrRepo.createNFR(
+              name: any(named: 'name'), description: any(named: 'description')))
           .thenAnswer((_) async => NFRResponse(
                 id: 'nfr-1',
                 name: 'New NFR',
@@ -495,4 +504,3 @@ void main() {
     });
   });
 }
-

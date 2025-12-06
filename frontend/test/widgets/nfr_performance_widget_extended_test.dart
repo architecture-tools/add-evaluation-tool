@@ -59,7 +59,6 @@ void main() {
       expect(find.byIcon(Icons.add), findsOneWidget);
     });
 
-
     testWidgets('calls onRefresh when provided', (tester) async {
       bool refreshCalled = false;
 
@@ -83,4 +82,3 @@ void main() {
     });
   });
 }
-

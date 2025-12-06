@@ -11,7 +11,9 @@ import 'package:mocktail/mocktail.dart';
 import '../helpers/test_helpers.dart';
 
 class MockDiagramRepository extends Mock implements DiagramRepository {}
+
 class MockNFRRepository extends Mock implements NFRRepository {}
+
 class MockMatrixRepository extends Mock implements MatrixRepository {}
 
 void main() {
@@ -36,4 +38,3 @@ void main() {
     // These tests are covered by service-level tests
   });
 }
-

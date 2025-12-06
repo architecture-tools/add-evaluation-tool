@@ -8,6 +8,7 @@ import 'package:architecture_evaluation_tool/services/matrix_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockNFRRepository extends Mock implements NFRRepository {}
+
 class MockMatrixRepository extends Mock implements MatrixRepository {}
 
 void main() {
@@ -90,7 +91,8 @@ void main() {
       );
 
       expect(
-        find.text('Matrix data will appear once a diagram is parsed and NFRs are defined.'),
+        find.text(
+            'Matrix data will appear once a diagram is parsed and NFRs are defined.'),
         findsOneWidget,
       );
     });
@@ -151,4 +153,3 @@ void main() {
     });
   });
 }
-

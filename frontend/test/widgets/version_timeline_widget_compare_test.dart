@@ -7,7 +7,8 @@ import '../helpers/test_helpers.dart';
 
 void main() {
   group('VersionTimelineWidget Compare Tests', () {
-    testWidgets('displays compare button when canCompare is true', (tester) async {
+    testWidgets('displays compare button when canCompare is true',
+        (tester) async {
       final timeline = [
         VersionInfo(
           version: '1.0',
@@ -47,7 +48,8 @@ void main() {
       expect(find.byIcon(Icons.compare_arrows), findsWidgets);
     });
 
-    testWidgets('does not display compare button for first item', (tester) async {
+    testWidgets('does not display compare button for first item',
+        (tester) async {
       final timeline = [
         VersionInfo(
           version: '1.0',
@@ -174,4 +176,3 @@ void main() {
     });
   });
 }
-

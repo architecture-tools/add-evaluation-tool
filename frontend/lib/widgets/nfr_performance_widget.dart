@@ -24,7 +24,7 @@ class NFRPerformanceWidget extends StatefulWidget {
 
 class _NFRPerformanceWidgetState extends State<NFRPerformanceWidget> {
   late final NFRRepository _nfrRepository;
-  
+
   @override
   void initState() {
     super.initState();
@@ -317,7 +317,8 @@ class _NFRItem extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: (score + 1) / 2, // Normalize -1 to 1 range to 0 to 1 for progress bar
+              value: (score + 1) /
+                  2, // Normalize -1 to 1 range to 0 to 1 for progress bar
               minHeight: 8,
               backgroundColor: AppTheme.borderColor,
               valueColor: AlwaysStoppedAnimation<Color>(color),

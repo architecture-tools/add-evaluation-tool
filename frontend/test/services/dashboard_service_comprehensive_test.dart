@@ -7,7 +7,7 @@ void main() {
   group('DashboardService Comprehensive Tests', () {
     test('_scoreFromImpact handles all impact values', () {
       final service = DashboardService();
-      
+
       // Test through public methods that use _scoreFromImpact
       // This is tested indirectly through _buildMatrixFromData
       expect(service, isNotNull);
@@ -15,7 +15,7 @@ void main() {
 
     test('_shortId handles short and long IDs', () {
       final service = DashboardService();
-      
+
       // Test through public methods that use _shortId
       // This is tested indirectly through _buildMatrixFromData
       expect(service, isNotNull);
@@ -23,7 +23,7 @@ void main() {
 
     test('_getNFRColor returns correct colors for different NFR names', () {
       final service = DashboardService();
-      
+
       // Test through public methods that use _getNFRColor
       // This is tested indirectly through _buildNfrMetrics
       expect(service, isNotNull);
@@ -49,7 +49,8 @@ void main() {
       expect(service, isNotNull);
     });
 
-    test('_selectDiagramForMatrix selects parsed diagram when no analysisReady', () {
+    test('_selectDiagramForMatrix selects parsed diagram when no analysisReady',
+        () {
       final now = DateTime.now();
       final diagrams = [
         TestHelpers.createMockDiagram(
@@ -69,7 +70,8 @@ void main() {
       expect(service, isNotNull);
     });
 
-    test('_selectDiagramForMatrix returns first diagram when no parsed/ready', () {
+    test('_selectDiagramForMatrix returns first diagram when no parsed/ready',
+        () {
       final now = DateTime.now();
       final diagrams = [
         TestHelpers.createMockDiagram(
@@ -199,11 +201,13 @@ void main() {
 
     test('_buildTimeline limits to 6 items', () {
       final now = DateTime.now();
-      final diagrams = List.generate(10, (i) => TestHelpers.createMockDiagram(
-        id: '$i',
-        status: DiagramStatus.parsed,
-        uploadedAt: now.subtract(Duration(hours: i)),
-      ));
+      final diagrams = List.generate(
+          10,
+          (i) => TestHelpers.createMockDiagram(
+                id: '$i',
+                status: DiagramStatus.parsed,
+                uploadedAt: now.subtract(Duration(hours: i)),
+              ));
 
       // Test through loadDashboard
       final service = DashboardService();
@@ -265,4 +269,3 @@ void main() {
     });
   });
 }
-

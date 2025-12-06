@@ -52,8 +52,7 @@ void main() {
 
     test('loadDashboard handles matrix fetch error gracefully', () async {
       final diagrams = TestHelpers.createMockDiagrams();
-      when(mockDiagramRepo.fetchDiagrams())
-          .thenAnswer((_) async => diagrams);
+      when(mockDiagramRepo.fetchDiagrams()).thenAnswer((_) async => diagrams);
       when(mockNfrRepo.fetchNFRs()).thenAnswer((_) async => []);
       when(mockDiagramRepo.parseDiagram(any))
           .thenAnswer((_) async => TestHelpers.createMockParseResponse());
@@ -67,11 +66,10 @@ void main() {
 
     test('loadDashboard handles parse error gracefully', () async {
       final diagrams = TestHelpers.createMockDiagrams();
-      when(mockDiagramRepo.fetchDiagrams())
-          .thenAnswer((_) async => diagrams);
+      when(mockDiagramRepo.fetchDiagrams()).thenAnswer((_) async => diagrams);
       when(mockNfrRepo.fetchNFRs()).thenAnswer((_) async => []);
-      when(mockMatrixRepo.fetchMatrix(any))
-          .thenAnswer((_) async => DiagramMatrixResponse(entries: [], nfrScores: []));
+      when(mockMatrixRepo.fetchMatrix(any)).thenAnswer(
+          (_) async => DiagramMatrixResponse(entries: [], nfrScores: []));
       when(mockDiagramRepo.parseDiagram(any))
           .thenThrow(Exception('Parse error'));
 
@@ -90,4 +88,3 @@ void main() {
     });
   });
 }
-

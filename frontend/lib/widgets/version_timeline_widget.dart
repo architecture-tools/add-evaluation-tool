@@ -81,8 +81,8 @@ class VersionTimelineWidget extends StatelessWidget {
                       ? diagrams[index]
                       : null,
                   onCompare: index > 0 && diagrams.length > index
-                      ? () => _showDiffDialog(
-                          context, diagrams[index], diagrams[index - 1], _diagramRepository)
+                      ? () => _showDiffDialog(context, diagrams[index],
+                          diagrams[index - 1], _diagramRepository)
                       : null,
                 );
               }),
@@ -126,17 +126,17 @@ class _DiffDialog extends StatefulWidget {
 
 class _DiffDialogState extends State<_DiffDialog> {
   late final DiagramRepository _repository;
-  
+
   @override
   void initState() {
     super.initState();
     _repository = widget._diagramRepository ?? DiagramRepository();
     _loadDiff();
   }
+
   DiagramDiffResponse? _diff;
   bool _isLoading = true;
   String? _error;
-
 
   Future<void> _loadDiff() async {
     try {

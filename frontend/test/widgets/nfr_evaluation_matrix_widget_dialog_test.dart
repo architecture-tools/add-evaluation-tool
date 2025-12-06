@@ -8,6 +8,7 @@ import 'package:architecture_evaluation_tool/services/matrix_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockNFRRepository extends Mock implements NFRRepository {}
+
 class MockMatrixRepository extends Mock implements MatrixRepository {}
 
 void main() {
@@ -47,7 +48,8 @@ void main() {
       ];
     });
 
-    testWidgets('validates NFR name length > 255 in create dialog', (tester) async {
+    testWidgets('validates NFR name length > 255 in create dialog',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -142,4 +144,3 @@ void main() {
     });
   });
 }
-
