@@ -166,7 +166,10 @@ class DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(width: 16),
                     Expanded(
                       flex: 2,
-                      child: VersionTimelineWidget(timeline: data.timeline),
+                      child: VersionTimelineWidget(
+                        timeline: data.timeline,
+                        diagrams: data.diagrams,
+                      ),
                     ),
                   ],
                 ),
