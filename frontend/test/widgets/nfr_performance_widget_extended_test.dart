@@ -29,20 +29,27 @@ void main() {
 
     testWidgets('displays NFR scores', (tester) async {
       final metrics = [
-        NFRMetric('Performance', 0.85, Colors.blue),
+        NFRMetric('Performance', 0.8, Colors.blue),
       ];
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
-              metrics: metrics,
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: NFRPerformanceWidget(
+                metrics: metrics,
+              ),
             ),
           ),
         ),
       );
 
-      expect(find.textContaining('0.85'), findsOneWidget);
+      await tester.pumpAndSettle();
+
+      // toStringAsFixed(1) formats 0.8 as "0.8"
+      expect(find.text('0.8'), findsOneWidget);
     });
 
     testWidgets('displays add NFR button', (tester) async {

@@ -55,6 +55,8 @@ void main() {
         ),
       );
 
+      await tester.pumpAndSettle();
+
       expect(find.text('Components'), findsOneWidget);
       expect(find.text('New Component'), findsOneWidget);
       expect(find.text('Base Diagram'), findsOneWidget);
@@ -87,6 +89,8 @@ void main() {
         ),
       );
 
+      await tester.pumpAndSettle();
+
       expect(find.text('Relationships'), findsOneWidget);
       expect(find.textContaining('Component A'), findsWidgets);
       expect(find.textContaining('Component B'), findsWidgets);
@@ -114,10 +118,14 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: DiagramDiffWidget(
-              diff: diff,
-              baseDiagramName: 'Base',
-              targetDiagramName: 'Target',
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: DiagramDiffWidget(
+                diff: diff,
+                baseDiagramName: 'Base',
+                targetDiagramName: 'Target',
+              ),
             ),
           ),
         ),
