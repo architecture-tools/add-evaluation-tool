@@ -413,5 +413,4 @@ docker-compose logs beyla --tail 20 | grep "submitting traces"
 
 - [OpenTelemetry Documentation](https://opentelemetry.io/docs/)
 - [Grafana Beyla Documentation](https://github.com/grafana/beyla)
-- [Grafana Cloud OpenTelemetry Setup](https://grafana.com/docs/grafana-cloud/connect-externally-hosted/send-data/otlp/send-data-otlp/)
 - [OpenTelemetry Python SDK](https://opentelemetry.io/docs/instrumentation/python/)
