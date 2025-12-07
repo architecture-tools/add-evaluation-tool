@@ -279,64 +279,6 @@ All analytics dashboards are available in Grafana Cloud. Access them at:
 
 ![North Star Metric Dashboard](assets/analytics-north-star-dashboard.png)
 
-#### Workflow Efficiency Dashboard
-
-**Purpose:** Monitor time to complete core workflow
-
-**Link:** [Workflow Efficiency Dashboard](https://ilyapechersky.grafana.net/d/Workflow-Efficiency/workflow-efficiency)
-
-**Key Panels:**
-
-1. **Total Workflow Time**
-   - Metric: p50, p95, p99 percentiles
-   - Target: < 5 minutes (p95)
-   - Visualization: Time series with percentiles
-
-2. **Stage Duration Breakdown**
-   - Metrics: Upload time, parsing time, matrix population time, scoring time
-   - Visualization: Stacked bar chart
-
-3. **First-time vs Returning Users**
-   - Metric: Average workflow time by user type
-   - Visualization: Comparison bar chart
-
-**Screenshot:**
-
-![Workflow Efficiency Dashboard](assets/analytics-workflow-efficiency-dashboard.png)
-
-*Note: Replace with actual screenshot after dashboard creation*
-
-#### User Retention Dashboard
-
-**Purpose:** Track user retention and engagement
-
-**Link:** [User Retention Dashboard](https://ilyapechersky.grafana.net/d/User-Retention/user-retention)
-
-**Key Panels:**
-
-1. **7-Day Retention Rate**
-   - Metric: Users returning within 7 days / Total first-time users
-   - Target: ≥ 40%
-   - Visualization: Time series with target line
-
-2. **30-Day Retention Rate**
-   - Metric: Users returning within 30 days / Total first-time users
-   - Visualization: Time series
-
-3. **Retention Cohort Analysis**
-   - Metric: Retention by signup cohort
-   - Visualization: Heatmap
-
-4. **Feature Usage**
-   - Metrics: Diff comparisons, version saves, evaluations completed
-   - Visualization: Bar chart
-
-**Screenshot:**
-
-![User Retention Dashboard](assets/analytics-retention-dashboard.png)
-
-*Note: Replace with actual screenshot after dashboard creation*
-
 ### Metrics Available
 
 The following metrics are collected and available in Grafana Cloud:

@@ -541,44 +541,6 @@ All monitoring dashboards are available in Grafana Cloud. Access them at:
 
 ![System Health Dashboard](assets/observability-system-health-dashboard.png)
 
-### Traces and Logs
-
-#### Distributed Traces (Tempo)
-
-**Purpose:** Investigate request flows and identify bottlenecks
-
-**Link:** [Tempo Explore](https://ilyapechersky.grafana.net/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Tempo%22%5D)
-
-**Query Examples:**
-
-- `{service.name="open_telemetry"}` - All traces
-- `{service.name="open_telemetry" status="error"}` - Error traces
-- `{service.name="open_telemetry" operation="diagram.parse"}` - Parsing operations
-
-**Screenshot:**
-
-![Tempo Traces](assets/observability-tempo-traces.png)
-
-*Note: Replace with actual screenshot after dashboard creation*
-
-#### Structured Logs (Loki)
-
-**Purpose:** Search and analyze application logs
-
-**Link:** [Loki Explore](https://ilyapechersky.grafana.net/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Loki%22%5D)
-
-**Query Examples:**
-
-- `{service="backend"} |= "ERROR"` - Error logs
-- `{service="backend"} |= "parsing"` - Parsing-related logs
-- `{service="backend"} | json` - Structured JSON logs
-
-**Screenshot:**
-
-![Loki Logs](assets/observability-loki-logs.png)
-
-*Note: Replace with actual screenshot after dashboard creation*
-
 ### Metrics Available
 
 The following metrics are collected and available in Grafana Cloud:
