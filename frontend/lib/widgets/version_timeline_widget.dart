@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import '../network/src/api.dart';
+import '../services/diagram_repository.dart';
 import '../theme/app_theme.dart';
 import '../models/mock_models.dart';
+import 'diagram_diff_widget.dart';
 
 class VersionTimelineWidget extends StatelessWidget {
-  const VersionTimelineWidget({super.key, required this.timeline});
+  const VersionTimelineWidget({
+    super.key,
+    required this.timeline,
+    this.diagrams = const [],
+    DiagramRepository? diagramRepository,
+  }) : _diagramRepository = diagramRepository;
 
   final List<VersionInfo> timeline;
+  final List<DiagramResponse> diagrams;
+  final DiagramRepository? _diagramRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +49,6 @@ class VersionTimelineWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('View All'),
-                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -59,6 +65,8 @@ class VersionTimelineWidget extends StatelessWidget {
                 final index = entry.key;
                 final version = entry.value;
                 final isLast = index == timeline.length - 1;
+                final diagram =
+                    index < diagrams.length ? diagrams[index] : null;
                 return _VersionItem(
                   version: version.version,
                   timeAgo: version.timeAgo,
@@ -67,8 +75,163 @@ class VersionTimelineWidget extends StatelessWidget {
                   score: version.score,
                   trend: version.trend,
                   showLine: !isLast,
+                  diagram: diagram,
+                  canCompare: index > 0 && diagrams.length > index,
+                  baseDiagram: index > 0 && diagrams.length > index
+                      ? diagrams[index]
+                      : null,
+                  onCompare: index > 0 && diagrams.length > index
+                      ? () => _showDiffDialog(context, diagrams[index],
+                          diagrams[index - 1], _diagramRepository)
+                      : null,
                 );
               }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDiffDialog(
+    BuildContext context,
+    DiagramResponse targetDiagram,
+    DiagramResponse baseDiagram,
+    DiagramRepository? diagramRepository,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => _DiffDialog(
+        baseDiagram: baseDiagram,
+        targetDiagram: targetDiagram,
+        diagramRepository: diagramRepository,
+      ),
+    );
+  }
+}
+
+class _DiffDialog extends StatefulWidget {
+  const _DiffDialog({
+    required this.baseDiagram,
+    required this.targetDiagram,
+    DiagramRepository? diagramRepository,
+  }) : _diagramRepository = diagramRepository;
+
+  final DiagramResponse baseDiagram;
+  final DiagramResponse targetDiagram;
+  final DiagramRepository? _diagramRepository;
+
+  @override
+  State<_DiffDialog> createState() => _DiffDialogState();
+}
+
+class _DiffDialogState extends State<_DiffDialog> {
+  late final DiagramRepository _repository;
+
+  @override
+  void initState() {
+    super.initState();
+    _repository = widget._diagramRepository ?? DiagramRepository();
+    _loadDiff();
+  }
+
+  DiagramDiffResponse? _diff;
+  bool _isLoading = true;
+  String? _error;
+
+  Future<void> _loadDiff() async {
+    try {
+      final diff = await _repository.diffDiagrams(
+        widget.baseDiagram.id,
+        widget.targetDiagram.id,
+      );
+      if (mounted) {
+        setState(() {
+          _diff = diff;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 600),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Diagram Comparison',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: AppTheme.red,
+                                size: 48,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Failed to load diff',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _error!,
+                                style: const TextStyle(
+                                    color: AppTheme.textSecondary),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        )
+                      : _diff != null
+                          ? DiagramDiffWidget(
+                              diff: _diff!,
+                              baseDiagramName: widget.baseDiagram.name,
+                              targetDiagramName: widget.targetDiagram.name,
+                            )
+                          : const Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Text(
+                                'No diff data available',
+                                style: TextStyle(color: AppTheme.textSecondary),
+                              ),
+                            ),
+            ),
           ],
         ),
       ),
@@ -84,6 +247,10 @@ class _VersionItem extends StatelessWidget {
   final double score;
   final VersionTrend? trend;
   final bool showLine;
+  final DiagramResponse? diagram;
+  final bool canCompare;
+  final DiagramResponse? baseDiagram;
+  final VoidCallback? onCompare;
 
   const _VersionItem({
     required this.version,
@@ -93,6 +260,10 @@ class _VersionItem extends StatelessWidget {
     required this.score,
     this.trend,
     this.showLine = true,
+    this.diagram,
+    this.canCompare = false,
+    this.baseDiagram,
+    this.onCompare,
   });
 
   @override
@@ -189,6 +360,22 @@ class _VersionItem extends StatelessWidget {
                         color: AppTheme.textPrimary,
                       ),
                     ),
+                    if (canCompare && onCompare != null) ...[
+                      const SizedBox(width: 8),
+                      TextButton.icon(
+                        onPressed: onCompare,
+                        icon: const Icon(Icons.compare_arrows, size: 16),
+                        label: const Text('Compare'),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],

@@ -51,4 +51,14 @@ class DiagramRepository {
   Future<DiagramResponse?> getDiagram(String diagramId) {
     return _api.getDiagramApiV1DiagramsDiagramIdGet(diagramId);
   }
+
+  Future<DiagramDiffResponse?> diffDiagrams(
+    String baseDiagramId,
+    String targetDiagramId,
+  ) {
+    return _api.diffDiagramsApiV1DiagramsBaseDiagramIdDiffTargetDiagramIdGet(
+      baseDiagramId,
+      targetDiagramId,
+    );
+  }
 }

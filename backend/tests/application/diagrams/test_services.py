@@ -4,7 +4,7 @@ import pytest
 
 from app.application.diagrams.ports import DiagramStorage
 from app.application.diagrams.services import DiagramService
-from app.domain.diagrams.entities import DiagramStatus
+from app.domain.diagrams.entities import DiagramStatus, RelationshipDirection
 from app.domain.diagrams.exceptions import DiagramAlreadyExistsError, ParseError
 from app.infrastructure.parsing.plantuml_parser import RegexPlantUMLParser
 from app.infrastructure.persistence.in_memory import InMemoryDiagramRepository
@@ -82,4 +82,73 @@ def test_parse_diagram_failure_marks_diagram_failed(service: DiagramService) -> 
     failed = service.get_diagram(diagram.id)
     assert failed is not None
     assert failed.status == DiagramStatus.FAILED
+
+
+def test_diff_diagrams_returns_component_and_relationship_changes(
+    service: DiagramService,
+) -> None:
+    base_content = """
+    @startuml
+    [Frontend] as FE
+    [Backend] as BE
+    database "Main DB" as DB
+
+    FE --> BE : HTTP
+    BE --> DB : SQL
+    @enduml
+    """.strip()
+
+    target_content = """
+    @startuml
+    [Frontend] as FE
+    [Backend] as BE
+    database "Main DB" as DB
+    queue "Cache" as CACHE
+
+    FE --> BE : HTTP
+    BE --> DB : SQL(read)
+    BE --> CACHE : cache
+    @enduml
+    """.strip()
+
+    base = service.upload_diagram("base.puml", base_content.encode())
+    target = service.upload_diagram("target.puml", target_content.encode())
+
+    service.parse_diagram(base.id)
+    service.parse_diagram(target.id)
+
+    component_diffs, relationship_diffs = service.diff_diagrams(
+        base_diagram_id=base.id, target_diagram_id=target.id
+    )
+
+    added_components = [diff for diff in component_diffs if diff.change_type == "added"]
+    assert len(added_components) == 1
+    assert added_components[0].name == "Cache"
+
+    modified_relationships = [
+        diff for diff in relationship_diffs if diff.change_type == "modified"
+    ]
+    assert len(modified_relationships) == 1
+    assert modified_relationships[0].source == "Backend"
+    assert modified_relationships[0].target == "Main DB"
+    assert modified_relationships[0].previous_label == "SQL"
+    assert modified_relationships[0].new_label == "SQL(read)"
+    assert (
+        modified_relationships[0].previous_direction
+        == RelationshipDirection.UNIDIRECTIONAL
+    )
+    assert (
+        modified_relationships[0].new_direction
+        == RelationshipDirection.UNIDIRECTIONAL
+    )
+
+    added_relationships = [
+        diff for diff in relationship_diffs if diff.change_type == "added"
+    ]
+    assert any(
+        rel.source == "Backend"
+        and rel.target == "Cache"
+        and rel.new_label == "cache"
+        for rel in added_relationships
+    )
 

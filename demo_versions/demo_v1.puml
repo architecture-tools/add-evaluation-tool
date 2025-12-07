@@ -1,0 +1,20 @@
+@startuml
+skinparam componentStyle rectangle
+
+package "Demo System" {
+  [Frontend SPA] as Frontend
+  [API Gateway] as ApiGateway
+  [PlantUML Parser] as PUParser
+  [Evaluation Engine] as Engine
+  database "PostgreSQL" as Database
+}
+
+Frontend --> ApiGateway : REST
+ApiGateway --> PUParser : parse .puml
+PUParser --> Engine : build matrix
+Engine --> Database : persist results
+Frontend --> Engine : request analysis summary
+ApiGateway --> Database : fetch history
+
+@enduml
+

@@ -275,6 +275,59 @@
         }
       }
     },
+    "/api/v1/diagrams/{base_diagram_id}/diff/{target_diagram_id}": {
+      "get": {
+        "tags": [
+          "diagrams"
+        ],
+        "summary": "Get differences between two diagrams",
+        "operationId": "diff_diagrams_api_v1_diagrams__base_diagram_id__diff__target_diagram_id__get",
+        "parameters": [
+          {
+            "name": "base_diagram_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Base Diagram Id"
+            }
+          },
+          {
+            "name": "target_diagram_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Target Diagram Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiagramDiffResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/nfrs": {
       "get": {
         "tags": [
@@ -414,6 +467,49 @@
         ],
         "title": "Body_upload_diagram_api_v1_diagrams_post"
       },
+      "ComponentDiffResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "change_type": {
+            "type": "string",
+            "enum": [
+              "added",
+              "removed",
+              "modified"
+            ],
+            "title": "Change Type"
+          },
+          "previous_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ComponentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "new_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ComponentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "change_type"
+        ],
+        "title": "ComponentDiffResponse"
+      },
       "ComponentResponse": {
         "properties": {
           "id": {
@@ -477,6 +573,42 @@
           "name"
         ],
         "title": "CreateNFRRequest"
+      },
+      "DiagramDiffResponse": {
+        "properties": {
+          "base_diagram_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Base Diagram Id"
+          },
+          "target_diagram_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Target Diagram Id"
+          },
+          "components": {
+            "items": {
+              "$ref": "#/components/schemas/ComponentDiffResponse"
+            },
+            "type": "array",
+            "title": "Components"
+          },
+          "relationships": {
+            "items": {
+              "$ref": "#/components/schemas/RelationshipDiffResponse"
+            },
+            "type": "array",
+            "title": "Relationships"
+          }
+        },
+        "type": "object",
+        "required": [
+          "base_diagram_id",
+          "target_diagram_id",
+          "components",
+          "relationships"
+        ],
+        "title": "DiagramDiffResponse"
       },
       "DiagramMatrixResponse": {
         "properties": {
@@ -736,6 +868,76 @@
           "relationships"
         ],
         "title": "ParseDiagramResponse"
+      },
+      "RelationshipDiffResponse": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target"
+          },
+          "change_type": {
+            "type": "string",
+            "enum": [
+              "added",
+              "removed",
+              "modified"
+            ],
+            "title": "Change Type"
+          },
+          "previous_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Label"
+          },
+          "new_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Label"
+          },
+          "previous_direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RelationshipDirection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "new_direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RelationshipDirection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "target",
+          "change_type"
+        ],
+        "title": "RelationshipDiffResponse"
       },
       "RelationshipDirection": {
         "type": "string",

@@ -10,18 +10,26 @@ class NFRPerformanceWidget extends StatefulWidget {
     required this.metrics,
     this.nfrs = const [],
     this.onRefresh,
-  });
+    NFRRepository? nfrRepository,
+  }) : _nfrRepository = nfrRepository;
 
   final List<NFRMetric> metrics;
   final List<NFRResponse> nfrs;
   final VoidCallback? onRefresh;
+  final NFRRepository? _nfrRepository;
 
   @override
   State<NFRPerformanceWidget> createState() => _NFRPerformanceWidgetState();
 }
 
 class _NFRPerformanceWidgetState extends State<NFRPerformanceWidget> {
-  final NFRRepository _nfrRepository = NFRRepository();
+  late final NFRRepository _nfrRepository;
+
+  @override
+  void initState() {
+    super.initState();
+    _nfrRepository = widget._nfrRepository ?? NFRRepository();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +73,6 @@ class _NFRPerformanceWidgetState extends State<NFRPerformanceWidget> {
                       tooltip: 'Add NFR',
                       onPressed: _showCreateNFRDialog,
                       color: AppTheme.primaryPurple,
-                    ),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text('View Matrix'),
                     ),
                   ],
                 ),
@@ -291,7 +295,7 @@ class _NFRItem extends StatelessWidget {
                 ),
               ),
               Text(
-                '$score/10',
+                score.toStringAsFixed(1),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -313,7 +317,8 @@ class _NFRItem extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: score / 10,
+              value: (score + 1) /
+                  2, // Normalize -1 to 1 range to 0 to 1 for progress bar
               minHeight: 8,
               backgroundColor: AppTheme.borderColor,
               valueColor: AlwaysStoppedAnimation<Color>(color),

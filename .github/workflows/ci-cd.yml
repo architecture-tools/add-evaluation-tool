@@ -90,12 +90,21 @@ jobs:
       - name: Run Dart analyzer
         working-directory: frontend
         run: |
-          dart analyze 2>&1 | tee /tmp/dart_analyze.log || true
-          if grep -qE "^(error|Error)" /tmp/dart_analyze.log; then
-            echo "Dart analyzer found errors!"
-            exit 1
+          set +e
+          dart analyze 2>&1 | tee /tmp/dart_analyze.log
+          ANALYZE_EXIT_CODE=$?
+          if [ $ANALYZE_EXIT_CODE -ne 0 ]; then
+            # Check if there are actual errors (not just info/warnings)
+            # Dart analyzer uses "   error -" prefix for errors
+            if grep -qE "^[[:space:]]+error[[:space:]]+-" /tmp/dart_analyze.log; then
+              echo "Dart analyzer found errors!"
+              exit 1
+            fi
+            # If exit code is non-zero but no errors found, it's just warnings/info
+            echo "Dart analyzer passed (only info/warnings, no errors)"
+          else
+            echo "Dart analyzer passed (no issues found)"
           fi
-          echo "Dart analyzer passed (only info/warnings, no errors)"
 
       - name: Lint Markdown
         uses: DavidAnson/markdownlint-cli2-action@v15
@@ -108,7 +117,7 @@ jobs:
       - name: Check documentation links
         uses: lycheeverse/lychee-action@v2.1.0
         with:
-          args: --no-progress --accept 200,204,301,302,307,308,429 --timeout 30 --retry-wait-time 2 --exclude-all-private --exclude '^file://' --exclude 'https://architecture-tools.github.io/add-evaluation-tool/api/' README.md docs/**/*.md
+          args: --no-progress --accept 200,204,301,302,307,308,429 --timeout 30 --retry-wait-time 2 --exclude-all-private --exclude '^file://' --exclude 'https://architecture-tools.github.io/add-evaluation-tool/api/' --exclude 'https://ilyapechersky.grafana.net.*' README.md docs/**/*.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: false

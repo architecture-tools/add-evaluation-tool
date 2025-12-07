@@ -16,16 +16,28 @@ class MatrixRepository {
     required String nfrId,
     required String componentId,
     required ImpactValue impact,
-  }) {
-    final request = UpdateMatrixCellRequest(
-      nfrId: nfrId,
-      componentId: componentId,
-      impact: impact,
-    );
+  }) async {
+    try {
+      final request = UpdateMatrixCellRequest(
+        nfrId: nfrId,
+        componentId: componentId,
+        impact: impact,
+      );
 
-    return _api.updateMatrixCellApiV1DiagramsDiagramIdMatrixPut(
-      diagramId,
-      request,
-    );
+      final response =
+          await _api.updateMatrixCellApiV1DiagramsDiagramIdMatrixPut(
+        diagramId,
+        request,
+      );
+
+      if (response == null) {
+        throw Exception('Received null response from server');
+      }
+
+      return response;
+    } catch (e) {
+      // Re-throw with more context
+      throw Exception('Failed to update matrix cell: $e');
+    }
   }
 }

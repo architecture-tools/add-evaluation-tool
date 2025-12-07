@@ -69,7 +69,8 @@ services:
       # Override DATABASE_URL for Docker network (postgres hostname)
       - DATABASE_URL=postgresql://arch_eval:arch_eval_password@postgres:5432/arch_eval_db
       # Disable built-in telemetry - Beyla will handle it
-      - TELEMETRY_ENABLED=false
+      - TELEMETRY_ENABLED=true
+      - TELEMETRY_METRICS_ENABLED=true
     volumes:
       - ./backend:/app
     depends_on:
