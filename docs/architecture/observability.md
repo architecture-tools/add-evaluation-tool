@@ -479,7 +479,6 @@ All monitoring dashboards are available in Grafana Cloud. Access them at:
 
 ![API Availability SLO Dashboard](assets/observability-api-availability-dashboard.png)
 
-
 #### PlantUML Parsing Performance Dashboard
 
 **Purpose:** Monitor parsing performance SLO (p95 < 3 seconds)

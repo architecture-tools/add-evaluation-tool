@@ -76,4 +76,3 @@ We discussed it with instructor in the [meeting](https://github.com/architecture
 decided to add it to next sprint.
 - Our deployment is still through docker container as we are still in search for a free hosting service or
  waiting for customer to provide resources for deployment.
- 
