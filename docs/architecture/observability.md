@@ -479,7 +479,6 @@ All monitoring dashboards are available in Grafana Cloud. Access them at:
 
 ![API Availability SLO Dashboard](assets/observability-api-availability-dashboard.png)
 
-*Note: Replace with actual screenshot after dashboard creation*
 
 #### PlantUML Parsing Performance Dashboard
 
@@ -514,8 +513,6 @@ All monitoring dashboards are available in Grafana Cloud. Access them at:
 
 ![Parsing Performance Dashboard](assets/observability-parsing-performance-dashboard.png)
 
-*Note: Replace with actual screenshot after dashboard creation*
-
 #### System Health Dashboard
 
 **Purpose:** Monitor overall system health and resource usage
@@ -543,8 +540,6 @@ All monitoring dashboards are available in Grafana Cloud. Access them at:
 **Screenshot:**
 
 ![System Health Dashboard](assets/observability-system-health-dashboard.png)
-
-*Note: Replace with actual screenshot after dashboard creation*
 
 ### Traces and Logs
 

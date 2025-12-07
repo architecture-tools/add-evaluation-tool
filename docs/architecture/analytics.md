@@ -279,8 +279,6 @@ All analytics dashboards are available in Grafana Cloud. Access them at:
 
 ![North Star Metric Dashboard](assets/analytics-north-star-dashboard.png)
 
-*Note: Replace with actual screenshot after dashboard creation*
-
 #### Workflow Efficiency Dashboard
 
 **Purpose:** Monitor time to complete core workflow
