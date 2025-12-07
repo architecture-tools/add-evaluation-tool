@@ -66,11 +66,14 @@
 - [GitHub Projects and Sprint Backlog](https://github.com/orgs/architecture-tools/projects/1/views/1?filterQuery=sprint%3A%22Sprint+4%22)
 
 [First Release](https://github.com/architecture-tools/add-evaluation-tool/releases/tag/v0.1.0)
-
+[Deployment](https://github.com/architecture-tools/add-evaluation-tool?tab=readme-ov-file#quick-start-with-docker-recommended)
 [Demo with new features](https://drive.google.com/file/d/1ysm-VJRtcI5YdvBfIo4gG2YBKegU6jc_/view?usp=sharing)
 
-### Note
+### Notes
 
-We finished assignment before updates regarding hdd preparation, that's why this section isn't completed in this assignment.
+- We finished assignment before updates regarding hdd preparation, that's why this section isn't completed in this assignment.
 We discussed it with instructor in the [meeting](https://github.com/architecture-tools/add-evaluation-tool/pull/87) and
 decided to add it to next sprint.
+- Our deployment is still through docker container as we are still in search for a free hosting service or
+ waiting for customer to provide resources for deployment.
+ 
