@@ -68,3 +68,9 @@
 [First Release](https://github.com/architecture-tools/add-evaluation-tool/releases/tag/v0.1.0)
 
 [Demo with new features](https://drive.google.com/file/d/1ysm-VJRtcI5YdvBfIo4gG2YBKegU6jc_/view?usp=sharing)
+
+### Note
+
+We finished assignment before updates regarding hdd preparation, that's why this section isn't completed in this assignment.
+We discussed it with instructor in the [meeting](https://github.com/architecture-tools/add-evaluation-tool/pull/87) and
+decided to add it to next sprint.
