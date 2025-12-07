@@ -34,14 +34,14 @@ nav_order: 5
 
 - [x] Sprint 0: team formation, research, interview, documented findings,
   strategic plan.
-- [ ] Sprint 1: refine product backlog, finalize architecture decisions,
+- [x] Sprint 1: refine product backlog, finalize architecture decisions,
   and stub core services.
-- [ ] Sprint 2: implement baseline PlantUML ingestion and persistence layer
+- [x] Sprint 2: implement baseline PlantUML ingestion and persistence layer
   with seed data.
-- [ ] Sprint 3: deliver first-cut matrix UI and hook it to parsed model data.
-- [ ] Sprint 4: add scoring logic, version storage APIs, and happy-path
+- [x] Sprint 3: deliver first-cut matrix UI and hook it to parsed model data.
+- [x] Sprint 4: add scoring logic, version storage APIs, and happy-path
   evaluation flow.
-- [ ] Sprint 5: prototype diff visualizations (textual + simple diagram
+- [x] Sprint 5: prototype diff visualizations (textual + simple diagram
   highlights) and gather feedback.
 - [ ] Sprint 6: expand reporting, accessibility, and onboarding
   documentation based on user feedback.
