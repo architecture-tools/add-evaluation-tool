@@ -26,4 +26,3 @@ def test_health_service_uses_configuration(monkeypatch) -> None:
     assert status["app"] == _FakeSettings.app_name
     assert status["version"] == _FakeSettings.app_version
     assert status["timestamp"].endswith("Z")
-

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pytest
 
+from uuid import uuid4
+
 from app.domain.diagrams.entities import Component, ComponentType, Diagram, Relationship
 from app.infrastructure.persistence.in_memory import InMemoryDiagramRepository
 
@@ -9,7 +11,9 @@ from app.infrastructure.persistence.in_memory import InMemoryDiagramRepository
 def test_add_and_get_returns_same_diagram() -> None:
     # Arrange
     repository = InMemoryDiagramRepository()
+    user_id = uuid4()
     diagram = Diagram(
+        user_id=user_id,
         name="Pricing",
         source_url="diagram://pricing",
         content="[]",
@@ -22,13 +26,15 @@ def test_add_and_get_returns_same_diagram() -> None:
 
     # Assert
     assert retrieved is diagram
-    assert list(repository.list()) == [diagram]
+    assert list(repository.list(user_id)) == [diagram]
 
 
 def test_update_missing_diagram_raises_value_error() -> None:
     # Arrange
     repository = InMemoryDiagramRepository()
+    user_id = uuid4()
     orphan_diagram = Diagram(
+        user_id=user_id,
         name="Orphan",
         source_url="diagram://orphan",
         content="[]",
@@ -46,7 +52,9 @@ def test_update_missing_diagram_raises_value_error() -> None:
 def test_checksum_lookup_and_component_relationship_grouping() -> None:
     # Arrange
     repository = InMemoryDiagramRepository()
+    user_id = uuid4()
     diagram = Diagram(
+        user_id=user_id,
         name="Fulfillment",
         source_url="diagram://fulfillment",
         content="[]",
@@ -68,7 +76,7 @@ def test_checksum_lookup_and_component_relationship_grouping() -> None:
     # Act
     repository.add_components(components)
     repository.add_relationships(relationships)
-    checksum_match = repository.find_by_checksum(diagram.checksum)
+    checksum_match = repository.find_by_checksum(user_id, diagram.checksum)
 
     # Assert
     assert checksum_match is diagram
@@ -78,7 +86,9 @@ def test_checksum_lookup_and_component_relationship_grouping() -> None:
 
 def test_update_and_delete_components_and_relationships() -> None:
     repository = InMemoryDiagramRepository()
+    user_id = uuid4()
     diagram = Diagram(
+        user_id=user_id,
         name="Lifecycle",
         source_url="diagram://lifecycle",
         content="[]",
@@ -117,4 +127,3 @@ def test_update_and_delete_components_and_relationships() -> None:
 
     repository.delete_relationships(diagram.id)
     assert repository.get_relationships(diagram.id) == []
-

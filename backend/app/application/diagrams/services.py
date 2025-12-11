@@ -113,14 +113,21 @@ class DiagramService:
     def register_diagram(self, diagram: Diagram) -> Diagram:
         return self._repository.add(diagram)
 
-    def get_diagram(self, diagram_id: UUID) -> Diagram | None:
-        return self._repository.get(diagram_id)
+    def get_diagram(self, user_id: UUID, diagram_id: UUID) -> Diagram | None:
+        diagram = self._repository.get(diagram_id)
+        if diagram and diagram.user_id != user_id:
+            return None
+        return diagram
 
     def list_diagrams(self, user_id: UUID) -> Iterable[Diagram]:
         return self._repository.list(user_id)
 
     def upload_diagram(
-        self, user_id: UUID, filename: str, content: bytes, display_name: str | None = None
+        self,
+        user_id: UUID,
+        filename: str,
+        content: bytes,
+        display_name: str | None = None,
     ) -> Diagram:
         with self._tracer.start_as_current_span("diagram.upload") as span:
             content_str = content.decode("utf-8")

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from uuid import uuid4
+
 import pytest
 
 from app.application.diagrams.ports import DiagramStorage
@@ -46,46 +48,61 @@ def service() -> DiagramService:
     )
 
 
-def test_upload_diagram_persists_content_and_checksum(service: DiagramService) -> None:
-    diagram = service.upload_diagram("demo.puml", SAMPLE_PLANTUML.encode(), display_name="Demo Diagram")
-    stored = service.get_diagram(diagram.id)
+@pytest.fixture()
+def user_id() -> uuid4:
+    return uuid4()
+
+
+def test_upload_diagram_persists_content_and_checksum(
+    service: DiagramService, user_id: uuid4
+) -> None:
+    diagram = service.upload_diagram(
+        user_id, "demo.puml", SAMPLE_PLANTUML.encode(), display_name="Demo Diagram"
+    )
+    stored = service.get_diagram(user_id, diagram.id)
     assert stored is not None
     assert stored.content == SAMPLE_PLANTUML
     assert stored.name == "Demo Diagram"
     assert stored.status == DiagramStatus.UPLOADED
 
 
-def test_upload_diagram_prevents_duplicates(service: DiagramService) -> None:
-    service.upload_diagram("demo.puml", SAMPLE_PLANTUML.encode())
+def test_upload_diagram_prevents_duplicates(
+    service: DiagramService, user_id: uuid4
+) -> None:
+    service.upload_diagram(user_id, "demo.puml", SAMPLE_PLANTUML.encode())
     with pytest.raises(DiagramAlreadyExistsError):
-        service.upload_diagram("demo.puml", SAMPLE_PLANTUML.encode())
+        service.upload_diagram(user_id, "demo.puml", SAMPLE_PLANTUML.encode())
 
 
-def test_parse_diagram_updates_status_and_components(service: DiagramService) -> None:
-    diagram = service.upload_diagram("demo.puml", SAMPLE_PLANTUML.encode())
-    components, relationships = service.parse_diagram(diagram.id)
+def test_parse_diagram_updates_status_and_components(
+    service: DiagramService, user_id: uuid4
+) -> None:
+    diagram = service.upload_diagram(user_id, "demo.puml", SAMPLE_PLANTUML.encode())
+    components, relationships = service.parse_diagram(user_id, diagram.id)
 
     assert len(components) == 3  # Frontend, Backend, Main DB
     assert len(relationships) == 2
 
-    updated = service.get_diagram(diagram.id)
+    updated = service.get_diagram(user_id, diagram.id)
     assert updated is not None
     assert updated.status == DiagramStatus.PARSED
     assert updated.parsed_at is not None
 
 
-def test_parse_diagram_failure_marks_diagram_failed(service: DiagramService) -> None:
-    diagram = service.upload_diagram("empty.puml", b"")
+def test_parse_diagram_failure_marks_diagram_failed(
+    service: DiagramService, user_id: uuid4
+) -> None:
+    diagram = service.upload_diagram(user_id, "empty.puml", b"")
     with pytest.raises(ParseError):
-        service.parse_diagram(diagram.id)
+        service.parse_diagram(user_id, diagram.id)
 
-    failed = service.get_diagram(diagram.id)
+    failed = service.get_diagram(user_id, diagram.id)
     assert failed is not None
     assert failed.status == DiagramStatus.FAILED
 
 
 def test_diff_diagrams_returns_component_and_relationship_changes(
-    service: DiagramService,
+    service: DiagramService, user_id: uuid4
 ) -> None:
     base_content = """
     @startuml
@@ -111,14 +128,14 @@ def test_diff_diagrams_returns_component_and_relationship_changes(
     @enduml
     """.strip()
 
-    base = service.upload_diagram("base.puml", base_content.encode())
-    target = service.upload_diagram("target.puml", target_content.encode())
+    base = service.upload_diagram(user_id, "base.puml", base_content.encode())
+    target = service.upload_diagram(user_id, "target.puml", target_content.encode())
 
-    service.parse_diagram(base.id)
-    service.parse_diagram(target.id)
+    service.parse_diagram(user_id, base.id)
+    service.parse_diagram(user_id, target.id)
 
     component_diffs, relationship_diffs = service.diff_diagrams(
-        base_diagram_id=base.id, target_diagram_id=target.id
+        user_id, base_diagram_id=base.id, target_diagram_id=target.id
     )
 
     added_components = [diff for diff in component_diffs if diff.change_type == "added"]
@@ -138,17 +155,13 @@ def test_diff_diagrams_returns_component_and_relationship_changes(
         == RelationshipDirection.UNIDIRECTIONAL
     )
     assert (
-        modified_relationships[0].new_direction
-        == RelationshipDirection.UNIDIRECTIONAL
+        modified_relationships[0].new_direction == RelationshipDirection.UNIDIRECTIONAL
     )
 
     added_relationships = [
         diff for diff in relationship_diffs if diff.change_type == "added"
     ]
     assert any(
-        rel.source == "Backend"
-        and rel.target == "Cache"
-        and rel.new_label == "cache"
+        rel.source == "Backend" and rel.target == "Cache" and rel.new_label == "cache"
         for rel in added_relationships
     )
-

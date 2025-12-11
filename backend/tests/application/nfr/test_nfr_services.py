@@ -62,4 +62,3 @@ def test_delete_requirement_removes_entity(service: NFRService) -> None:
 def test_delete_missing_requirement_raises_error(service: NFRService) -> None:
     with pytest.raises(NFRNotFoundError):
         service.delete_requirement(uuid4())
-

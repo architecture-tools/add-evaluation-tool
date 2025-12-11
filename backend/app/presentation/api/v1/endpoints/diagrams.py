@@ -238,7 +238,9 @@ async def diff_diagrams(
     try:
         user_id = UUID(current_user["sub"])
         component_diffs, relationship_diffs = service.diff_diagrams(
-            user_id, base_diagram_id=base_diagram_id, target_diagram_id=target_diagram_id
+            user_id,
+            base_diagram_id=base_diagram_id,
+            target_diagram_id=target_diagram_id,
         )
     except DiagramNotFoundError as exc:
         raise HTTPException(

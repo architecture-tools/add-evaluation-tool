@@ -482,9 +482,7 @@ class PostgreSQLUserRepository(UserRepository):
     def get(self, user_id: UUID) -> Optional[UserEntity]:
         """Retrieve a user by its identifier."""
         user_model = (
-            self._session.query(UserModel)
-            .filter(UserModel.id == user_id)
-            .first()
+            self._session.query(UserModel).filter(UserModel.id == user_id).first()
         )
         if user_model is None:
             return None
@@ -493,9 +491,7 @@ class PostgreSQLUserRepository(UserRepository):
     def get_by_email(self, email: str) -> Optional[UserEntity]:
         """Retrieve a user by email."""
         user_model = (
-            self._session.query(UserModel)
-            .filter(UserModel.email == email)
-            .first()
+            self._session.query(UserModel).filter(UserModel.email == email).first()
         )
         if user_model is None:
             return None

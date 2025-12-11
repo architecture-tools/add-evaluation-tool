@@ -42,11 +42,15 @@ class AuthService:
 
     def create_access_token(self, user_id: str, email: str) -> str:
         """Create a JWT access token for a user."""
-        expires_delta = timedelta(minutes=self._settings.jwt_access_token_expire_minutes)
+        expires_delta = timedelta(
+            minutes=self._settings.jwt_access_token_expire_minutes
+        )
         expire = datetime.utcnow() + expires_delta
         to_encode = {"sub": user_id, "email": email, "exp": expire}
         encoded_jwt = jwt.encode(
-            to_encode, self._settings.jwt_secret_key, algorithm=self._settings.jwt_algorithm
+            to_encode,
+            self._settings.jwt_secret_key,
+            algorithm=self._settings.jwt_algorithm,
         )
         return encoded_jwt
 
@@ -54,7 +58,9 @@ class AuthService:
         """Verify and decode a JWT token."""
         try:
             payload = jwt.decode(
-                token, self._settings.jwt_secret_key, algorithms=[self._settings.jwt_algorithm]
+                token,
+                self._settings.jwt_secret_key,
+                algorithms=[self._settings.jwt_algorithm],
             )
             return payload
         except JWTError as exc:
