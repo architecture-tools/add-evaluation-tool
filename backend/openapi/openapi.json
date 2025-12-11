@@ -31,6 +31,114 @@
         }
       }
     },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register a new user",
+        "operationId": "register_api_v1_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login user",
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Get current user",
+        "operationId": "get_me_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/diagrams": {
       "get": {
         "tags": [
@@ -53,7 +161,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -92,7 +205,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/diagrams/{diagram_id}": {
@@ -102,6 +220,11 @@
         ],
         "summary": "Get diagram by ID",
         "operationId": "get_diagram_api_v1_diagrams__diagram_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "diagram_id",
@@ -145,6 +268,11 @@
         ],
         "summary": "Parse diagram to extract components and relationships",
         "operationId": "parse_diagram_api_v1_diagrams__diagram_id__parse_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "diagram_id",
@@ -188,6 +316,11 @@
         ],
         "summary": "Get NFR × Component impact matrix for a diagram",
         "operationId": "get_matrix_api_v1_diagrams__diagram_id__matrix_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "diagram_id",
@@ -229,6 +362,11 @@
         ],
         "summary": "Set impact of a component on an NFR for the diagram",
         "operationId": "update_matrix_cell_api_v1_diagrams__diagram_id__matrix_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "diagram_id",
@@ -282,6 +420,11 @@
         ],
         "summary": "Get differences between two diagrams",
         "operationId": "diff_diagrams_api_v1_diagrams__base_diagram_id__diff__target_diagram_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "base_diagram_id",
@@ -723,6 +866,22 @@
         ],
         "title": "ImpactValue"
       },
+      "LoginResponse": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "token": {
+            "$ref": "#/components/schemas/TokenResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user",
+          "token"
+        ],
+        "title": "LoginResponse"
+      },
       "MatrixCellResponse": {
         "properties": {
           "id": {
@@ -869,6 +1028,22 @@
         ],
         "title": "ParseDiagramResponse"
       },
+      "RegisterResponse": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "token": {
+            "$ref": "#/components/schemas/TokenResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user",
+          "token"
+        ],
+        "title": "RegisterResponse"
+      },
       "RelationshipDiffResponse": {
         "properties": {
           "source": {
@@ -988,6 +1163,24 @@
         ],
         "title": "RelationshipResponse"
       },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token"
+        ],
+        "title": "TokenResponse"
+      },
       "UpdateMatrixCellRequest": {
         "properties": {
           "nfr_id": {
@@ -1011,6 +1204,65 @@
           "impact"
         ],
         "title": "UpdateMatrixCellRequest"
+      },
+      "UserLoginRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "UserLoginRequest"
+      },
+      "UserRegisterRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password",
+            "description": "Password must be at least 8 characters"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "UserRegisterRequest"
+      },
+      "UserResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email"
+        ],
+        "title": "UserResponse"
       },
       "ValidationError": {
         "properties": {
@@ -1044,6 +1296,12 @@
           "type"
         ],
         "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
       }
     }
   }
