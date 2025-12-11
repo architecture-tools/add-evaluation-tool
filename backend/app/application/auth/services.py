@@ -11,7 +11,6 @@ from app.domain.auth.entities import User
 from app.domain.auth.exceptions import (
     InvalidCredentialsError,
     UserAlreadyExistsError,
-    UserNotFoundError,
 )
 from app.domain.auth.repositories import UserRepository
 

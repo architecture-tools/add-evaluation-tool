@@ -163,6 +163,7 @@ async def parse_diagram(
 )
 async def get_matrix(
     diagram_id: UUID,
+    current_user: dict = Depends(get_current_user),
     diagram_service: DiagramService = Depends(get_diagram_service),
     matrix_service: DiagramMatrixService = Depends(get_diagram_matrix_service),
 ) -> DiagramMatrixResponse:
