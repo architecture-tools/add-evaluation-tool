@@ -1,12 +1,16 @@
 from functools import lru_cache
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
+from app.application.auth.services import AuthService
 from app.application.diagrams.matrix_service import DiagramMatrixService
 from app.application.diagrams.services import DiagramService
 from app.application.nfr.services import NFRService
 from app.core.config import get_settings
+from app.domain.auth.exceptions import InvalidCredentialsError
+from app.domain.auth.repositories import UserRepository
 from app.domain.diagrams.repositories import DiagramRepository
 from app.domain.diagrams.matrix_repository import DiagramMatrixRepository
 from app.domain.nfr.repositories import NonFunctionalRequirementRepository
@@ -16,8 +20,11 @@ from app.infrastructure.persistence.postgresql import (
     PostgreSQLDiagramRepository,
     PostgreSQLDiagramMatrixRepository,
     PostgreSQLNFRRepository,
+    PostgreSQLUserRepository,
 )
 from app.infrastructure.storage.local import LocalDiagramStorage
+
+security = HTTPBearer()
 
 
 def get_diagram_repository(db: Session = Depends(get_db)) -> DiagramRepository:
@@ -78,3 +85,35 @@ def get_diagram_matrix_service(
         nfr_repository,
         diagram_repository,
     )
+
+
+def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
+    """Get user repository with database session."""
+    return PostgreSQLUserRepository(db)
+
+
+def get_auth_service(
+    user_repository: UserRepository = Depends(get_user_repository),
+) -> AuthService:
+    """Get auth service with dependencies."""
+    return AuthService(user_repository)
+
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict:
+    """Get current user from JWT token."""
+    token = credentials.credentials
+    try:
+        payload = auth_service.verify_token(token)
+        return payload
+    except InvalidCredentialsError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={
+                "code": "auth/invalid-token",
+                "message": str(exc),
+            },
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc

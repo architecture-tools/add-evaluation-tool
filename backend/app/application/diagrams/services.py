@@ -116,17 +116,17 @@ class DiagramService:
     def get_diagram(self, diagram_id: UUID) -> Diagram | None:
         return self._repository.get(diagram_id)
 
-    def list_diagrams(self) -> Iterable[Diagram]:
-        return self._repository.list()
+    def list_diagrams(self, user_id: UUID) -> Iterable[Diagram]:
+        return self._repository.list(user_id)
 
     def upload_diagram(
-        self, filename: str, content: bytes, display_name: str | None = None
+        self, user_id: UUID, filename: str, content: bytes, display_name: str | None = None
     ) -> Diagram:
         with self._tracer.start_as_current_span("diagram.upload") as span:
             content_str = content.decode("utf-8")
             file_size = len(content)
             checksum = sha256(content).hexdigest()
-            existing = self._repository.find_by_checksum(checksum)
+            existing = self._repository.find_by_checksum(user_id, checksum)
             if existing:
                 raise DiagramAlreadyExistsError(existing.id)
 
@@ -134,6 +134,7 @@ class DiagramService:
             source_url = f"diagram://{filename}"
 
             diagram = Diagram(
+                user_id=user_id,
                 name=display_name or filename,
                 source_url=source_url,
                 content=content_str,
@@ -158,12 +159,14 @@ class DiagramService:
             return diagram
 
     def parse_diagram(
-        self, diagram_id: UUID
+        self, user_id: UUID, diagram_id: UUID
     ) -> tuple[list[Component], list[Relationship]]:
         with self._tracer.start_as_current_span("diagram.parse") as span:
             start_time = time.time()
             diagram = self._repository.get(diagram_id)
             if not diagram:
+                raise DiagramNotFoundError(f"Diagram {diagram_id} not found")
+            if diagram.user_id != user_id:
                 raise DiagramNotFoundError(f"Diagram {diagram_id} not found")
 
             # Read content from diagram (stored in DB)
@@ -343,7 +346,7 @@ class DiagramService:
         return " ".join(name.split()).lower()
 
     def diff_diagrams(
-        self, base_diagram_id: UUID, target_diagram_id: UUID
+        self, user_id: UUID, base_diagram_id: UUID, target_diagram_id: UUID
     ) -> tuple[list[ComponentDiff], list[RelationshipDiff]]:
         with self._tracer.start_as_current_span("diagram.diff") as span:
             base = self._repository.get(base_diagram_id)
@@ -351,6 +354,8 @@ class DiagramService:
             if base is None or target is None:
                 missing_id = base_diagram_id if base is None else target_diagram_id
                 raise DiagramNotFoundError(f"Diagram {missing_id} not found")
+            if base.user_id != user_id or target.user_id != user_id:
+                raise DiagramNotFoundError("Diagram not found")
 
             base_components = self._repository.get_components(base_diagram_id)
             target_components = self._repository.get_components(target_diagram_id)

@@ -9,6 +9,7 @@ from app.domain.diagrams.exceptions import (
     ParseError,
 )
 from app.presentation.api.dependencies import (
+    get_current_user,
     get_diagram_matrix_service,
     get_diagram_service,
 )
@@ -39,6 +40,7 @@ router = APIRouter()
 async def upload_diagram(
     file: UploadFile = File(...),
     name: str | None = Form(default=None),
+    current_user: dict = Depends(get_current_user),
     service: DiagramService = Depends(get_diagram_service),
 ) -> DiagramResponse:
     payload = await file.read()
@@ -49,8 +51,9 @@ async def upload_diagram(
         )
 
     try:
+        user_id = UUID(current_user["sub"])
         diagram = service.upload_diagram(
-            file.filename or "diagram.puml", payload, display_name=name
+            user_id, file.filename or "diagram.puml", payload, display_name=name
         )
     except DiagramAlreadyExistsError as exc:
         raise HTTPException(
@@ -71,9 +74,11 @@ async def upload_diagram(
     summary="List all diagrams",
 )
 async def list_diagrams(
+    current_user: dict = Depends(get_current_user),
     service: DiagramService = Depends(get_diagram_service),
 ) -> list[DiagramResponse]:
-    diagrams = service.list_diagrams()
+    user_id = UUID(current_user["sub"])
+    diagrams = service.list_diagrams(user_id)
     return [DiagramResponse.from_domain(diagram) for diagram in diagrams]
 
 
@@ -84,9 +89,11 @@ async def list_diagrams(
 )
 async def get_diagram(
     diagram_id: UUID,
+    current_user: dict = Depends(get_current_user),
     service: DiagramService = Depends(get_diagram_service),
 ) -> DiagramResponse:
-    diagram = service.get_diagram(diagram_id)
+    user_id = UUID(current_user["sub"])
+    diagram = service.get_diagram(user_id, diagram_id)
     if not diagram:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -105,11 +112,13 @@ async def get_diagram(
 )
 async def parse_diagram(
     diagram_id: UUID,
+    current_user: dict = Depends(get_current_user),
     service: DiagramService = Depends(get_diagram_service),
     matrix_service: DiagramMatrixService = Depends(get_diagram_matrix_service),
 ) -> ParseDiagramResponse:
     try:
-        components, relationships = service.parse_diagram(diagram_id)
+        user_id = UUID(current_user["sub"])
+        components, relationships = service.parse_diagram(user_id, diagram_id)
     except DiagramNotFoundError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -127,7 +136,7 @@ async def parse_diagram(
             },
         ) from exc
 
-    diagram = service.get_diagram(diagram_id)
+    diagram = service.get_diagram(user_id, diagram_id)
     if not diagram:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -157,7 +166,8 @@ async def get_matrix(
     diagram_service: DiagramService = Depends(get_diagram_service),
     matrix_service: DiagramMatrixService = Depends(get_diagram_matrix_service),
 ) -> DiagramMatrixResponse:
-    diagram = diagram_service.get_diagram(diagram_id)
+    user_id = UUID(current_user["sub"])
+    diagram = diagram_service.get_diagram(user_id, diagram_id)
     if not diagram:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -185,10 +195,12 @@ async def get_matrix(
 async def update_matrix_cell(
     diagram_id: UUID,
     payload: UpdateMatrixCellRequest,
+    current_user: dict = Depends(get_current_user),
     diagram_service: DiagramService = Depends(get_diagram_service),
     matrix_service: DiagramMatrixService = Depends(get_diagram_matrix_service),
 ) -> MatrixCellUpdateResponse:
-    diagram = diagram_service.get_diagram(diagram_id)
+    user_id = UUID(current_user["sub"])
+    diagram = diagram_service.get_diagram(user_id, diagram_id)
     if not diagram:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -220,11 +232,13 @@ async def update_matrix_cell(
 async def diff_diagrams(
     base_diagram_id: UUID,
     target_diagram_id: UUID,
+    current_user: dict = Depends(get_current_user),
     service: DiagramService = Depends(get_diagram_service),
 ) -> DiagramDiffResponse:
     try:
+        user_id = UUID(current_user["sub"])
         component_diffs, relationship_diffs = service.diff_diagrams(
-            base_diagram_id=base_diagram_id, target_diagram_id=target_diagram_id
+            user_id, base_diagram_id=base_diagram_id, target_diagram_id=target_diagram_id
         )
     except DiagramNotFoundError as exc:
         raise HTTPException(

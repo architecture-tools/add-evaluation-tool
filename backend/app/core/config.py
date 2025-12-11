@@ -29,6 +29,11 @@ class Settings(BaseSettings):
         "postgresql://arch_eval:arch_eval_password@localhost:5432/arch_eval_db"
     )
 
+    # JWT Authentication settings
+    jwt_secret_key: str = "your-secret-key-change-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_expire_minutes: int = 30
+
     # Telemetry settings (disabled by default)
     telemetry_enabled: bool = False
     telemetry_traces_enabled: bool = False

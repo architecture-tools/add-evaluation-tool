@@ -23,12 +23,12 @@ class DiagramRepository(ABC):
         """Retrieve a diagram by its identifier."""
 
     @abstractmethod
-    def list(self) -> Iterable[Diagram]:
-        """Return all diagrams (temporary stub until pagination is added)."""
+    def list(self, user_id: UUID) -> Iterable[Diagram]:
+        """Return all diagrams for a user."""
 
     @abstractmethod
-    def find_by_checksum(self, checksum: str) -> Optional[Diagram]:
-        """Retrieve a diagram by checksum to prevent duplicates."""
+    def find_by_checksum(self, user_id: UUID, checksum: str) -> Optional[Diagram]:
+        """Retrieve a diagram by user_id and checksum to prevent duplicates."""
 
     @abstractmethod
     def add_components(self, components: Sequence[Component]) -> None:
