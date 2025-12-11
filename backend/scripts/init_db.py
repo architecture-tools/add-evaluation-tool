@@ -14,4 +14,3 @@ if __name__ == "__main__":
     print("Initializing database schema...")
     init_db()
     print("Database schema initialized successfully!")
-

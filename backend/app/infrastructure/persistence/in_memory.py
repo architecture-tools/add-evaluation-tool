@@ -29,14 +29,19 @@ class InMemoryDiagramRepository(DiagramRepository):
     def get(self, diagram_id: UUID) -> Optional[Diagram]:
         return self._store.get(diagram_id)
 
-    def list(self) -> Iterable[Diagram]:
-        return list(self._store.values())
+    def list(self, user_id: UUID) -> Iterable[Diagram]:
+        return [
+            diagram for diagram in self._store.values() if diagram.user_id == user_id
+        ]
 
-    def find_by_checksum(self, checksum: str) -> Optional[Diagram]:
+    def find_by_checksum(self, user_id: UUID, checksum: str) -> Optional[Diagram]:
         diagram_id = self._by_checksum.get(checksum)
         if diagram_id is None:
             return None
-        return self._store.get(diagram_id)
+        diagram = self._store.get(diagram_id)
+        if diagram and diagram.user_id == user_id:
+            return diagram
+        return None
 
     def add_components(self, components: Sequence[Component]) -> None:
         for component in components:

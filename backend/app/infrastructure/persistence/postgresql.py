@@ -20,12 +20,15 @@ from app.domain.diagrams.repositories import DiagramRepository
 from app.domain.diagrams.matrix_repository import DiagramMatrixRepository
 from app.domain.nfr.entities import NonFunctionalRequirement
 from app.domain.nfr.repositories import NonFunctionalRequirementRepository
+from app.domain.auth.entities import User as UserEntity
+from app.domain.auth.repositories import UserRepository
 from app.infrastructure.persistence.models import (
     DiagramModel,
     ComponentModel,
     RelationshipModel,
     NonFunctionalRequirementModel,
     DiagramImpactModel,
+    UserModel,
 )
 
 
@@ -40,6 +43,7 @@ class PostgreSQLDiagramRepository(DiagramRepository):
         try:
             diagram_model = DiagramModel(
                 id=diagram.id,
+                user_id=diagram.user_id,
                 name=diagram.name,
                 source_url=diagram.source_url,
                 content=diagram.content,
@@ -93,16 +97,23 @@ class PostgreSQLDiagramRepository(DiagramRepository):
             return None
         return self._to_domain_entity(diagram_model)
 
-    def list(self) -> Iterable[Diagram]:
-        """Return all diagrams."""
-        diagram_models = self._session.query(DiagramModel).all()
+    def list(self, user_id: UUID) -> Iterable[Diagram]:
+        """Return all diagrams for a user."""
+        diagram_models = (
+            self._session.query(DiagramModel)
+            .filter(DiagramModel.user_id == user_id)
+            .all()
+        )
         return [self._to_domain_entity(model) for model in diagram_models]
 
-    def find_by_checksum(self, checksum: str) -> Optional[Diagram]:
-        """Retrieve a diagram by checksum to prevent duplicates."""
+    def find_by_checksum(self, user_id: UUID, checksum: str) -> Optional[Diagram]:
+        """Retrieve a diagram by user_id and checksum to prevent duplicates."""
         diagram_model = (
             self._session.query(DiagramModel)
-            .filter(DiagramModel.checksum == checksum)
+            .filter(
+                DiagramModel.user_id == user_id,
+                DiagramModel.checksum == checksum,
+            )
             .first()
         )
         if diagram_model is None:
@@ -226,6 +237,7 @@ class PostgreSQLDiagramRepository(DiagramRepository):
         """Convert database model to domain entity."""
         return Diagram(
             id=model.id,
+            user_id=model.user_id,
             name=model.name,
             source_url=model.source_url,
             content=model.content,
@@ -441,4 +453,55 @@ class PostgreSQLDiagramMatrixRepository(DiagramMatrixRepository):
             nfr_id=model.nfr_id,
             component_id=model.component_id,
             impact=ImpactValue(model.impact),
+        )
+
+
+class PostgreSQLUserRepository(UserRepository):
+    """PostgreSQL implementation of UserRepository."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def add(self, user: UserEntity) -> UserEntity:
+        """Persist a new user."""
+        try:
+            user_model = UserModel(
+                id=user.id,
+                email=user.email,
+                hashed_password=user.hashed_password,
+                created_at=user.created_at,
+            )
+            self._session.add(user_model)
+            self._session.commit()
+            self._session.refresh(user_model)
+            return user
+        except Exception:
+            self._session.rollback()
+            raise
+
+    def get(self, user_id: UUID) -> Optional[UserEntity]:
+        """Retrieve a user by its identifier."""
+        user_model = (
+            self._session.query(UserModel).filter(UserModel.id == user_id).first()
+        )
+        if user_model is None:
+            return None
+        return self._to_domain_entity(user_model)
+
+    def get_by_email(self, email: str) -> Optional[UserEntity]:
+        """Retrieve a user by email."""
+        user_model = (
+            self._session.query(UserModel).filter(UserModel.email == email).first()
+        )
+        if user_model is None:
+            return None
+        return self._to_domain_entity(user_model)
+
+    def _to_domain_entity(self, model: UserModel) -> UserEntity:
+        """Convert database model to domain entity."""
+        return UserEntity(
+            id=model.id,
+            email=model.email,
+            hashed_password=model.hashed_password,
+            created_at=model.created_at,
         )

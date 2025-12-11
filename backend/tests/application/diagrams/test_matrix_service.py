@@ -20,7 +20,9 @@ from app.domain.nfr.repositories import NonFunctionalRequirementRepository
 
 class InMemoryDiagramRepository(DiagramRepository):
     def __init__(self) -> None:
+        test_user_id = uuid4()
         self.diagram = Diagram(
+            user_id=test_user_id,
             name="test",
             source_url="diagram://test",
             content="[]",
@@ -50,11 +52,13 @@ class InMemoryDiagramRepository(DiagramRepository):
     def get(self, diagram_id: UUID) -> Diagram | None:
         return self.diagram if self.diagram.id == diagram_id else None
 
-    def list(self) -> Sequence[Diagram]:
-        return [self.diagram]
+    def list(self, user_id: UUID) -> Iterable[Diagram]:
+        return [self.diagram] if self.diagram.user_id == user_id else []
 
-    def find_by_checksum(self, checksum: str) -> Diagram | None:
-        return self.diagram if self.diagram.checksum == checksum else None
+    def find_by_checksum(self, user_id: UUID, checksum: str) -> Diagram | None:
+        if self.diagram.user_id == user_id and self.diagram.checksum == checksum:
+            return self.diagram
+        return None
 
     def add_components(self, components: Sequence[Component]) -> None:
         self.components.extend(components)
@@ -75,7 +79,9 @@ class InMemoryDiagramRepository(DiagramRepository):
         ids_to_keep = set(component_ids or [])
         if ids_to_keep:
             self.components = [
-                component for component in self.components if component.id in ids_to_keep
+                component
+                for component in self.components
+                if component.id in ids_to_keep
             ]
         else:
             self.components = []
@@ -223,9 +229,7 @@ def test_list_matrix_with_scores_returns_averages_and_overall_score() -> None:
         diagram_repo.components[1].id,
         ImpactValue.NEGATIVE,
     )
-    entries, scores, overall = service.list_matrix_with_scores(
-        diagram_repo.diagram.id
-    )
+    entries, scores, overall = service.list_matrix_with_scores(diagram_repo.diagram.id)
 
     assert len(entries) == len(diagram_repo.components) * len(nfr_repo.items)
     assert scores[nfr_repo.items[0].id] == 0

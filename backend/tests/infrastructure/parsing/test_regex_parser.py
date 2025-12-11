@@ -45,4 +45,3 @@ def test_regex_parser_handles_participants_with_aliases() -> None:
     assert {"User", "Browser UI", "API"} == set(names)
     assert names["Browser UI"].type == ComponentType.INTERFACE
     assert len(relationships) == 2
-

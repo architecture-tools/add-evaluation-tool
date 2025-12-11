@@ -13,16 +13,42 @@ class Base(DeclarativeBase):
     pass
 
 
+class UserModel(Base):
+    __tablename__ = "users"
+
+    id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), primary_key=True, default=uuid4
+    )
+    email: Mapped[str] = mapped_column(
+        String(255), nullable=False, unique=True, index=True
+    )
+    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=datetime.utcnow
+    )
+
+    diagrams: Mapped[list["DiagramModel"]] = relationship(
+        "DiagramModel", back_populates="user", cascade="all, delete-orphan"
+    )
+
+
 class DiagramModel(Base):
     __tablename__ = "diagrams"
+    __table_args__ = (
+        UniqueConstraint("user_id", "checksum", name="uq_user_diagram_checksum"),
+    )
 
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True)
+    user_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     source_url: Mapped[str] = mapped_column(Text, nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    checksum: Mapped[str] = mapped_column(
-        String(64), nullable=False, unique=True, index=True
-    )
+    checksum: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     status: Mapped[str] = mapped_column(String(20), nullable=False)
     uploaded_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
@@ -31,6 +57,7 @@ class DiagramModel(Base):
         DateTime(timezone=True), nullable=True
     )
 
+    user: Mapped["UserModel"] = relationship("UserModel", back_populates="diagrams")
     components: Mapped[list[ComponentModel]] = relationship(
         "ComponentModel", back_populates="diagram", cascade="all, delete-orphan"
     )

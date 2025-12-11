@@ -16,6 +16,7 @@ class DiagramStatus(str, Enum):
 
 @dataclass(slots=True)
 class Diagram:
+    user_id: UUID
     name: str
     source_url: str
     content: str

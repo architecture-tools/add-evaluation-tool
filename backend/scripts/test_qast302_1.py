@@ -288,73 +288,131 @@ Data --> DB
 ]
 
 
+def get_auth_token(base_url: str) -> str:
+    """Register or login to get authentication token."""
+    register_url = f"{base_url}/api/v1/auth/register"
+    login_url = f"{base_url}/api/v1/auth/login"
+
+    # Try to register a test user
+    test_email = "qast302_test@example.com"
+    test_password = "test_password_123"
+
+    try:
+        register_response = requests.post(
+            register_url,
+            json={"email": test_email, "password": test_password},
+            timeout=5,
+        )
+        if register_response.status_code == 201:
+            return register_response.json()["token"]["access_token"]
+    except Exception:
+        pass
+
+    # If registration failed, try to login
+    try:
+        login_response = requests.post(
+            login_url, json={"email": test_email, "password": test_password}, timeout=5
+        )
+        if login_response.status_code == 200:
+            return login_response.json()["token"]["access_token"]
+    except Exception:
+        pass
+
+    raise RuntimeError("Failed to authenticate for QAST302-1 test")
+
+
 def test_extraction_accuracy(base_url: str) -> Tuple[int, int, int, List[Dict]]:
     """
     Test component extraction accuracy against API.
-    
+
     Args:
         base_url: Base URL of API (e.g., "http://localhost:8000")
-    
+
     Returns:
         Tuple of (total_files, successful_files, total_components_expected, results)
     """
     api_url = f"{base_url}/api/v1/diagrams"
     parse_url_template = f"{base_url}/api/v1/diagrams/{{diagram_id}}/parse"
-    
+
+    # Get authentication token
+    try:
+        auth_token = get_auth_token(base_url)
+        headers = {"Authorization": f"Bearer {auth_token}"}
+    except Exception as e:
+        print(f"❌ Authentication failed: {e}")
+        return 0, 0, 0, []
+
     results = []
     total_expected_components = 0
     total_expected_relationships = 0
     successful = 0
-    
+
     print(f"Testing {len(TEST_CORPUS)} PlantUML files against {api_url}")
     print()
-    
+
     for idx, test_case in enumerate(TEST_CORPUS, 1):
         name = test_case["name"]
         content = test_case["content"]
         expected_components = test_case["expected_components"]
         expected_relationships = test_case["expected_relationships"]
-        
+
         total_expected_components += expected_components
         total_expected_relationships += expected_relationships
-        
+
         try:
             # Upload diagram
-            files = {"file": (f"{name.replace(' ', '_')}.puml", content.encode(), "text/plain")}
+            files = {
+                "file": (
+                    f"{name.replace(' ', '_')}.puml",
+                    content.encode(),
+                    "text/plain",
+                )
+            }
             data = {"name": name}
-            
-            upload_response = requests.post(api_url, files=files, data=data, timeout=10)
-            
+
+            upload_response = requests.post(
+                api_url, files=files, data=data, headers=headers, timeout=10
+            )
+
             if upload_response.status_code != 201:
-                print(f"  ✗ {idx}. {name}: Upload failed (status {upload_response.status_code})")
-                results.append({
-                    "name": name,
-                    "success": False,
-                    "error": f"Upload failed: {upload_response.status_code}",
-                })
+                print(
+                    f"  ✗ {idx}. {name}: Upload failed (status {upload_response.status_code})"
+                )
+                results.append(
+                    {
+                        "name": name,
+                        "success": False,
+                        "error": f"Upload failed: {upload_response.status_code}",
+                    }
+                )
                 continue
-            
+
             diagram_id = upload_response.json()["id"]
-            
+
             # Parse diagram
             parse_response = requests.post(
                 parse_url_template.format(diagram_id=diagram_id),
-                timeout=10
+                headers=headers,
+                timeout=10,
             )
-            
+
             if parse_response.status_code != 200:
-                print(f"  ✗ {idx}. {name}: Parse failed (status {parse_response.status_code})")
-                results.append({
-                    "name": name,
-                    "success": False,
-                    "error": f"Parse failed: {parse_response.status_code}",
-                })
+                print(
+                    f"  ✗ {idx}. {name}: Parse failed (status {parse_response.status_code})"
+                )
+                results.append(
+                    {
+                        "name": name,
+                        "success": False,
+                        "error": f"Parse failed: {parse_response.status_code}",
+                    }
+                )
                 continue
-            
+
             parse_data = parse_response.json()
             actual_components = len(parse_data.get("components", []))
             actual_relationships = len(parse_data.get("relationships", []))
-            
+
             # Calculate accuracy
             component_accuracy = (
                 (actual_components / expected_components * 100)
@@ -366,14 +424,14 @@ def test_extraction_accuracy(base_url: str) -> Tuple[int, int, int, List[Dict]]:
                 if expected_relationships > 0
                 else 100.0
             )
-            
+
             # Overall accuracy (average of components and relationships)
             accuracy = (component_accuracy + relationship_accuracy) / 2
-            
+
             success = accuracy >= 95.0
             if success:
                 successful += 1
-            
+
             status = "✓" if success else "⚠"
             print(
                 f"  {status} {idx}. {name}: "
@@ -381,66 +439,74 @@ def test_extraction_accuracy(base_url: str) -> Tuple[int, int, int, List[Dict]]:
                 f"Relationships {actual_relationships}/{expected_relationships} ({relationship_accuracy:.1f}%), "
                 f"Overall: {accuracy:.1f}%"
             )
-            
-            results.append({
-                "name": name,
-                "success": success,
-                "expected_components": expected_components,
-                "actual_components": actual_components,
-                "component_accuracy": component_accuracy,
-                "expected_relationships": expected_relationships,
-                "actual_relationships": actual_relationships,
-                "relationship_accuracy": relationship_accuracy,
-                "overall_accuracy": accuracy,
-            })
-        
+
+            results.append(
+                {
+                    "name": name,
+                    "success": success,
+                    "expected_components": expected_components,
+                    "actual_components": actual_components,
+                    "component_accuracy": component_accuracy,
+                    "expected_relationships": expected_relationships,
+                    "actual_relationships": actual_relationships,
+                    "relationship_accuracy": relationship_accuracy,
+                    "overall_accuracy": accuracy,
+                }
+            )
+
         except requests.exceptions.RequestException as e:
             print(f"  ✗ {idx}. {name}: Request failed - {e}")
-            results.append({
-                "name": name,
-                "success": False,
-                "error": str(e),
-            })
+            results.append(
+                {
+                    "name": name,
+                    "success": False,
+                    "error": str(e),
+                }
+            )
         except Exception as e:
             print(f"  ✗ {idx}. {name}: Error - {e}")
-            results.append({
-                "name": name,
-                "success": False,
-                "error": str(e),
-            })
-    
+            results.append(
+                {
+                    "name": name,
+                    "success": False,
+                    "error": str(e),
+                }
+            )
+
     return len(TEST_CORPUS), successful, total_expected_components, results
 
 
 def main() -> int:
     """Run QAST302-1 test and report results."""
     import os
-    
+
     base_url = os.getenv("API_URL", "http://localhost:8000")
-    
+
     print("=" * 60)
     print("QAST302-1: Component Extraction Accuracy Test")
     print("=" * 60)
     print(f"API URL: {base_url}")
     print()
-    
+
     total, successful, total_expected, results = test_extraction_accuracy(base_url)
-    
+
     if not results:
         print("\n❌ No files processed!")
         return 1
-    
+
     # Calculate overall statistics
     successful_results = [r for r in results if r.get("success", False)]
     if successful_results:
-        avg_accuracy = sum(r["overall_accuracy"] for r in successful_results) / len(successful_results)
+        avg_accuracy = sum(r["overall_accuracy"] for r in successful_results) / len(
+            successful_results
+        )
         min_accuracy = min(r["overall_accuracy"] for r in successful_results)
         max_accuracy = max(r["overall_accuracy"] for r in successful_results)
     else:
         avg_accuracy = min_accuracy = max_accuracy = 0.0
-    
+
     success_rate = (successful / total) * 100 if total > 0 else 0
-    
+
     print()
     print("=" * 60)
     print("Results:")
@@ -452,16 +518,18 @@ def main() -> int:
         print(f"Min accuracy: {min_accuracy:.1f}%")
         print(f"Max accuracy: {max_accuracy:.1f}%")
     print()
-    
+
     # Success criteria: at least 95% accuracy for each file
     # We consider it passed if 95%+ of files achieve 95%+ accuracy
     success = success_rate >= 95.0
-    
+
     if success:
         print("✅ QAST302-1 PASSED: 95%+ of files achieved ≥95% extraction accuracy")
     else:
-        print(f"❌ QAST302-1 FAILED: Only {success_rate:.1f}% of files achieved ≥95% accuracy (required: 95%)")
-    
+        print(
+            f"❌ QAST302-1 FAILED: Only {success_rate:.1f}% of files achieved ≥95% accuracy (required: 95%)"
+        )
+
     # Print detailed failures
     failures = [r for r in results if not r.get("success", False)]
     if failures:
@@ -472,10 +540,9 @@ def main() -> int:
                 print(f"  - {r['name']}: {r['error']}")
             else:
                 print(f"  - {r['name']}: {r.get('overall_accuracy', 0):.1f}% accuracy")
-    
+
     return 0 if success else 1
 
 
 if __name__ == "__main__":
     sys.exit(main())
-
