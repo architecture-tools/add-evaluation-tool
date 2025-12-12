@@ -7,9 +7,12 @@ class AuthService {
   static const String _userEmailKey = 'user_email';
   static const String _userIdKey = 'user_id';
 
-  AuthService({AuthApi? api}) : _api = api ?? ApiConfig.authApi();
+  AuthService({AuthApi? api})
+      : _api = api ?? ApiConfig.authApi(),
+        _useInjectedApi = api != null;
 
-  AuthApi _api;
+  final AuthApi _api;
+  final bool _useInjectedApi;
   UserResponse? _currentUser;
   String? _token;
 
@@ -17,7 +20,8 @@ class AuthService {
   bool get isAuthenticated => _token != null && _currentUser != null;
 
   /// Get a fresh API instance with current authentication
-  AuthApi get _authenticatedApi => ApiConfig.authApi();
+  /// In tests, use the injected API instance; otherwise create a new one with current auth
+  AuthApi get _authenticatedApi => _useInjectedApi ? _api : ApiConfig.authApi();
 
   /// Initialize auth service and load stored token
   Future<void> initialize() async {

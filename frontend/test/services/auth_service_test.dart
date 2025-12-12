@@ -233,11 +233,6 @@ void main() {
 
       test('returns null and logs out when token is invalid', () async {
         // Arrange
-        when(mockApi.getMeApiV1AuthMeGet())
-            .thenThrow(Exception('Invalid token'));
-
-        // Set token first
-        authService = AuthService(api: mockApi);
         final loginResponse = LoginResponse(
           user: UserResponse(
             id: 'user-123',
@@ -248,8 +243,13 @@ void main() {
             tokenType: 'bearer',
           ),
         );
+
+        // Set token first - mock login to succeed
+        authService = AuthService(api: mockApi);
         when(mockApi.loginApiV1AuthLoginPost(any))
             .thenAnswer((_) async => loginResponse);
+        when(mockApi.getMeApiV1AuthMeGet())
+            .thenAnswer((_) async => loginResponse.user);
         await authService.login(
           email: 'test@example.com',
           password: 'password123',
