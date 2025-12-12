@@ -39,4 +39,7 @@ class ApiConfig {
 
   /// Convenient accessor for the `NfrApi`.
   static NfrApi nfrApi() => NfrApi(defaultApiClient);
+
+  /// Convenient accessor for the `AuthApi`.
+  static AuthApi authApi() => AuthApi(defaultApiClient);
 }

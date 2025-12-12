@@ -4,13 +4,18 @@ import '../services/health_service.dart';
 import '../theme/app_theme.dart';
 
 typedef UploadCallback = Future<void> Function(BuildContext context);
+typedef LogoutCallback = Future<void> Function();
 
 class DashboardHeader extends StatefulWidget {
   final UploadCallback onUpload;
+  final LogoutCallback? onLogout;
+  final String? userEmail;
 
   const DashboardHeader({
     super.key,
     required this.onUpload,
+    this.onLogout,
+    this.userEmail,
   });
 
   @override
@@ -153,6 +158,25 @@ class _DashboardHeaderState extends State<DashboardHeader> {
                 ),
               ),
               const SizedBox(width: 16),
+
+              // User email and logout
+              if (widget.userEmail != null) ...[
+                Text(
+                  widget.userEmail!,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                IconButton(
+                  onPressed: widget.onLogout,
+                  icon: const Icon(Icons.logout, size: 20),
+                  tooltip: 'Logout',
+                  color: AppTheme.textSecondary,
+                ),
+                const SizedBox(width: 8),
+              ],
 
               // Upload button
               ElevatedButton.icon(

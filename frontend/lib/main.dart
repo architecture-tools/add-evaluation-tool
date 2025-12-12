@@ -4,13 +4,16 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'services/api_config.dart';
+import 'services/auth_service.dart';
 import 'services/diagram_repository.dart';
 import 'theme/app_theme.dart';
 import 'widgets/dashboard_header.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/login_screen.dart';
 import 'network/src/api.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   ApiConfig.configure();
   runApp(const ArchitectureEvaluationTool());
 }
@@ -38,9 +41,45 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   final _dashboardKey = GlobalKey<DashboardScreenState>();
-  final DiagramRepository _diagramRepository = DiagramRepository();
-
+  late DiagramRepository _diagramRepository;
+  final AuthService _authService = AuthService();
+  bool _isAuthenticated = false;
+  bool _isInitializing = true;
   bool _isUploading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _diagramRepository = DiagramRepository();
+    _initializeAuth();
+  }
+
+  Future<void> _initializeAuth() async {
+    await _authService.initialize();
+    setState(() {
+      _isAuthenticated = _authService.isAuthenticated;
+      _isInitializing = false;
+    });
+    // Recreate repository with authenticated API client
+    if (_isAuthenticated) {
+      _diagramRepository = DiagramRepository();
+    }
+  }
+
+  Future<void> _handleLoginSuccess() async {
+    // Recreate repository with authenticated API client
+    _diagramRepository = DiagramRepository();
+    setState(() {
+      _isAuthenticated = true;
+    });
+  }
+
+  Future<void> _handleLogout() async {
+    await _authService.logout();
+    setState(() {
+      _isAuthenticated = false;
+    });
+  }
 
   Future<void> _handleUpload(BuildContext context) async {
     if (_isUploading) {
@@ -138,12 +177,29 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isInitializing) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (!_isAuthenticated) {
+      return LoginScreen(
+        authService: _authService,
+        onLoginSuccess: _handleLoginSuccess,
+      );
+    }
+
     return Scaffold(
       body: Column(
         children: [
           // Header
           DashboardHeader(
             onUpload: _handleUpload,
+            onLogout: _handleLogout,
+            userEmail: _authService.currentUser?.email,
           ),
 
           // Content area
