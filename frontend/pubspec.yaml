@@ -12,6 +12,7 @@ dependencies:
   http: ^1.2.2
   intl: ^0.20.2
   file_picker: ^8.1.4
+  shared_preferences: ^2.2.2
   # Generated API client is in lib/network/src/
   # Import directly: import 'package:architecture_evaluation_tool/network/src/api/diagrams_api.dart';
 
