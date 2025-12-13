@@ -85,3 +85,58 @@ assistance.
 
 - AI tools contributed to the sprint's deliverables by assisting in
   documentation, transcribing meetings, generating code, and generating tests and workflow.
+
+## Sprint 4
+
+### AI Tools Used
+
+- Cursor with Claude 4.5 Sonnet
+- DeepSeek
+
+### Use Cases
+
+- Documentation
+- Transcribe meetings
+- Code generation
+
+### Impact
+
+- AI tools contributed to the sprint's deliverables by assisting in
+  documentation, transcribing meetings, and generating code.
+
+## Sprint 5
+
+### AI Tools Used
+
+- Cursor with Claude 4.5 Sonnet
+- DeepSeek
+
+### Use Cases
+
+- Documentation
+- Transcribe meetings
+- Code generation
+
+### Impact
+
+- AI tools contributed to the sprint's deliverables by assisting in
+  documentation, transcribing meetings, and generating code.
+
+## Sprint 6
+
+### AI Tools Used
+
+- Cursor with Claude 4.5 Sonnet
+- DeepSeek
+
+### Use Cases
+
+- Documentation
+- Transcribe meetings
+- Code generation
+
+### Impact
+
+- AI tools contributed to the sprint's deliverables by assisting in
+  documentation, transcribing meetings, and generating code.
+  

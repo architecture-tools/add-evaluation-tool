@@ -43,10 +43,9 @@ nav_order: 5
   evaluation flow.
 - [x] Sprint 5: prototype diff visualizations (textual + simple diagram
   highlights) and gather feedback.
-- [ ] Sprint 6: expand reporting, accessibility, and onboarding
+- [x] Sprint 6: implement user authorization.
+- [ ] Sprint 7: expand reporting, accessibility, and onboarding
   documentation based on user feedback.
-- [ ] Sprint 7: harden quality with integration tests, CI automation, and
-  performance tuning.
 - [ ] Sprint 8: finalize release readiness—security review, deployment
   guides, and course presentation prep.
 
