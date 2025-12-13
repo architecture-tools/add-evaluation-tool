@@ -1,4 +1,4 @@
-# Sprint 3 - Meeting 1
+# Sprint 5 - Meeting 1
 
 - Meeting Date: Friday, December 5th, 2025 at 18.20
 - Duration: 52 minutes
