@@ -54,8 +54,7 @@ Issue → Test File → Fix Commit → CI Test Results
 *Example: PlantUML Diff Visualization Fix*
 
 1. Problem Identification: Issue created for PlantUML diff display problems
-2. Test Development: Test cases added to [`/tests/`](https://github.com/architecture-tools/add-evaluation-tool/tree/main/tests)
- directory
+2. Test Development: Test cases are added
 3. Fix Implementation: [Commit in demo_versions](https://github.com/architecture-tools/add-evaluation-tool/commits/main/demo_versions)
 directory with message "fix linter, add diff compare in ui"
 4. Verification: Continuous Integration runs via GitHub Actions, executing pytest test suite
