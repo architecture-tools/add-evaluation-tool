@@ -22,6 +22,8 @@ class DashboardService {
   final NFRRepository _nfrRepository;
   final MatrixRepository _matrixRepository;
 
+  DiagramRepository get diagramRepository => _diagramRepository;
+
   Future<DashboardViewData> loadDashboard() async {
     List<DiagramResponse> diagrams = [];
     List<NFRResponse> nfrs = [];

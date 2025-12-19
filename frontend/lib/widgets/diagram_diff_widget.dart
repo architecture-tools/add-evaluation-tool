@@ -1,23 +1,35 @@
 import 'package:flutter/material.dart';
 import '../network/src/api.dart';
 import '../theme/app_theme.dart';
+import 'diagram_diff_graph_widget.dart';
 
-class DiagramDiffWidget extends StatelessWidget {
+class DiagramDiffWidget extends StatefulWidget {
   const DiagramDiffWidget({
     super.key,
     required this.diff,
     required this.baseDiagramName,
     required this.targetDiagramName,
+    this.baseDiagram,
+    this.targetDiagram,
   });
 
   final DiagramDiffResponse diff;
   final String baseDiagramName;
   final String targetDiagramName;
+  final ParseDiagramResponse? baseDiagram;
+  final ParseDiagramResponse? targetDiagram;
+
+  @override
+  State<DiagramDiffWidget> createState() => _DiagramDiffWidgetState();
+}
+
+class _DiagramDiffWidgetState extends State<DiagramDiffWidget> {
+  bool _showGraphView = false;
 
   @override
   Widget build(BuildContext context) {
-    final hasComponents = diff.components.isNotEmpty;
-    final hasRelationships = diff.relationships.isNotEmpty;
+    final hasComponents = widget.diff.components.isNotEmpty;
+    final hasRelationships = widget.diff.relationships.isNotEmpty;
 
     if (!hasComponents && !hasRelationships) {
       return const Padding(
@@ -29,6 +41,108 @@ class DiagramDiffWidget extends StatelessWidget {
       );
     }
 
+    return Column(
+      children: [
+        _buildViewToggle(),
+        const SizedBox(height: 16),
+        Expanded(
+          child: _showGraphView &&
+                  widget.baseDiagram != null &&
+                  widget.targetDiagram != null
+              ? SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: DiagramDiffGraphWidget(
+                      baseDiagram: widget.baseDiagram,
+                      targetDiagram: widget.targetDiagram,
+                      diff: widget.diff,
+                      height: 500,
+                    ),
+                  ),
+                )
+              : _buildTextView(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildViewToggle() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.borderColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildToggleButton(
+            'Text View',
+            Icons.text_fields,
+            !_showGraphView,
+            () => setState(() => _showGraphView = false),
+          ),
+          _buildToggleButton(
+            'Graph View',
+            Icons.account_tree,
+            _showGraphView,
+            () {
+              if (widget.baseDiagram != null && widget.targetDiagram != null) {
+                setState(() => _showGraphView = true);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                        'Please parse both diagrams to view graph comparison'),
+                    backgroundColor: AppTheme.yellow,
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleButton(
+    String label,
+    IconData icon,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primaryPurple : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isSelected ? Colors.white : AppTheme.textSecondary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : AppTheme.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextView() {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -37,17 +151,19 @@ class DiagramDiffWidget extends StatelessWidget {
           children: [
             _buildHeader(),
             const SizedBox(height: 24),
-            if (hasComponents) ...[
-              _buildSectionTitle('Components', diff.components.length),
+            if (widget.diff.components.isNotEmpty) ...[
+              _buildSectionTitle('Components', widget.diff.components.length),
               const SizedBox(height: 12),
-              ...diff.components
+              ...widget.diff.components
                   .map((component) => _buildComponentDiff(component)),
               const SizedBox(height: 24),
             ],
-            if (hasRelationships) ...[
-              _buildSectionTitle('Relationships', diff.relationships.length),
+            if (widget.diff.relationships.isNotEmpty) ...[
+              _buildSectionTitle(
+                  'Relationships', widget.diff.relationships.length),
               const SizedBox(height: 12),
-              ...diff.relationships.map((rel) => _buildRelationshipDiff(rel)),
+              ...widget.diff.relationships
+                  .map((rel) => _buildRelationshipDiff(rel)),
             ],
           ],
         ),
@@ -59,15 +175,16 @@ class DiagramDiffWidget extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _buildDiagramLabel('Base', baseDiagramName, AppTheme.blue),
+          child:
+              _buildDiagramLabel('Base', widget.baseDiagramName, AppTheme.blue),
         ),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Icon(Icons.compare_arrows, color: AppTheme.textSecondary),
         ),
         Expanded(
-          child:
-              _buildDiagramLabel('Target', targetDiagramName, AppTheme.green),
+          child: _buildDiagramLabel(
+              'Target', widget.targetDiagramName, AppTheme.green),
         ),
       ],
     );

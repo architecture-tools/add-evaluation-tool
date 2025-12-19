@@ -3,6 +3,7 @@ import '../network/src/api.dart';
 import '../services/diagram_repository.dart';
 import '../theme/app_theme.dart';
 import '../utils/date_time_utils.dart';
+import 'diagram_graph_widget.dart';
 
 class RecentUploadsWidget extends StatelessWidget {
   const RecentUploadsWidget({
@@ -325,6 +326,151 @@ class _UploadItem extends StatelessWidget {
   }
 }
 
+class _DiagramGraphDialog extends StatefulWidget {
+  const _DiagramGraphDialog({
+    required this.diagram,
+    required this.diagramRepository,
+  });
+
+  final DiagramResponse diagram;
+  final DiagramRepository diagramRepository;
+
+  @override
+  State<_DiagramGraphDialog> createState() => _DiagramGraphDialogState();
+}
+
+class _DiagramGraphDialogState extends State<_DiagramGraphDialog> {
+  ParseDiagramResponse? _parsedDiagram;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDiagramGraph();
+  }
+
+  Future<void> _loadDiagramGraph() async {
+    try {
+      final parsed =
+          await widget.diagramRepository.parseDiagram(widget.diagram.id);
+      if (mounted) {
+        setState(() {
+          _parsedDiagram = parsed;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 900, maxHeight: 700),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.diagram.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        if (widget.diagram.parsedAt != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'Parsed ${formatRelativeTime(widget.diagram.parsedAt!)}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: AppTheme.red,
+                                size: 48,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Failed to load diagram graph',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _error!,
+                                style: const TextStyle(
+                                  color: AppTheme.textSecondary,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        )
+                      : _parsedDiagram != null
+                          ? Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: DiagramGraphWidget(
+                                components: _parsedDiagram!.components,
+                                relationships: _parsedDiagram!.relationships,
+                                height: 600,
+                                title: 'Diagram Structure',
+                              ),
+                            )
+                          : const Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Text(
+                                'No parsed diagram data available',
+                                style: TextStyle(color: AppTheme.textSecondary),
+                              ),
+                            ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _UploadActionsSheet extends StatelessWidget {
   const _UploadActionsSheet({
     required this.diagram,
@@ -360,6 +506,28 @@ class _UploadActionsSheet extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Opening source URL is not implemented yet.'),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.account_tree),
+              title: const Text('View Graph'),
+              subtitle: Text(
+                diagram.status == DiagramStatus.parsed ||
+                        diagram.status == DiagramStatus.analysisReady
+                    ? 'Visualize diagram structure'
+                    : 'Parse diagram first to view graph',
+              ),
+              enabled: diagram.status == DiagramStatus.parsed ||
+                  diagram.status == DiagramStatus.analysisReady,
+              onTap: () {
+                Navigator.of(context).pop();
+                showDialog<void>(
+                  context: context,
+                  builder: (dialogContext) => _DiagramGraphDialog(
+                    diagram: diagram,
+                    diagramRepository: _diagramRepository!,
                   ),
                 );
               },

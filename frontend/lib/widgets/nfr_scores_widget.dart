@@ -4,8 +4,8 @@ import '../services/nfr_repository.dart';
 import '../theme/app_theme.dart';
 import '../models/mock_models.dart';
 
-class NFRPerformanceWidget extends StatefulWidget {
-  const NFRPerformanceWidget({
+class NFRScoresWidget extends StatefulWidget {
+  const NFRScoresWidget({
     super.key,
     required this.metrics,
     this.nfrs = const [],
@@ -19,10 +19,10 @@ class NFRPerformanceWidget extends StatefulWidget {
   final NFRRepository? _nfrRepository;
 
   @override
-  State<NFRPerformanceWidget> createState() => _NFRPerformanceWidgetState();
+  State<NFRScoresWidget> createState() => _NFRScoresWidgetState();
 }
 
-class _NFRPerformanceWidgetState extends State<NFRPerformanceWidget> {
+class _NFRScoresWidgetState extends State<NFRScoresWidget> {
   late final NFRRepository _nfrRepository;
 
   @override
@@ -47,7 +47,7 @@ class _NFRPerformanceWidgetState extends State<NFRPerformanceWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'NFR Performance',
+                        'NFR Scores',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,

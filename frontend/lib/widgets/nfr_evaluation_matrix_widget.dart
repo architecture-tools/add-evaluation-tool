@@ -4,8 +4,10 @@ import '../models/nfr_matrix.dart';
 import '../network/src/api.dart';
 import '../services/nfr_repository.dart';
 import '../services/matrix_repository.dart';
+import '../services/diagram_repository.dart';
 import '../theme/app_theme.dart';
 import '../utils/date_time_utils.dart';
+import 'diagram_graph_widget.dart';
 
 class NfrEvaluationMatrixWidget extends StatefulWidget {
   const NfrEvaluationMatrixWidget({
@@ -15,14 +17,17 @@ class NfrEvaluationMatrixWidget extends StatefulWidget {
     this.onRefresh,
     NFRRepository? nfrRepository,
     MatrixRepository? matrixRepository,
+    DiagramRepository? diagramRepository,
   })  : _nfrRepository = nfrRepository,
-        _matrixRepository = matrixRepository;
+        _matrixRepository = matrixRepository,
+        _diagramRepository = diagramRepository;
 
   final NfrMatrixData data;
   final List<NFRResponse> nfrs;
   final VoidCallback? onRefresh;
   final NFRRepository? _nfrRepository;
   final MatrixRepository? _matrixRepository;
+  final DiagramRepository? _diagramRepository;
 
   @override
   State<NfrEvaluationMatrixWidget> createState() =>
@@ -161,6 +166,20 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
         ),
         Row(
           children: [
+            if (widget.data.diagramId.isNotEmpty &&
+                widget._diagramRepository != null)
+              OutlinedButton.icon(
+                onPressed: () => _showGraphDialog(context),
+                icon: const Icon(Icons.account_tree, size: 18),
+                label: const Text('View Graph'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.primaryPurple,
+                  side: const BorderSide(color: AppTheme.primaryPurple),
+                ),
+              ),
+            if (widget.data.diagramId.isNotEmpty &&
+                widget._diagramRepository != null)
+              const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.add, size: 20),
               tooltip: 'Add NFR',
@@ -676,6 +695,168 @@ class _NfrEvaluationMatrixWidgetState extends State<NfrEvaluationMatrixWidget> {
 
   String _rowKey(NfrMatrixRow row) {
     return row.nfrId.isNotEmpty ? row.nfrId : row.nfr;
+  }
+
+  Future<void> _showGraphDialog(BuildContext context) async {
+    if (widget._diagramRepository == null || widget.data.diagramId.isEmpty) {
+      return;
+    }
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => _DiagramGraphDialog(
+        diagramId: widget.data.diagramId,
+        diagramName: widget.data.version,
+        diagramRepository: widget._diagramRepository!,
+      ),
+    );
+  }
+}
+
+class _DiagramGraphDialog extends StatefulWidget {
+  const _DiagramGraphDialog({
+    required this.diagramId,
+    required this.diagramName,
+    required this.diagramRepository,
+  });
+
+  final String diagramId;
+  final String diagramName;
+  final DiagramRepository diagramRepository;
+
+  @override
+  State<_DiagramGraphDialog> createState() => _DiagramGraphDialogState();
+}
+
+class _DiagramGraphDialogState extends State<_DiagramGraphDialog> {
+  ParseDiagramResponse? _parsedDiagram;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDiagramGraph();
+  }
+
+  Future<void> _loadDiagramGraph() async {
+    try {
+      final parsed =
+          await widget.diagramRepository.parseDiagram(widget.diagramId);
+      if (mounted) {
+        setState(() {
+          _parsedDiagram = parsed;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1400, maxHeight: 900),
+        width: MediaQuery.of(context).size.width * 0.9,
+        height: MediaQuery.of(context).size.height * 0.85,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.diagramName,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Diagram Structure',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: AppTheme.red,
+                                size: 48,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Failed to load diagram graph',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _error!,
+                                style: const TextStyle(
+                                  color: AppTheme.textSecondary,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        )
+                      : _parsedDiagram != null
+                          ? Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: DiagramGraphWidget(
+                                components: _parsedDiagram!.components,
+                                relationships: _parsedDiagram!.relationships,
+                                height: 700,
+                                title: 'Diagram Structure',
+                              ),
+                            )
+                          : const Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Text(
+                                'No parsed diagram data available',
+                                style: TextStyle(color: AppTheme.textSecondary),
+                              ),
+                            ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
