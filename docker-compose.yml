@@ -14,8 +14,7 @@ services:
       - BEYLA_PRINT_TRACES=true
       - BEYLA_LOG_LEVEL=INFO
       - BEYLA_INTERNAL_METRICS_PROMETHEUS_PORT=8999
-      - OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-eu-north-0.grafana.net/otlp
-      - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic MTQ1OTUzNDpnbGNfZXlKdklqb2lNVFl3T0RZM05pSXNJbTRpT2lKcGRIQmtNaTFuY21GbVlXNWhMWFJ2YTJWdUlpd2lheUk2SWxwck5tcGxiMUoxZEV3ME9VOU5NamgxT1ZoT05qYzBNQ0lzSW0waU9uc2ljaUk2SW5CeWIyUXRaWFV0Ym05eWRHZ3RNQ0o5ZlE9PQ==
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
       - OTEL_SERVICE_NAME=open_telemetry
       - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=dev,service.namespace=add-evaluation-tool,service.version=0.1.0
@@ -23,6 +22,8 @@ services:
       - "8999:8999"
     depends_on:
       backend:
+        condition: service_started
+      otel-collector:
         condition: service_started
     restart: unless-stopped
 
@@ -34,6 +35,37 @@ services:
     ports:
       - "4317:4317"   # OTLP gRPC receiver
       - "4318:4318"   # OTLP HTTP receiver
+      - "8889:8889"   # Prometheus metrics endpoint
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
     restart: unless-stopped
 
   postgres:
@@ -95,4 +127,6 @@ services:
 
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:
 
