@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:architecture_evaluation_tool/widgets/nfr_performance_widget.dart';
+import 'package:architecture_evaluation_tool/widgets/nfr_scores_widget.dart';
 import 'package:architecture_evaluation_tool/models/mock_models.dart';
 import 'package:architecture_evaluation_tool/network/src/api.dart';
 import 'package:architecture_evaluation_tool/services/nfr_repository.dart';
@@ -9,7 +9,7 @@ import 'package:mocktail/mocktail.dart';
 class MockNFRRepository extends Mock implements NFRRepository {}
 
 void main() {
-  group('NFRPerformanceWidget Comprehensive Tests', () {
+  group('NFRScoresWidget Comprehensive Tests', () {
     late MockNFRRepository mockNfrRepo;
 
     setUp(() {
@@ -29,7 +29,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: [],
               nfrRepository: mockNfrRepo,
             ),
@@ -60,7 +60,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: [],
               nfrRepository: mockNfrRepo,
             ),
@@ -86,7 +86,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: [],
               nfrRepository: mockNfrRepo,
             ),
@@ -132,7 +132,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: metrics,
               nfrs: nfrs,
               nfrRepository: mockNfrRepo,
@@ -171,7 +171,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: metrics,
               nfrs: nfrs,
               nfrRepository: mockNfrRepo,
@@ -204,7 +204,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: metrics,
               nfrRepository: mockNfrRepo,
             ),
@@ -230,7 +230,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: metrics,
               nfrs: [],
             ),
@@ -250,7 +250,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: [],
               nfrRepository: mockNfrRepo,
             ),
@@ -276,7 +276,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: [],
               nfrRepository: mockNfrRepo,
             ),
@@ -313,7 +313,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: metrics,
               nfrs: nfrs,
               nfrRepository: mockNfrRepo,
@@ -359,7 +359,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: metrics,
               nfrs: nfrs,
               nfrRepository: mockNfrRepo,
@@ -395,7 +395,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: [],
               nfrRepository: mockNfrRepo,
               onRefresh: () {
@@ -433,7 +433,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: [],
               nfrRepository: mockNfrRepo,
             ),
@@ -471,7 +471,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: NFRPerformanceWidget(
+            body: NFRScoresWidget(
               metrics: [],
               nfrRepository: mockNfrRepo,
             ),

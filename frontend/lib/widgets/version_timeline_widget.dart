@@ -131,22 +131,34 @@ class _DiffDialogState extends State<_DiffDialog> {
   void initState() {
     super.initState();
     _repository = widget._diagramRepository ?? DiagramRepository();
-    _loadDiff();
+    _loadData();
   }
 
   DiagramDiffResponse? _diff;
+  ParseDiagramResponse? _baseParsedDiagram;
+  ParseDiagramResponse? _targetParsedDiagram;
   bool _isLoading = true;
   String? _error;
 
-  Future<void> _loadDiff() async {
+  Future<void> _loadData() async {
     try {
-      final diff = await _repository.diffDiagrams(
-        widget.baseDiagram.id,
-        widget.targetDiagram.id,
-      );
+      // Load diff and parsed diagrams in parallel
+      final results = await Future.wait([
+        _repository.diffDiagrams(
+          widget.baseDiagram.id,
+          widget.targetDiagram.id,
+        ),
+        _repository.parseDiagram(widget.baseDiagram.id).catchError((_) => null),
+        _repository
+            .parseDiagram(widget.targetDiagram.id)
+            .catchError((_) => null),
+      ]);
+
       if (mounted) {
         setState(() {
-          _diff = diff;
+          _diff = results[0] as DiagramDiffResponse?;
+          _baseParsedDiagram = results[1] as ParseDiagramResponse?;
+          _targetParsedDiagram = results[2] as ParseDiagramResponse?;
           _isLoading = false;
         });
       }
@@ -164,7 +176,9 @@ class _DiffDialogState extends State<_DiffDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 600),
+        constraints: const BoxConstraints(maxWidth: 1800, maxHeight: 1200),
+        width: MediaQuery.of(context).size.width * 0.95,
+        height: MediaQuery.of(context).size.height * 0.9,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -223,6 +237,8 @@ class _DiffDialogState extends State<_DiffDialog> {
                               diff: _diff!,
                               baseDiagramName: widget.baseDiagram.name,
                               targetDiagramName: widget.targetDiagram.name,
+                              baseDiagram: _baseParsedDiagram,
+                              targetDiagram: _targetParsedDiagram,
                             )
                           : const Padding(
                               padding: EdgeInsets.all(20),

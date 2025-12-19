@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - User authorization feature. [#102](https://github.com/architecture-tools/add-evaluation-tool/pull/102), [#103](https://github.com/architecture-tools/add-evaluation-tool/pull/103)
+- Graph visualization for parsed PlantUML diagrams using interactive graph view
+- Graph view toggle in diagram comparison dialog (text view and graph view)
+- Side-by-side graph comparison for diagram diffs with color-coded changes (red for removed, green for added, yellow for modified)
+- "View Graph" button in NFR Evaluation Matrix header to visualize current diagram structure
+- "View Graph" option in Recent Uploads menu for individual diagram visualization
+- Interactive graph features: zoom, pan, and reset controls
+- Graph visualization with component type icons and color coding
+
+### Fixed
+
+- Graph component clipping issues - components are now fully visible with proper padding
+- Graph blinking during rendering - added initialization checks and stable layout
+- Diagram comparison dialog size increased for better visibility (95% width, 90% height)
+- Graph layout stability improvements with proper constraints and boundaries
 
 ## [0.1.0] - 2025-12-06
 
@@ -32,12 +46,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OpenTelemetry integration with Grafana Beyla for observability [#95](https://github.com/architecture-tools/add-evaluation-tool/pull/95)
 - Docker Compose deployment setup [#87](https://github.com/architecture-tools/add-evaluation-tool/pull/87)
 - Web-based user interface for architecture evaluation
-- NFR performance metrics display
+- NFR scores metrics display
 - Version timeline visualization
 
 ### Fixed
 
-- NFR performance score display (removed misleading "/10" suffix, now shows -1 to 1 range)
+- NFR scores display (removed misleading "/10" suffix, now shows -1 to 1 range)
+- Renamed "NFR Performance" to "NFR Scores" for clarity (was confusing with "Performance" NFR)
 - Version timeline scores now fetch actual matrix scores for all diagrams
 - Test reliability improvements for widget rendering
 

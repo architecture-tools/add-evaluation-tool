@@ -5,7 +5,7 @@ import '../theme/app_theme.dart';
 import '../utils/date_time_utils.dart';
 import '../widgets/kpi_card.dart';
 import '../widgets/nfr_evaluation_matrix_widget.dart';
-import '../widgets/nfr_performance_widget.dart';
+import '../widgets/nfr_scores_widget.dart';
 import '../widgets/version_timeline_widget.dart';
 
 typedef UploadHandler = Future<void> Function(BuildContext context);
@@ -135,16 +135,17 @@ class DashboardScreenState extends State<DashboardScreen> {
                   data: data.matrix,
                   nfrs: data.nfrs,
                   onRefresh: _refresh,
+                  diagramRepository: _dashboardService.diagramRepository,
                 ),
                 const SizedBox(height: 24),
 
-                // Bottom Layout: NFR performance and version timeline
+                // Bottom Layout: NFR scores and version timeline
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       flex: 1,
-                      child: NFRPerformanceWidget(
+                      child: NFRScoresWidget(
                         metrics: data.nfrMetrics,
                         nfrs: data.nfrs,
                         onRefresh: _refresh,
