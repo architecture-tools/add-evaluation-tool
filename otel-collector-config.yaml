@@ -1,5 +1,5 @@
-# OpenTelemetry Collector Configuration for Grafana Cloud
-# This collector receives OTLP data from the application and forwards it to Grafana Cloud
+# OpenTelemetry Collector Configuration for Local Observability Stack
+# This collector receives OTLP data from the application and forwards it to Prometheus
 
 receivers:
   otlp:
@@ -25,11 +25,11 @@ processors:
         action: upsert
 
 exporters:
-  # Export to Grafana Cloud via OTLP HTTP
-  otlphttp:
-    endpoint: https://otlp-gateway-prod-eu-north-0.grafana.net/otlp
-    headers:
-      authorization: Basic Z2xjX2V5SnZJam9pTVRZd09EWTNOaUlzSW00aU9pSnBkSEJrTWkxbmNtRm1ZVzVoTFhSdmEyVnVJaXdpYXlJNklscHJObXBsYjFKMWRFdzBPVTlOTWpoMU9WaE9OamMwTUNJc0ltMGlPbnNpY2lJNkluQnliMlF0WlhVdGJtOXlkR2d0TUNKOWZRPT06MTQ1OTUzNA==
+  # Export metrics to Prometheus
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: "arch_eval"
+    # Note: const_labels removed to avoid conflict with resource attributes
   
   # Debug exporter for troubleshooting (optional)
   debug:
@@ -42,17 +42,17 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch, resource]
-      exporters: [otlphttp, debug]
+      exporters: [debug]
     
     metrics:
       receivers: [otlp]
       processors: [batch, resource]
-      exporters: [otlphttp, debug]
+      exporters: [prometheus, debug]
     
     logs:
       receivers: [otlp]
       processors: [batch, resource]
-      exporters: [otlphttp, debug]
+      exporters: [debug]
   
   telemetry:
     logs:

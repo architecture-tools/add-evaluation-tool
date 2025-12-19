@@ -1,0 +1,195 @@
+{
+  "uid": "analytics-north-star",
+  "title": "Analytics - North Star Metric",
+  "tags": [
+    "analytics",
+    "business",
+    "metrics"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 0,
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "type": "timeseries",
+      "title": "Diagram Upload Rate",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate({__name__=~\"arch_eval_http_server_request_duration_seconds_count|http_server_request_duration_seconds_count\", http_request_method=\"POST\", http_route=~\".*diagrams.*\", http_response_status_code=~\"2..\"}[5m]))",
+          "legendFormat": "Upload Rate",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "type": "stat",
+      "title": "Evaluation Cycle Completion Rate (%)",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "(sum(rate({__name__=~\"arch_eval_http_server_request_duration_seconds_count|http_server_request_duration_seconds_count\", http_request_method=\"POST\", http_route=~\".*evaluation.*|.*matrix.*\", http_response_status_code=~\"2..\"}[1h])) / sum(rate({__name__=~\"arch_eval_http_server_request_duration_seconds_count|http_server_request_duration_seconds_count\", http_request_method=\"POST\", http_route=~\".*diagrams.*\", http_response_status_code=~\"2..\"}[1h]))) * 100",
+          "legendFormat": "Completion Rate",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 50,
+                "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "type": "stat",
+      "title": "Total Diagrams Uploaded (24h)",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(increase({__name__=~\"arch_eval_http_server_request_duration_seconds_count|http_server_request_duration_seconds_count\", http_request_method=\"POST\", http_route=~\".*diagrams.*\", http_response_status_code=~\"2..\"}[24h]))",
+          "legendFormat": "Total",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 8
+      },
+      "type": "stat",
+      "title": "Total Evaluations Completed (24h)",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(increase({__name__=~\"arch_eval_http_server_request_duration_seconds_count|http_server_request_duration_seconds_count\", http_request_method=\"POST\", http_route=~\".*evaluation.*|.*matrix.*\", http_response_status_code=~\"2..\"}[24h]))",
+          "legendFormat": "Total",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 8,
+        "y": 8
+      },
+      "type": "timeseries",
+      "title": "Diagram Versions Saved",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate({__name__=~\"arch_eval_http_server_request_duration_seconds_count|http_server_request_duration_seconds_count\", http_route=~\".*version.*\", http_response_status_code=~\"2..\"}[5m]))",
+          "legendFormat": "Versions/sec",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "type": "timeseries",
+      "title": "Diff Comparisons",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate({__name__=~\"arch_eval_http_server_request_duration_seconds_count|http_server_request_duration_seconds_count\", http_route=~\".*diff.*|.*compare.*\", http_response_status_code=~\"2..\"}[5m]))",
+          "legendFormat": "Comparisons/sec",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      }
+    }
+  ]
+}
+

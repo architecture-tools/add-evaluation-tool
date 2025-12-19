@@ -1,0 +1,11 @@
+# Place dashboard JSON files here
+# Dashboards will be automatically provisioned on Grafana startup
+# 
+# To export a dashboard from Grafana UI:
+# 1. Open dashboard → Settings (gear icon)
+# 2. JSON Model → Copy JSON
+# 3. Save to a .json file in this directory
+# 
+# Example: api-availability.json, parsing-performance.json, etc.
+
+
